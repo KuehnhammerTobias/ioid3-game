@@ -20,16 +20,16 @@ before_install:
   - sudo apt-get install -q -y mingw-w64
 
 notifications:
-  irc: "irc.freenode.org#spearmint"
+  irc: "irc.freenode.org#ioid3"
   on_success: change
   on_failure: always
 
 addons:
   coverity_scan:
     project:
-      name: "zturtleman/mint-arena"
+      name: "toku/ioid3-game"
       description: "Build submitted via Travis CI"
-    notification_email: zturtleman@gmail.com
+    notification_email: toku@gmail.com
     build_command_prepend: "make clean"
     build_command: "make release"
     branch_pattern: master

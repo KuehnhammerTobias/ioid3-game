@@ -1,5 +1,5 @@
 #
-# Spearmint Makefile
+# Ioid3 Makefile
 #
 # GNU Make required
 #
@@ -98,11 +98,11 @@ VERSION=0.1
 endif
 
 ifndef VM_PREFIX
-VM_PREFIX=mint-
+VM_PREFIX=ioid3-
 endif
 
 ifndef SOURCE_ARCHIVE
-SOURCE_ARCHIVE=mint-arena
+SOURCE_ARCHIVE=ioid3-game
 endif
 
 ifndef BASEGAME

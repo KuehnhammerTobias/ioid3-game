@@ -31,7 +31,7 @@ Suite 120, Rockville, Maryland 20850 USA.
 #ifndef __CG_PUBLIC_H__
 #define __CG_PUBLIC_H__
 
-#define CG_API_NAME				"SPEARMINT_CGAME"
+#define CG_API_NAME				"IOID3_CGAME"
 
 // major 0 means each minor is an API break.
 // major > 0 means each major is an API break and each minor extends API.

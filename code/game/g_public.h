@@ -31,7 +31,7 @@ Suite 120, Rockville, Maryland 20850 USA.
 
 // g_public.h -- game module information visible to server
 
-#define GAME_API_NAME			"SPEARMINT_GAME"
+#define GAME_API_NAME			"IOID3_GAME"
 
 // major 0 means each minor is an API break.
 // major > 0 means each major is an API break and each minor extends API.
