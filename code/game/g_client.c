@@ -1129,7 +1129,7 @@ void PlayerSpawn(gentity_t *ent) {
 	player->ps.persistant[PERS_SPAWN_COUNT]++;
 	player->ps.persistant[PERS_TEAM] = player->sess.sessionTeam;
 
-	player->airOutTime = level.time + 12000;
+	player->airOutTime = level.time + 30000;
 
 	// set max health
 	player->pers.maxHealth = PlayerHandicap( player );

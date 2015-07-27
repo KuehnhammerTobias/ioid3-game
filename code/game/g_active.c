@@ -109,7 +109,7 @@ void P_WorldEffects( gentity_t *ent ) {
 	int			waterlevel;
 
 	if ( ent->player->noclip ) {
-		ent->player->airOutTime = level.time + 12000;	// don't need air
+		ent->player->airOutTime = level.time + 30000; // don't need air
 		return;
 	}
 
@@ -144,7 +144,7 @@ void P_WorldEffects( gentity_t *ent ) {
 			}
 		}
 	} else {
-		ent->player->airOutTime = level.time + 12000;
+		ent->player->airOutTime = level.time + 30000;
 		ent->damage = 2;
 	}
 
@@ -522,7 +522,7 @@ void PlayerIntermissionThink( gplayer_t *player ) {
 	// swap and latch button actions
 	player->oldbuttons = player->buttons;
 	player->buttons = player->pers.cmd.buttons;
-	if ( player->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) & ( player->oldbuttons ^ player->buttons ) ) {
+	if ( player->buttons & BUTTON_USE_HOLDABLE & ( player->oldbuttons ^ player->buttons ) ) {
 		// this used to be an ^1 but once a player says ready, it should stick
 		player->readyToExit = 1;
 	}

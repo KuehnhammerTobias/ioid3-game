@@ -1259,13 +1259,17 @@ static void ObeliskDie( gentity_t *self, gentity_t *inflictor, gentity_t *attack
 
 	G_AddEvent( self->activator, EV_OBELISKEXPLODE, 0 );
 
-	AddScore(attacker, self->r.currentOrigin, CTF_CAPTURE_BONUS);
+	if (self->spawnflags == attacker->player->sess.sessionTeam) {
+		AddScore(attacker, self->r.currentOrigin, - CTF_CAPTURE_BONUS);
+	} else {
+		AddScore(attacker, self->r.currentOrigin, CTF_CAPTURE_BONUS);
 
-	// add the sprite over the player's head
-	attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-	attacker->player->ps.eFlags |= EF_AWARD_CAP;
-	attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
-	attacker->player->ps.persistant[PERS_CAPTURES]++;
+		// add the sprite over the player's head
+		attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
+		attacker->player->ps.eFlags |= EF_AWARD_CAP;
+		attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
+		attacker->player->ps.persistant[PERS_CAPTURES]++;
+	}
 
 	Team_CaptureFlagSound(self, self->spawnflags, attacker->s.number);
 
@@ -1325,7 +1329,12 @@ static void ObeliskPain( gentity_t *self, gentity_t *attacker, int damage ) {
 		G_AddEvent(self, EV_OBELISKPAIN, 0);
 	}
 	self->activator->s.frame = 1;
-	AddScore(attacker, self->r.currentOrigin, actualDamage);
+
+	if (self->spawnflags == attacker->player->sess.sessionTeam) {
+		AddScore(attacker, self->r.currentOrigin, - actualDamage);
+	} else {
+		AddScore(attacker, self->r.currentOrigin, actualDamage);
+	}
 }
 
 gentity_t *SpawnObelisk( vec3_t origin, vec3_t mins, vec3_t maxs, int team ) {
@@ -1487,29 +1496,26 @@ qboolean CheckObeliskAttack( gentity_t *obelisk, gentity_t *attacker ) {
 	}
 
 	// if the obelisk is on the same team as the attacker then don't hurt it
-	if( obelisk->spawnflags == attacker->player->sess.sessionTeam ) {
+	if( !g_friendlyFire.integer && obelisk->spawnflags == attacker->player->sess.sessionTeam ) {
 		return qtrue;
 	}
-
 	// obelisk may be hurt
+	if (obelisk->spawnflags != attacker->player->sess.sessionTeam) {
+		// if not played any sounds recently
+		if ((obelisk->spawnflags == TEAM_RED && teamgame.redObeliskAttackedTime < level.time - OVERLOAD_ATTACK_BASE_SOUND_TIME) || (obelisk->spawnflags == TEAM_BLUE && teamgame.blueObeliskAttackedTime < level.time - OVERLOAD_ATTACK_BASE_SOUND_TIME) ) {
+			// tell which obelisk is under attack
+			te = G_TempEntity( obelisk->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
 
-	// if not played any sounds recently
-	if ((obelisk->spawnflags == TEAM_RED &&
-		teamgame.redObeliskAttackedTime < level.time - OVERLOAD_ATTACK_BASE_SOUND_TIME) ||
-		(obelisk->spawnflags == TEAM_BLUE &&
-		teamgame.blueObeliskAttackedTime < level.time - OVERLOAD_ATTACK_BASE_SOUND_TIME) ) {
+			if ( obelisk->spawnflags == TEAM_RED ) {
+				te->s.eventParm = GTS_REDOBELISK_ATTACKED;
+				teamgame.redObeliskAttackedTime = level.time;
+			} else {
+				te->s.eventParm = GTS_BLUEOBELISK_ATTACKED;
+				teamgame.blueObeliskAttackedTime = level.time;
+			}
 
-		// tell which obelisk is under attack
-		te = G_TempEntity( obelisk->s.pos.trBase, EV_GLOBAL_TEAM_SOUND );
-		if( obelisk->spawnflags == TEAM_RED ) {
-			te->s.eventParm = GTS_REDOBELISK_ATTACKED;
-			teamgame.redObeliskAttackedTime = level.time;
+			te->r.svFlags |= SVF_BROADCAST;
 		}
-		else {
-			te->s.eventParm = GTS_BLUEOBELISK_ATTACKED;
-			teamgame.blueObeliskAttackedTime = level.time;
-		}
-		te->r.svFlags |= SVF_BROADCAST;
 	}
 
 	return qfalse;

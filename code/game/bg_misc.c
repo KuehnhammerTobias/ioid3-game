@@ -1228,8 +1228,8 @@ qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTim
 	BG_EvaluateTrajectory( &item->pos, atTime, origin );
 
 	// we are ignoring ducked differences here
-	if ( ps->origin[0] - origin[0] > 44
-		|| ps->origin[0] - origin[0] < -50
+	if ( ps->origin[0] - origin[0] > 36
+		|| ps->origin[0] - origin[0] < -36
 		|| ps->origin[1] - origin[1] > 36
 		|| ps->origin[1] - origin[1] < -36
 		|| ps->origin[2] - origin[2] > 36

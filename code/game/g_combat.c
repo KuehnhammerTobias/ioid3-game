@@ -114,24 +114,25 @@ void TossPlayerItems( gentity_t *self ) {
 		// spawn the item
 		Drop_Item( self, item, 0 );
 	}
+	// drop all the powerups if dead
+	for (i = 1; i < PW_NUM_POWERUPS; i++) {
+		if (self->player->ps.powerups[i] > level.time) {
+			item = BG_FindItemForPowerup(i);
 
-	// drop all the powerups if not in teamplay
-	if ( g_gametype.integer != GT_TEAM ) {
-		angle = 45;
-		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
-			if ( self->player->ps.powerups[ i ] > level.time ) {
-				item = BG_FindItemForPowerup( i );
-				if ( !item ) {
-					continue;
-				}
-				drop = Drop_Item( self, item, angle );
-				// decide how many seconds it has left
-				drop->count = ( self->player->ps.powerups[ i ] - level.time ) / 1000;
-				if ( drop->count < 1 ) {
-					drop->count = 1;
-				}
-				angle += 45;
+			if (!item) {
+				continue;
 			}
+
+			angle = 45;
+			drop = Drop_Item(self, item, angle);
+			// decide how many seconds it has left
+			drop->count = (self->player->ps.powerups[i] - level.time) / 1000;
+
+			if (drop->count < 1) {
+				drop->count = 1;
+			}
+
+			angle += 45;
 		}
 	}
 }
@@ -698,7 +699,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
-	self->player->respawnTime = level.time + 1700;
+	self->player->respawnTime = level.time + 2000;
 
 	// remove powerups
 	memset( self->player->ps.powerups, 0, sizeof(self->player->ps.powerups) );
@@ -1019,10 +1020,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #ifdef MISSIONPACK
 		if (mod == MOD_PROXIMITY_MINE) {
 			if (inflictor && inflictor->parent && OnSameTeam(targ, inflictor->parent)) {
-				return;
-			}
-			if (targ == attacker) {
-				return;
+				if ( !g_friendlyFire.integer ) {
+					return;
+				}
 			}
 		}
 #endif
@@ -1054,12 +1054,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 			attacker->player->ps.persistant[PERS_HITS]++;
 		}
 		attacker->player->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(player->ps.stats[STAT_ARMOR]);
-	}
-
-	// always give half damage if hurting self
-	// calculated after knockback, so rocket jumping works
-	if ( targ == attacker) {
-		damage *= 0.5;
 	}
 
 	if ( damage < 1 ) {

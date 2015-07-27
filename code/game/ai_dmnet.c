@@ -166,7 +166,7 @@ int BotGoForAir(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range) {
 	bot_goal_t goal;
 
 	//if the bot needs air
-	if (bs->lastair_time < FloatTime() - 6) {
+	if (bs->lastair_time < FloatTime() - 15) {
 		//
 		//BotAI_Print(PRT_DEVELOPER, "going for air\n");
 		//if we can find an air goal
@@ -1260,7 +1260,7 @@ void AIEnter_Respawn(bot_state_t *bs, char *s) {
 		bs->respawnchat_time = FloatTime();
 	}
 	else {
-		bs->respawn_time = FloatTime() + 1 + random();
+		bs->respawn_time = FloatTime() + 2;
 		bs->respawnchat_time = 0;
 	}
 	//set respawn state
