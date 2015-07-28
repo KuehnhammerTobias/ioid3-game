@@ -1274,10 +1274,6 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	case IT_ARMOR:
 #ifdef MISSIONPACK
-		if( BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_SCOUT ) {
-			return qfalse;
-		}
-
 		// we also clamp armor to the maxhealth for handicapping
 		if( BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			upperBound = ps->stats[STAT_MAX_HEALTH];
@@ -1297,20 +1293,15 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_HEALTH:
-		// small and mega healths will go over the max, otherwise
 		// don't pick up if already at max
 #ifdef MISSIONPACK
 		if( BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
+			if (ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] / 2) {
+				return qfalse;
+			}
 		}
 		else
 #endif
-		if ( item->quantity == 5 || item->quantity == 100 ) {
-			if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] * 2 ) {
-				return qfalse;
-			}
-			return qtrue;
-		}
-
 		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
 			return qfalse;
 		}

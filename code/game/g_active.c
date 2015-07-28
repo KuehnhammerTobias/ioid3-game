@@ -407,6 +407,7 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 	gplayer_t	*player;
 #ifdef MISSIONPACK
 	int			maxHealth;
+	int			regenFactor;
 #endif
 
 	player = ent->player;
@@ -419,22 +420,25 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 #ifdef MISSIONPACK
 		if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			maxHealth = player->ps.stats[STAT_MAX_HEALTH] / 2;
+			regenFactor = 1;
 		}
 		else if ( player->ps.powerups[PW_REGEN] ) {
 			maxHealth = player->ps.stats[STAT_MAX_HEALTH];
+			regenFactor = 2;
 		}
 		else {
 			maxHealth = 0;
+			regenFactor = 0;
 		}
 		if( maxHealth ) {
 			if ( ent->health < maxHealth ) {
-				ent->health += 15;
+				ent->health += 20 * regenFactor;
 				if ( ent->health > maxHealth * 1.1 ) {
 					ent->health = maxHealth * 1.1;
 				}
 				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
 			} else if ( ent->health < maxHealth * 2) {
-				ent->health += 5;
+				ent->health += 10 * regenFactor;
 				if ( ent->health > maxHealth * 2 ) {
 					ent->health = maxHealth * 2;
 				}
@@ -836,7 +840,7 @@ void PlayerThink_real( gentity_t *ent ) {
 
 #ifdef MISSIONPACK
 	if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_SCOUT ) {
-		player->ps.speed *= 1.5;
+		player->ps.speed *= 1.3;
 	}
 	else
 #endif

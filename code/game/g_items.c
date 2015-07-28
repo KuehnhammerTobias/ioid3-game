@@ -48,7 +48,6 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define	RESPAWN_HEALTH		35
 #define	RESPAWN_AMMO		40
 #define	RESPAWN_HOLDABLE	60
-#define	RESPAWN_MEGAHEALTH	35//120
 #define	RESPAWN_POWERUP		120
 
 
@@ -139,23 +138,14 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 	case PW_GUARD:
 		max = (int)(2 *  handicap);
 
-		other->health = max;
-		other->player->ps.stats[STAT_HEALTH] = max;
 		other->player->ps.stats[STAT_MAX_HEALTH] = max;
-		other->player->ps.stats[STAT_ARMOR] = max;
 		other->player->pers.maxHealth = max;
 		break;
-
-	case PW_SCOUT:
-		other->player->pers.maxHealth = handicap;
-		other->player->ps.stats[STAT_ARMOR] = 0;
-		break;
-
 	case PW_AMMOREGEN:
 		other->player->pers.maxHealth = handicap;
 		memset(other->player->ammoTimes, 0, sizeof(other->player->ammoTimes));
 		break;
-
+	case PW_SCOUT:
 	case PW_DOUBLER:
 	default:
 		other->player->pers.maxHealth = handicap;
@@ -255,18 +245,14 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			max;
 	int			quantity;
 
-	// small and mega healths will go over the max
+	// don't pick up if already at max
 #ifdef MISSIONPACK
 	if( BG_ItemForItemNum( other->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
-		max = other->player->ps.stats[STAT_MAX_HEALTH];
+		max = other->player->ps.stats[STAT_MAX_HEALTH] / 2;
 	}
 	else
 #endif
-	if ( ent->item->quantity != 5 && ent->item->quantity != 100 ) {
-		max = other->player->ps.stats[STAT_MAX_HEALTH];
-	} else {
-		max = other->player->ps.stats[STAT_MAX_HEALTH] * 2;
-	}
+	max = other->player->ps.stats[STAT_MAX_HEALTH];
 
 	if ( ent->count ) {
 		quantity = ent->count;
@@ -280,10 +266,6 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 		other->health = max;
 	}
 	other->player->ps.stats[STAT_HEALTH] = other->health;
-
-	if ( ent->item->quantity == 100 ) {		// mega health respawns slow
-		return RESPAWN_MEGAHEALTH;
-	}
 
 	return RESPAWN_HEALTH;
 }
