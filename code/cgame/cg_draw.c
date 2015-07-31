@@ -1787,87 +1787,6 @@ static void CG_DrawCenterString( void ) {
 
 
 /*
-==============
-CG_GlobalCenterPrint
-
-Called for important messages that should stay in the center of the screen
-for a few moments
-==============
-*/
-void CG_GlobalCenterPrint( const char *str, int y, float charScale ) {
-	char	*s;
-
-	Q_strncpyz( cg.centerPrint, str, sizeof(cg.centerPrint) );
-
-	cg.centerPrintTime = cg.time;
-	cg.centerPrintY = y;
-	cg.centerPrintCharScale = charScale;
-
-	// count the number of lines for centering
-	cg.centerPrintLines = 1;
-	s = cg.centerPrint;
-	while( *s ) {
-		if (*s == '\n')
-			cg.centerPrintLines++;
-		s++;
-	}
-}
-
-
-/*
-===================
-CG_DrawGlobalCenterString
-===================
-*/
-static void CG_DrawGlobalCenterString( void ) {
-	char	*start;
-	int		l;
-	int		y;
-	int		charHeight;
-	float	*color;
-
-	if ( !cg.centerPrintTime ) {
-		return;
-	}
-
-	color = CG_FadeColor( cg.centerPrintTime, 1000 * cg_centertime.value );
-	if ( !color ) {
-		return;
-	}
-
-	CG_SetScreenPlacement(PLACE_CENTER, PLACE_CENTER);
-
-	start = cg.centerPrint;
-
-	charHeight = cg.centerPrintCharScale * 48.0f;
-	y = cg.centerPrintY - cg.centerPrintLines * charHeight / 2;
-
-	while ( 1 ) {
-		char linebuffer[1024];
-
-		for ( l = 0; l < 50; l++ ) {
-			if ( !start[l] || start[l] == '\n' ) {
-				break;
-			}
-			linebuffer[l] = start[l];
-		}
-		linebuffer[l] = 0;
-
-		CG_DrawStringExt( SCREEN_WIDTH / 2, y, linebuffer, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT, color, cg.centerPrintCharScale, 0, 0 );
-		y += charHeight + 6;
-
-		while ( *start && ( *start != '\n' ) ) {
-			start++;
-		}
-		if ( !*start ) {
-			break;
-		}
-		start++;
-	}
-}
-
-
-/*
 ================================================================================
 
 CROSSHAIR
@@ -2912,7 +2831,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawShaderInfo();
 
 	CG_DrawFollow();
-
+	CG_DrawWarmup();
 	// don't draw center string if scoreboard is up
 	cg.cur_lc->scoreBoardShowing = CG_DrawScoreboard();
 	if (!cg.cur_lc->scoreBoardShowing) {
@@ -3136,12 +3055,8 @@ void CG_DrawScreen2D( stereoFrame_t stereoView ) {
 		return;
 	}
 
-	CG_DrawWarmup();
-
 	if ( cg.singleCamera ) {
 		CG_DrawScoreboard();
-	} else {
-		CG_DrawGlobalCenterString();
 	}
 
 	CG_DrawDemoRecording();

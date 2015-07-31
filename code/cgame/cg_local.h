@@ -779,7 +779,7 @@ typedef struct {
 
 	qboolean	lightstylesInited;
 
-	// global centerprinting (drawn over all viewports)
+	// centerprinting
 	int			centerPrintTime;
 	float		centerPrintCharScale;
 	int			centerPrintY;
@@ -1605,7 +1605,6 @@ extern  char teamChat2[256];
 void CG_AddLagometerFrameInfo( void );
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap );
 void CG_CenterPrint( int localPlayerNum, const char *str, int y, float charScale );
-void CG_GlobalCenterPrint( const char *str, int y, float charScale );
 void CG_DrawHead( float x, float y, float w, float h, int playerNum, vec3_t headAngles );
 void CG_DrawActive( stereoFrame_t stereoView );
 void CG_DrawScreen2D( stereoFrame_t stereoView );
