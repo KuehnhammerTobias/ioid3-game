@@ -1350,80 +1350,6 @@ static void CG_DrawPersistantPowerup( void ) {
 #endif // MISSIONPACK_HUD
 #endif // MISSIONPACK
 
-
-/*
-===================
-CG_DrawReward
-===================
-*/
-static void CG_DrawReward( void ) { 
-	float	*color;
-	int		i, count;
-	float	x, y;
-	char	buf[32];
-
-	if ( !cg_drawRewards.integer ) {
-		return;
-	}
-
-	CG_SetScreenPlacement(PLACE_CENTER, PLACE_CENTER);
-
-	color = CG_FadeColor( cg.cur_lc->rewardTime, REWARD_TIME );
-	if ( !color ) {
-		if (cg.cur_lc->rewardStack > 0) {
-			for(i = 0; i < cg.cur_lc->rewardStack; i++) {
-				cg.cur_lc->rewardSound[i] = cg.cur_lc->rewardSound[i+1];
-				cg.cur_lc->rewardShader[i] = cg.cur_lc->rewardShader[i+1];
-				cg.cur_lc->rewardCount[i] = cg.cur_lc->rewardCount[i+1];
-			}
-			cg.cur_lc->rewardTime = cg.time;
-			cg.cur_lc->rewardStack--;
-			color = CG_FadeColor( cg.cur_lc->rewardTime, REWARD_TIME );
-			trap_S_StartLocalSound(cg.cur_lc->rewardSound[0], CHAN_ANNOUNCER);
-		} else {
-			return;
-		}
-	}
-
-	trap_R_SetColor( color );
-
-	/*
-	count = cg.cur_lc->rewardCount[0]/10;				// number of big rewards to draw
-
-	if (count) {
-		y = 4;
-		x = 320 - count * ICON_SIZE;
-		for ( i = 0 ; i < count ; i++ ) {
-			CG_DrawPic( x, y, (ICON_SIZE*2)-4, (ICON_SIZE*2)-4, cg.cur_lc->rewardShader[0] );
-			x += (ICON_SIZE*2);
-		}
-	}
-
-	count = cg.cur_lc->rewardCount[0] - count*10;		// number of small rewards to draw
-	*/
-
-	if ( cg.cur_lc->rewardCount[0] >= 10 ) {
-		y = 56;
-		x = 320 - ICON_SIZE/2 + 2;
-		CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.cur_lc->rewardShader[0] );
-		Com_sprintf(buf, sizeof(buf), "%d", cg.cur_lc->rewardCount[0]);
-		CG_DrawString( SCREEN_WIDTH / 2, y+ICON_SIZE, buf, UI_CENTER|UI_DROPSHADOW|UI_SMALLFONT, color );
-	}
-	else {
-
-		count = cg.cur_lc->rewardCount[0];
-
-		y = 56;
-		x = 320 - count * ICON_SIZE/2 + 2;
-		for ( i = 0 ; i < count ; i++ ) {
-			CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.cur_lc->rewardShader[0] );
-			x += ICON_SIZE;
-		}
-	}
-	trap_R_SetColor( NULL );
-}
-
-
 /*
 ===============================================================================
 
@@ -2798,7 +2724,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			CG_DrawPersistantPowerup();
 #endif
 #endif
-			CG_DrawReward();
 		}
     
 		if ( cgs.gametype >= GT_TEAM ) {

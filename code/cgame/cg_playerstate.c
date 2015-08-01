@@ -299,25 +299,10 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 
 /*
 ==================
-pushReward
-==================
-*/
-static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
-	if (cg.cur_lc->rewardStack < (MAX_REWARDSTACK-1)) {
-		cg.cur_lc->rewardStack++;
-		cg.cur_lc->rewardSound[cg.cur_lc->rewardStack] = sfx;
-		cg.cur_lc->rewardShader[cg.cur_lc->rewardStack] = shader;
-		cg.cur_lc->rewardCount[cg.cur_lc->rewardStack] = rewardCount;
-	}
-}
-
-/*
-==================
 CG_CheckLocalSounds
 ==================
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
-	int			reward;
 #ifdef MISSIONPACK
 	int			health, armor;
 #endif
@@ -361,11 +346,8 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// reward sounds
-	reward = qfalse;
 	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
-		pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, ps->persistant[PERS_CAPTURES]);
-		reward = qtrue;
-		//Com_Printf("capture\n");
+		trap_S_StartLocalSound( cgs.media.captureAwardSound, CHAN_ANNOUNCER );
 	}
 	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
 #ifdef MISSIONPACK
@@ -377,9 +359,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.impressiveSound;
 #endif
-		pushReward(sfx, cgs.media.medalImpressive, ps->persistant[PERS_IMPRESSIVE_COUNT]);
-		reward = qtrue;
-		//Com_Printf("impressive\n");
+		trap_S_StartLocalSound( sfx, CHAN_ANNOUNCER );
 	}
 	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
 #ifdef MISSIONPACK
@@ -391,9 +371,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.excellentSound;
 #endif
-		pushReward(sfx, cgs.media.medalExcellent, ps->persistant[PERS_EXCELLENT_COUNT]);
-		reward = qtrue;
-		//Com_Printf("excellent\n");
+		trap_S_StartLocalSound( sfx, CHAN_ANNOUNCER );
 	}
 	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
 #ifdef MISSIONPACK
@@ -405,19 +383,13 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.humiliationSound;
 #endif
-		pushReward(sfx, cgs.media.medalGauntlet, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
-		reward = qtrue;
-		//Com_Printf("gauntlet frag\n");
+		trap_S_StartLocalSound( sfx, CHAN_ANNOUNCER );
 	}
 	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
-		pushReward(cgs.media.defendSound, cgs.media.medalDefend, ps->persistant[PERS_DEFEND_COUNT]);
-		reward = qtrue;
-		//Com_Printf("defend\n");
+		trap_S_StartLocalSound( cgs.media.defendSound, CHAN_ANNOUNCER );
 	}
 	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
-		pushReward(cgs.media.assistSound, cgs.media.medalAssist, ps->persistant[PERS_ASSIST_COUNT]);
-		reward = qtrue;
-		//Com_Printf("assist\n");
+		trap_S_StartLocalSound( cgs.media.assistSound, CHAN_ANNOUNCER );
 	}
 	// if any of the player event bits changed
 	if (ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS]) {
@@ -433,7 +405,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 				(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_HOLYSHIT)) {
 			trap_S_StartLocalSound( cgs.media.holyShitSound, CHAN_ANNOUNCER );
 		}
-		reward = qtrue;
 	}
 
 	// check for flag pickup
@@ -446,28 +417,22 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		}
 	}
 
-	if (reward) {
-		// ignore lead changes this frame because a reward sound was played.
-		cg.bestLeadChange = LEAD_IGNORE;
-	} else {
-		//
-		if ( !cg.warmup ) {
-			// never play lead changes during warmup
-			if ( ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK] ) {
-				if ( cgs.gametype < GT_TEAM) {
-					leadChange_t leadChange = LEAD_NONE;
+	if ( !cg.warmup ) {
+		// never play lead changes during warmup
+		if ( ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK] ) {
+			if ( cgs.gametype < GT_TEAM) {
+				leadChange_t leadChange = LEAD_NONE;
 
-					if ( ps->persistant[PERS_RANK] == 0 ) {
-						leadChange = LEAD_TAKEN;
-					} else if ( ps->persistant[PERS_RANK] == RANK_TIED_FLAG ) {
-						leadChange = LEAD_TIED;
-					} else if ( ( ops->persistant[PERS_RANK] & ~RANK_TIED_FLAG ) == 0 ) {
-						leadChange = LEAD_LOST;
-					}
+				if ( ps->persistant[PERS_RANK] == 0 ) {
+					leadChange = LEAD_TAKEN;
+				} else if ( ps->persistant[PERS_RANK] == RANK_TIED_FLAG ) {
+					leadChange = LEAD_TIED;
+				} else if ( ( ops->persistant[PERS_RANK] & ~RANK_TIED_FLAG ) == 0 ) {
+					leadChange = LEAD_LOST;
+				}
 
-					if ( leadChange > cg.bestLeadChange ) {
-						cg.bestLeadChange = leadChange;
-					}
+				if ( leadChange > cg.bestLeadChange ) {
+					cg.bestLeadChange = leadChange;
 				}
 			}
 		}

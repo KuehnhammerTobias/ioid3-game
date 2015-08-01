@@ -2149,7 +2149,7 @@ Float sprites over the player's head
 ===============
 */
 static void CG_PlayerSprites( centity_t *cent, const refEntity_t *parent ) {
-	int		friendFlags, awardFlags, thirdPersonFlags;
+	int		friendFlags, thirdPersonFlags;
 	int		team;
 	vec3_t	origin;
 
@@ -2165,15 +2165,8 @@ static void CG_PlayerSprites( centity_t *cent, const refEntity_t *parent ) {
 		} else {
 			thirdPersonFlags = 0;
 		}
-
-		// if first person or drawing awards on HUD, only show your award sprites in mirrors
-		if ( !cg.cur_lc->renderingThirdPerson || cg_draw2D.integer ) {
-			awardFlags = RF_ONLY_MIRROR;
-		} else {
-			awardFlags = 0;
-		}
 	} else {
-		friendFlags = awardFlags = thirdPersonFlags = 0;
+		friendFlags = thirdPersonFlags = 0;
 	}
 
 	if ( cent->currentState.eFlags & EF_CONNECTION ) {
@@ -2183,36 +2176,6 @@ static void CG_PlayerSprites( centity_t *cent, const refEntity_t *parent ) {
 
 	if ( cent->currentState.eFlags & EF_TALK ) {
 		CG_PlayerFloatSprite( origin, thirdPersonFlags, cgs.media.balloonShader );
-		return;
-	}
-
-	if ( cent->currentState.eFlags & EF_AWARD_IMPRESSIVE ) {
-		CG_PlayerFloatSprite( origin, awardFlags, cgs.media.medalImpressive );
-		return;
-	}
-
-	if ( cent->currentState.eFlags & EF_AWARD_EXCELLENT ) {
-		CG_PlayerFloatSprite( origin, awardFlags, cgs.media.medalExcellent );
-		return;
-	}
-
-	if ( cent->currentState.eFlags & EF_AWARD_GAUNTLET ) {
-		CG_PlayerFloatSprite( origin, awardFlags, cgs.media.medalGauntlet );
-		return;
-	}
-
-	if ( cent->currentState.eFlags & EF_AWARD_DEFEND ) {
-		CG_PlayerFloatSprite( origin, awardFlags, cgs.media.medalDefend );
-		return;
-	}
-
-	if ( cent->currentState.eFlags & EF_AWARD_ASSIST ) {
-		CG_PlayerFloatSprite( origin, awardFlags, cgs.media.medalAssist );
-		return;
-	}
-
-	if ( cent->currentState.eFlags & EF_AWARD_CAP ) {
-		CG_PlayerFloatSprite( origin, awardFlags, cgs.media.medalCapture );
 		return;
 	}
 

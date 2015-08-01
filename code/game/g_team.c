@@ -361,9 +361,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		targ->player->pers.teamState.lasthurtcarrier = 0;
 
 		attacker->player->ps.persistant[PERS_DEFEND_COUNT]++;
-		// add the sprite over the player's head
-		attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-		attacker->player->ps.eFlags |= EF_AWARD_DEFEND;
 		attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 		return;
@@ -377,9 +374,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		targ->player->pers.teamState.lasthurtcarrier = 0;
 
 		attacker->player->ps.persistant[PERS_DEFEND_COUNT]++;
-		// add the sprite over the player's head
-		attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-		attacker->player->ps.eFlags |= EF_AWARD_DEFEND;
 		attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 		return;
@@ -454,9 +448,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		AddScore(attacker, targ->r.currentOrigin, CTF_FLAG_DEFENSE_BONUS);
 
 		attacker->player->ps.persistant[PERS_DEFEND_COUNT]++;
-		// add the sprite over the player's head
-		attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-		attacker->player->ps.eFlags |= EF_AWARD_DEFEND;
 		attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 		return;
@@ -474,9 +465,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 			AddScore(attacker, targ->r.currentOrigin, CTF_CARRIER_PROTECT_BONUS);
 
 			attacker->player->ps.persistant[PERS_DEFEND_COUNT]++;
-			// add the sprite over the player's head
-			attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-			attacker->player->ps.eFlags |= EF_AWARD_DEFEND;
 			attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 			return;
@@ -756,9 +744,6 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	AddTeamScore(ent->s.pos.trBase, other->player->sess.sessionTeam, 1);
 	Team_ForceGesture(other->player->sess.sessionTeam);
 
-	// add the sprite over the player's head
-	other->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-	other->player->ps.eFlags |= EF_AWARD_CAP;
 	other->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 	other->player->ps.persistant[PERS_CAPTURES]++;
 
@@ -789,9 +774,6 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 				AddScore (player, ent->r.currentOrigin, CTF_RETURN_FLAG_ASSIST_BONUS);
 
 				player->player->ps.persistant[PERS_ASSIST_COUNT]++;
-				// add the sprite over the player's head
-				player->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-				player->player->ps.eFlags |= EF_AWARD_ASSIST;
 				player->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 			} 
@@ -800,9 +782,6 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 				AddScore(player, ent->r.currentOrigin, CTF_FRAG_CARRIER_ASSIST_BONUS);
 
 				player->player->ps.persistant[PERS_ASSIST_COUNT]++;
-				// add the sprite over the player's head
-				player->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-				player->player->ps.eFlags |= EF_AWARD_ASSIST;
 				player->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}
 		}
@@ -1264,9 +1243,6 @@ static void ObeliskDie( gentity_t *self, gentity_t *inflictor, gentity_t *attack
 	} else {
 		AddScore(attacker, self->r.currentOrigin, CTF_CAPTURE_BONUS);
 
-		// add the sprite over the player's head
-		attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-		attacker->player->ps.eFlags |= EF_AWARD_CAP;
 		attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 		attacker->player->ps.persistant[PERS_CAPTURES]++;
 	}
@@ -1307,9 +1283,6 @@ static void ObeliskTouch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 
 	AddScore(other, self->r.currentOrigin, CTF_CAPTURE_BONUS*tokens);
 
-	// add the sprite over the player's head
-	other->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-	other->player->ps.eFlags |= EF_AWARD_CAP;
 	other->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 	other->player->ps.persistant[PERS_CAPTURES] += tokens;
 	

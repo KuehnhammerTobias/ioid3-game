@@ -82,7 +82,6 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define	MUZZLE_FLASH_TIME	20
 #define	SINK_TIME			1000		// time for fragments to sink into ground before going away
 #define	ATTACKER_HEAD_TIME	10000
-#define	REWARD_TIME			3000
 
 #define	PULSE_SCALE			1.5			// amount to scale up the icons when activating
 
@@ -518,13 +517,10 @@ typedef enum {
 
 	LEAD_LOST,
 	LEAD_TIED,
-	LEAD_TAKEN,
+	LEAD_TAKEN
 
-	LEAD_IGNORE // a player played a reward sound, so no lead change sfx this frame.
 } leadChange_t;
 
-
-#define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
 
 //======================================================================
@@ -620,13 +616,6 @@ typedef struct {
 	int			acceptTask;
 	int			acceptLeader;
 	char		acceptVoice[MAX_NAME_LENGTH];
-
-	// reward medals
-	int			rewardStack;
-	int			rewardTime;
-	int			rewardCount[MAX_REWARDSTACK];
-	qhandle_t	rewardShader[MAX_REWARDSTACK];
-	qhandle_t	rewardSound[MAX_REWARDSTACK];
 
 	// zoom key
 	qboolean	zoomed;
@@ -1024,14 +1013,6 @@ typedef struct {
 	qhandle_t	scoreboardScore;
 	qhandle_t	scoreboardTime;
 
-	// medals shown during gameplay
-	qhandle_t	medalImpressive;
-	qhandle_t	medalExcellent;
-	qhandle_t	medalGauntlet;
-	qhandle_t	medalDefend;
-	qhandle_t	medalAssist;
-	qhandle_t	medalCapture;
-
 	// sounds
 	sfxHandle_t	itemPickupSounds[MAX_ITEMS];
 	sfxHandle_t	quadSound;
@@ -1332,7 +1313,6 @@ extern	vmCvar_t		cg_drawIcons;
 extern	vmCvar_t		cg_drawAmmoWarning;
 extern	vmCvar_t		cg_drawCrosshair;
 extern	vmCvar_t		cg_drawCrosshairNames;
-extern	vmCvar_t		cg_drawRewards;
 extern	vmCvar_t		cg_drawTeamOverlay;
 extern	vmCvar_t		cg_teamOverlayUserinfo;
 extern	vmCvar_t		cg_crosshairX;

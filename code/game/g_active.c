@@ -820,11 +820,6 @@ void PlayerThink_real( gentity_t *ent ) {
 		return;
 	}
 
-	// clear the rewards if time
-	if ( level.time > player->rewardTime ) {
-		player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-	}
-
 	if ( player->noclip ) {
 		player->ps.pm_type = PM_NOCLIP;
 	} else if ( player->ps.stats[STAT_HEALTH] <= 0 ) {

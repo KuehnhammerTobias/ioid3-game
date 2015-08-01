@@ -538,8 +538,6 @@ static void CG_MapRestart( void ) {
 #endif
 
 	for (i = 0; i < CG_MaxSplitView(); i++) {
-		cg.localPlayers[i].rewardTime = 0;
-		cg.localPlayers[i].rewardStack = 0;
 		CG_CenterPrint(i, "FIGHT!", SCREEN_HEIGHT/2, 2.0 );
 		trap_Cvar_SetValue( Com_LocalPlayerCvarName(i, "cg_thirdPerson"), 0 );
 	}

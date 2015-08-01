@@ -608,10 +608,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				
 				// play humiliation on player
 				attacker->player->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
-
-				// add the sprite over the player's head
-				attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-				attacker->player->ps.eFlags |= EF_AWARD_GAUNTLET;
 				attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 
 				// also play humiliation on target
@@ -623,10 +619,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 			if ( level.time - attacker->player->lastKillTime < CARNAGE_REWARD_TIME ) {
 				// play excellent on player
 				attacker->player->ps.persistant[PERS_EXCELLENT_COUNT]++;
-
-				// add the sprite over the player's head
-				attacker->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-				attacker->player->ps.eFlags |= EF_AWARD_EXCELLENT;
 				attacker->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 			}
 			attacker->player->lastKillTime = level.time;

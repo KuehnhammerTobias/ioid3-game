@@ -557,9 +557,6 @@ void weapon_railgun_fire (gentity_t *ent) {
 		if ( ent->player->accurateCount >= 2 ) {
 			ent->player->accurateCount -= 2;
 			ent->player->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
-			// add the sprite over the player's head
-			ent->player->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP );
-			ent->player->ps.eFlags |= EF_AWARD_IMPRESSIVE;
 			ent->player->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
 		ent->player->accuracy_hits++;
