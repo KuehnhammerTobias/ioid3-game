@@ -2184,7 +2184,11 @@ static void CG_PlayerSprites( centity_t *cent, const refEntity_t *parent ) {
 		cg.cur_ps->persistant[PERS_TEAM] == team &&
 		cgs.gametype >= GT_TEAM) {
 		if (cg_drawFriend.integer) {
-			CG_PlayerFloatSprite( origin, friendFlags, cgs.media.friendShader );
+			if ( team == TEAM_BLUE ) {
+				CG_PlayerFloatSprite( origin, friendFlags, cgs.media.blueFriendShader );
+			} else {
+				CG_PlayerFloatSprite( origin, friendFlags, cgs.media.redFriendShader );
+			}
 		}
 		return;
 	}
