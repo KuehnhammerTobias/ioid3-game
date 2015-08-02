@@ -347,7 +347,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 
 	// reward sounds
 	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
-		trap_S_StartLocalSound( cgs.media.captureAwardSound, CHAN_ANNOUNCER );
+		CG_AddBufferedSound( cgs.media.captureAwardSound );
 	}
 	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
 #ifdef MISSIONPACK
@@ -359,7 +359,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.impressiveSound;
 #endif
-		trap_S_StartLocalSound( sfx, CHAN_ANNOUNCER );
+		CG_AddBufferedSound( sfx );
 	}
 	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
 #ifdef MISSIONPACK
@@ -371,7 +371,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.excellentSound;
 #endif
-		trap_S_StartLocalSound( sfx, CHAN_ANNOUNCER );
+		CG_AddBufferedSound( sfx );
 	}
 	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
 #ifdef MISSIONPACK
@@ -383,13 +383,13 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #else
 		sfx = cgs.media.humiliationSound;
 #endif
-		trap_S_StartLocalSound( sfx, CHAN_ANNOUNCER );
+		CG_AddBufferedSound( sfx );
 	}
 	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
-		trap_S_StartLocalSound( cgs.media.defendSound, CHAN_ANNOUNCER );
+		CG_AddBufferedSound( cgs.media.defendSound );
 	}
 	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
-		trap_S_StartLocalSound( cgs.media.assistSound, CHAN_ANNOUNCER );
+		CG_AddBufferedSound( cgs.media.assistSound );
 	}
 	// if any of the player event bits changed
 	if (ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS]) {
@@ -413,7 +413,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			(ps->powerups[PW_BLUEFLAG] != ops->powerups[PW_BLUEFLAG] && ps->powerups[PW_BLUEFLAG]) ||
 			(ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG]) )
 		{
-			trap_S_StartLocalSound( cgs.media.youHaveFlagSound, CHAN_ANNOUNCER );
+			CG_AddBufferedSound( cgs.media.youHaveFlagSound );
 		}
 	}
 
@@ -479,15 +479,15 @@ void CG_CheckGameSounds( void ) {
 		msec = cg.time - cgs.levelStartTime;
 		if ( !( cg.timelimitWarnings & 4 ) && msec > ( cgs.timelimit * 60 + 2 ) * 1000 ) {
 			cg.timelimitWarnings |= 1 | 2 | 4;
-			trap_S_StartLocalSound( cgs.media.suddenDeathSound, CHAN_ANNOUNCER );
+			CG_AddBufferedSound( cgs.media.suddenDeathSound );
 		}
 		else if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1 | 2;
-			trap_S_StartLocalSound( cgs.media.oneMinuteSound, CHAN_ANNOUNCER );
+			CG_AddBufferedSound( cgs.media.oneMinuteSound );
 		}
 		else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1;
-			trap_S_StartLocalSound( cgs.media.fiveMinuteSound, CHAN_ANNOUNCER );
+			CG_AddBufferedSound( cgs.media.fiveMinuteSound );
 		}
 	}
 

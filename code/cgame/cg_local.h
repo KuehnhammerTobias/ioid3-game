@@ -521,7 +521,7 @@ typedef enum {
 
 } leadChange_t;
 
-#define MAX_SOUNDBUFFER		20
+#define MAX_SOUNDBUFFER		32
 
 //======================================================================
 

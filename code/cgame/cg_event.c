@@ -1083,29 +1083,29 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			switch( es->eventParm ) {
 				case GTS_RED_CAPTURE: // CTF: red team captured the blue flag, 1FCTF: red team captured the neutral flag
 					if ( redTeam )
-						CG_AddBufferedSound( cgs.media.captureYourTeamSound );
+						trap_S_StartLocalSound( cgs.media.captureYourTeamSound, CHAN_LOCAL_SOUND);
 					else
-						CG_AddBufferedSound( cgs.media.captureOpponentSound );
+						trap_S_StartLocalSound( cgs.media.captureOpponentSound, CHAN_LOCAL_SOUND);
 					break;
 				case GTS_BLUE_CAPTURE: // CTF: blue team captured the red flag, 1FCTF: blue team captured the neutral flag
 					if ( blueTeam )
-						CG_AddBufferedSound( cgs.media.captureYourTeamSound );
+						trap_S_StartLocalSound( cgs.media.captureYourTeamSound, CHAN_LOCAL_SOUND);
 					else
-						CG_AddBufferedSound( cgs.media.captureOpponentSound );
+						trap_S_StartLocalSound( cgs.media.captureOpponentSound, CHAN_LOCAL_SOUND);
 					break;
 				case GTS_RED_RETURN: // CTF: blue flag returned, 1FCTF: never used
 					if ( redTeam )
-						CG_AddBufferedSound( cgs.media.returnYourTeamSound );
+						trap_S_StartLocalSound( cgs.media.returnYourTeamSound, CHAN_LOCAL_SOUND);
 					else
-						CG_AddBufferedSound( cgs.media.returnOpponentSound );
+						trap_S_StartLocalSound( cgs.media.returnOpponentSound, CHAN_LOCAL_SOUND);
 					//
 					CG_AddBufferedSound( cgs.media.blueFlagReturnedSound );
 					break;
 				case GTS_BLUE_RETURN: // CTF red flag returned, 1FCTF: neutral flag returned
 					if ( blueTeam )
-						CG_AddBufferedSound( cgs.media.returnYourTeamSound );
+						trap_S_StartLocalSound( cgs.media.returnYourTeamSound, CHAN_LOCAL_SOUND);
 					else
-						CG_AddBufferedSound( cgs.media.returnOpponentSound );
+						trap_S_StartLocalSound( cgs.media.returnOpponentSound, CHAN_LOCAL_SOUND);
 					//
 					CG_AddBufferedSound( cgs.media.redFlagReturnedSound );
 					break;
