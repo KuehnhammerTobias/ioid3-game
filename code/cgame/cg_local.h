@@ -1508,7 +1508,7 @@ void CG_CalcVrect( void );
 void CG_SetupFrustum( void );
 qboolean CG_CullPoint( vec3_t pt );
 qboolean CG_CullPointAndRadius( const vec3_t pt, vec_t radius );
-
+qboolean CG_HasBufferedSound( void );
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
 
 

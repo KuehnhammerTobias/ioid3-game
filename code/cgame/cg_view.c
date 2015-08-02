@@ -867,6 +867,15 @@ void CG_AddBufferedSound( sfxHandle_t sfx ) {
 		cg.soundBufferOut++;
 	}
 }
+ 
+/*
+=====================
+CG_HasBufferedSound
+=====================
+*/
+qboolean CG_HasBufferedSound(void) {
+	return (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]);
+}
 
 /*
 =====================
@@ -874,13 +883,12 @@ CG_PlayBufferedSounds
 =====================
 */
 static void CG_PlayBufferedSounds( void ) {
-	if ( cg.soundTime < cg.time ) {
-		if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
-			trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
-			cg.soundBuffer[cg.soundBufferOut] = 0;
-			cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
-			cg.soundTime = cg.time + 750;
-		}
+
+	if (cg.soundTime < cg.time && CG_HasBufferedSound()) {
+		trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
+		cg.soundBuffer[cg.soundBufferOut] = 0;
+		cg.soundBufferOut = (cg.soundBufferOut + 1) % MAX_SOUNDBUFFER;
+		cg.soundTime = cg.time + 2000;
 	}
 }
 
