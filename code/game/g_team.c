@@ -135,6 +135,10 @@ void AddTeamScore(vec3_t origin, int team, int score) {
 	if ( score == 0 ) {
 		return;
 	}
+	// no scoring during pre-match warmup
+	if ( level.warmupTime ) {
+		return;
+	}
 
 	eventParm = -1;
 	otherTeam = OtherTeam( team );
