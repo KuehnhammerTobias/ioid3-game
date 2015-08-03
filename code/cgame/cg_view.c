@@ -861,6 +861,11 @@ CG_AddBufferedSound
 void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	if ( !sfx )
 		return;
+
+	if ( cg.warmup && cg.warmupCount < 5 ) {
+		return;
+	}
+
 	cg.soundBuffer[cg.soundBufferIn] = sfx;
 	cg.soundBufferIn = (cg.soundBufferIn + 1) % MAX_SOUNDBUFFER;
 	if (cg.soundBufferIn == cg.soundBufferOut) {
@@ -883,6 +888,14 @@ CG_PlayBufferedSounds
 =====================
 */
 static void CG_PlayBufferedSounds( void ) {
+
+	if ( cg.warmup && cg.warmupCount < 6 ) {
+		// NOTE: do we need this?
+		cg.soundBufferIn = 0;
+		cg.soundBufferOut = 0;
+		cg.soundBuffer[cg.soundBufferOut] = 0;
+		return;
+	}
 
 	if (cg.soundTime < cg.time && CG_HasBufferedSound()) {
 		trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
