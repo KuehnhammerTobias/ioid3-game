@@ -1109,7 +1109,6 @@ typedef struct {
 #endif
 
 	// teamplay sounds
-	sfxHandle_t captureAwardSound;
 	sfxHandle_t redScoredSound;
 	sfxHandle_t blueScoredSound;
 	sfxHandle_t redLeadsSound;

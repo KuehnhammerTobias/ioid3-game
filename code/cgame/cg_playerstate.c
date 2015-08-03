@@ -435,10 +435,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
 		CG_AddBufferedSound( cgs.media.assistSound );
 	}
-	// reward capture sound
-	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
-		CG_AddBufferedSound( cgs.media.captureAwardSound );
-	}
 }
 
 /*
