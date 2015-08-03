@@ -862,7 +862,7 @@ void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	if ( !sfx )
 		return;
 
-	if ( cg.warmup && cg.warmupCount < 5 ) {
+	if ( cg.warmup && cg.warmupCount < 6 ) {
 		return;
 	}
 
