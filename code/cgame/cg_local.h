@@ -1130,11 +1130,15 @@ typedef struct {
 #endif
 	sfxHandle_t	enemyTookYourFlagSound;
 	sfxHandle_t yourTeamTookEnemyFlagSound;
+	sfxHandle_t	blueTeamTookTheFlagSound;
+	sfxHandle_t	redTeamTookTheFlagSound;
 	sfxHandle_t	youHaveFlagSound;
 #ifdef MISSIONPACK
 	sfxHandle_t	enemyTookTheFlagSound;
 	sfxHandle_t yourTeamTookTheFlagSound;
 	sfxHandle_t yourBaseIsUnderAttackSound;
+	sfxHandle_t	blueBaseIsUnderAttackSound;
+	sfxHandle_t	redBaseIsUnderAttackSound;
 #endif
 	sfxHandle_t holyShitSound;
 

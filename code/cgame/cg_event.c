@@ -1049,126 +1049,153 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{
 			qboolean blueTeam			= qfalse;
 			qboolean redTeam			= qfalse;
-			qboolean localHasBlue		= qfalse;
-			qboolean localHasRed		= qfalse;
-			qboolean localHasNeutral	= qfalse;
-
+			qboolean localHasFlag		= qfalse;
 			// Check if any local player is on blue/red team or has flags.
 			for (i = 0; i < CG_MaxSplitView(); i++) {
 				if (cg.snap->playerNums[i] == -1) {
 					continue;
 				}
+
 				if (cg.snap->pss[i].persistant[PERS_TEAM] == TEAM_BLUE) {
 					blueTeam = qtrue;
 				}
+
 				if (cg.snap->pss[i].persistant[PERS_TEAM] == TEAM_RED) {
 					redTeam = qtrue;
 				}
 
-				if (cg.snap->pss[i].powerups[PW_BLUEFLAG]) {
-					localHasBlue = qtrue;
-				}
-				if (cg.snap->pss[i].powerups[PW_REDFLAG]) {
-					localHasRed = qtrue;
-				}
-				if (cg.snap->pss[i].powerups[PW_NEUTRALFLAG]) {
-					localHasNeutral = qtrue;
+				if (cg.snap->pss[i].powerups[PW_BLUEFLAG] || cg.snap->pss[i].powerups[PW_REDFLAG] || cg.snap->pss[i].powerups[PW_NEUTRALFLAG]) {
+					localHasFlag = qtrue;
 				}
 			}
 
-			// ZTM: NOTE: Some of these sounds don't really work with local player on different teams.
-			//     New games might want to replace you/enemy sounds with red/blue.
-			//     See http://github.com/zturtleman/spearmint/wiki/New-Sounds
-
 			switch( es->eventParm ) {
 				case GTS_RED_CAPTURE: // CTF: red team captured the blue flag, 1FCTF: red team captured the neutral flag
-					if ( redTeam )
-						trap_S_StartLocalSound( cgs.media.captureYourTeamSound, CHAN_LOCAL_SOUND);
-					else
-						trap_S_StartLocalSound( cgs.media.captureOpponentSound, CHAN_LOCAL_SOUND);
+					if ( redTeam ) {
+						trap_S_StartLocalSound( cgs.media.captureYourTeamSound, CHAN_LOCAL_SOUND );
+					} else {
+						trap_S_StartLocalSound( cgs.media.captureOpponentSound, CHAN_LOCAL_SOUND );
+					}
 					break;
 				case GTS_BLUE_CAPTURE: // CTF: blue team captured the red flag, 1FCTF: blue team captured the neutral flag
-					if ( blueTeam )
-						trap_S_StartLocalSound( cgs.media.captureYourTeamSound, CHAN_LOCAL_SOUND);
-					else
-						trap_S_StartLocalSound( cgs.media.captureOpponentSound, CHAN_LOCAL_SOUND);
+					if ( blueTeam ) {
+						trap_S_StartLocalSound( cgs.media.captureYourTeamSound, CHAN_LOCAL_SOUND );
+					} else {
+						trap_S_StartLocalSound( cgs.media.captureOpponentSound, CHAN_LOCAL_SOUND );
+					}
 					break;
 				case GTS_RED_RETURN: // CTF: blue flag returned, 1FCTF: never used
-					if ( redTeam )
-						trap_S_StartLocalSound( cgs.media.returnYourTeamSound, CHAN_LOCAL_SOUND);
-					else
-						trap_S_StartLocalSound( cgs.media.returnOpponentSound, CHAN_LOCAL_SOUND);
-					//
+					if ( redTeam ) {
+						trap_S_StartLocalSound( cgs.media.returnYourTeamSound, CHAN_LOCAL_SOUND );
+					} else {
+						trap_S_StartLocalSound( cgs.media.returnOpponentSound, CHAN_LOCAL_SOUND );
+					}
+
 					CG_AddBufferedSound( cgs.media.blueFlagReturnedSound );
 					break;
 				case GTS_BLUE_RETURN: // CTF red flag returned, 1FCTF: neutral flag returned
-					if ( blueTeam )
-						trap_S_StartLocalSound( cgs.media.returnYourTeamSound, CHAN_LOCAL_SOUND);
-					else
-						trap_S_StartLocalSound( cgs.media.returnOpponentSound, CHAN_LOCAL_SOUND);
-					//
-					CG_AddBufferedSound( cgs.media.redFlagReturnedSound );
-					break;
+					if ( blueTeam ) {
+						trap_S_StartLocalSound( cgs.media.returnYourTeamSound, CHAN_LOCAL_SOUND );
+					} else {
+						trap_S_StartLocalSound( cgs.media.returnOpponentSound, CHAN_LOCAL_SOUND );
+					}
+#ifdef MISSIONPACK
+					if (cgs.gametype == GT_1FCTF) {
+						CG_AddBufferedSound( cgs.media.neutralFlagReturnedSound );
+					} else
+#endif
+						CG_AddBufferedSound( cgs.media.redFlagReturnedSound );
+					
 
+					break;
 				case GTS_RED_TAKEN: // CTF: red team took blue flag, 1FCTF: blue team took the neutral flag
 					// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-					if (localHasBlue || localHasNeutral) {
-					}
-					else if (!(redTeam && blueTeam)) {
-						if (blueTeam) {
+					if (!localHasFlag) {
+						// all local players on the same team
+						if (!(redTeam && blueTeam)) {
+							// all local players on the blue team
+							if (blueTeam) {
 #ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF) 
-								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
-							else
+								if (cgs.gametype == GT_1FCTF) {
+									CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
+								} else
 #endif
-							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
-						}
-						else if (redTeam) {
+									CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
+								
+							// all local players on the red team
+							} else if (redTeam) {
 #ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF)
-								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
-							else
+								if (cgs.gametype == GT_1FCTF) {
+									CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
+								} else
 #endif
- 							CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
+									CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
+								
+							}
+						// local players on both teams
+						} else {
+#ifdef MISSIONPACK
+							if (cgs.gametype == GT_1FCTF) {
+								CG_AddBufferedSound( cgs.media.blueTeamTookTheFlagSound );
+							} else
+#endif
+								CG_AddBufferedSound( cgs.media.redTeamTookTheFlagSound );
+							
 						}
-					} else {
-						// ZTM: NOTE: There are local players on both teams, so have no correct sound to play. New games should fix this.
 					}
 					break;
 				case GTS_BLUE_TAKEN: // CTF: blue team took the red flag, 1FCTF red team took the neutral flag
 					// if this player picked up the flag then a sound is played in CG_CheckLocalSounds
-					if (localHasRed || localHasNeutral) {
-					}
-					else if (!(redTeam && blueTeam)) {
-						if (redTeam) {
+					if (!localHasFlag) {
+						// all local players on the same team
+						if (!(redTeam && blueTeam)) {
+							// all local players on the red team
+							if (redTeam) {
 #ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF)
-								CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
-							else
+								if (cgs.gametype == GT_1FCTF) {
+									CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
+								} else
 #endif
-							CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
-						}
-						else if (blueTeam) {
+									CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
+								
+							// all local players on the blue team
+							} else if (blueTeam) {
 #ifdef MISSIONPACK
-							if (cgs.gametype == GT_1FCTF)
-								CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
-							else
+								if (cgs.gametype == GT_1FCTF) {
+									CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
+								} else
 #endif
-							CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
+									CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
+								
+							}
+						// local players on both teams
+						} else {
+#ifdef MISSIONPACK
+							if (cgs.gametype == GT_1FCTF) {
+								CG_AddBufferedSound( cgs.media.redTeamTookTheFlagSound );
+							} else
+#endif
+								CG_AddBufferedSound( cgs.media.blueTeamTookTheFlagSound );
+							
 						}
-					} else {
-						// ZTM: NOTE: There are local players on both teams, so have no correct sound to play. New games should fix this.
 					}
 					break;
 #ifdef MISSIONPACK
-				// ZTM: NOTE: These are confusing when there are players on both teams (players don't know which base is attacked). New games should fix this.
 				case GTS_REDOBELISK_ATTACKED: // Overload: red obelisk is being attacked
-					if (redTeam) {
+					// local players on both teams
+					if (redTeam && blueTeam) {
+						CG_AddBufferedSound( cgs.media.redBaseIsUnderAttackSound );
+					// all local players on the red team
+					} else if (redTeam) {
 						CG_AddBufferedSound( cgs.media.yourBaseIsUnderAttackSound );
 					}
 					break;
 				case GTS_BLUEOBELISK_ATTACKED: // Overload: blue obelisk is being attacked
-					if (blueTeam) {
+					// local players on both teams
+					if (redTeam && blueTeam) {
+						CG_AddBufferedSound( cgs.media.blueBaseIsUnderAttackSound );
+					// all local players on the blue team
+					} else if (blueTeam) {
 						CG_AddBufferedSound( cgs.media.yourBaseIsUnderAttackSound );
 					}
 					break;

@@ -346,8 +346,20 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	// check for flag pickup
 	if ( cgs.gametype > GT_TEAM ) {
 		if ((ps->powerups[PW_REDFLAG] != ops->powerups[PW_REDFLAG] && ps->powerups[PW_REDFLAG]) || (ps->powerups[PW_BLUEFLAG] != ops->powerups[PW_BLUEFLAG] && ps->powerups[PW_BLUEFLAG]) || (ps->powerups[PW_NEUTRALFLAG] != ops->powerups[PW_NEUTRALFLAG] && ps->powerups[PW_NEUTRALFLAG]) ) {
-			CG_AddBufferedSound( cgs.media.youHaveFlagSound );
+			if (CG_NumLocalPlayers() > 1) {
+				if (ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+					CG_AddBufferedSound( cgs.media.blueTeamTookTheFlagSound );
+				} else {
+					CG_AddBufferedSound( cgs.media.redTeamTookTheFlagSound );
+				}
+			} else {
+				CG_AddBufferedSound( cgs.media.youHaveFlagSound );
+			}
 		}
+	}
+	// in splitscreen mode, don't play reward sounds and lead changes
+	if (CG_NumLocalPlayers() > 1) {
+		return;
 	}
 	// lead changes
 	if ( ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK] ) {
@@ -367,7 +379,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			}
 		}
 	}
-	// reward sounds will only play if no other announcer sounds will be played 
+	// reward sounds will only play if no other announcer sounds will be played
 	if (CG_HasBufferedSound()) {
  		return;
  	}
