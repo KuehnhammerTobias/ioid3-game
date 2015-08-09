@@ -1224,7 +1224,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					break;
 #ifdef MISSIONPACK
 				case GTS_KAMIKAZE:
-					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_ANNOUNCER);
+					trap_S_StartLocalSound(cgs.media.kamikazeFarSound, CHAN_AUTO);
 					break;
 #endif
 				default:
