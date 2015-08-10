@@ -1053,6 +1053,8 @@ typedef struct {
 	sfxHandle_t	obeliskRespawnSound;
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
+	sfxHandle_t	redWinsSound;
+	sfxHandle_t	blueWinsSound;
 #endif
 	sfxHandle_t	gibSound;
 	sfxHandle_t	gibBounce1Sound;

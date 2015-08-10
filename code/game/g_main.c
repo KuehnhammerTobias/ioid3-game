@@ -1357,6 +1357,13 @@ void LogExit( const char *string ) {
 	if ( g_gametype.integer >= GT_TEAM ) {
 		G_LogPrintf( "red:%i  blue:%i\n",
 			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE] );
+#ifdef MISSIONPACK
+		if (level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE]) {
+			won = qfalse;
+		}
+
+		trap_Cmd_ExecuteText( EXEC_APPEND, (won) ? "blueWins\n" : "redWins\n" );
+#endif
 	}
 
 	for (i=0 ; i < numSorted ; i++) {
