@@ -369,14 +369,14 @@ static void CG_spLose_f( void) {
 }
 
 static void CG_blueWins_f( void) {
-
-	CG_AddBufferedSound(cgs.media.blueWinsSound);
+//	FIXME: do this sound somewhere else?
+	trap_S_StartLocalSound(cgs.media.blueWinsSound, CHAN_ANNOUNCER);
 //	CG_CenterPrint(0, "BLUE WINS!", SCREEN_HEIGHT/2, 2.0);
 }
  
 static void CG_redWins_f( void) {
-
-	CG_AddBufferedSound(cgs.media.redWinsSound);
+//	FIXME: do this sound somewhere else?
+	trap_S_StartLocalSound(cgs.media.redWinsSound, CHAN_ANNOUNCER);
 //	CG_CenterPrint(0, "RED WINS!", SCREEN_HEIGHT/2, 2.0);
 }
 #endif

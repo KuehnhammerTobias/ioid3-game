@@ -861,6 +861,10 @@ CG_AddBufferedSound
 void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	if ( !sfx )
 		return;
+	// if we are going into the intermission, don't start any voices
+	if ( cg.intermissionStarted ) {
+		return;
+	}
 
 	if ( cg.warmup && cg.warmupCount < 6 ) {
 		return;
@@ -889,7 +893,7 @@ CG_PlayBufferedSounds
 */
 static void CG_PlayBufferedSounds( void ) {
 
-	if ( cg.warmup && cg.warmupCount < 6 ) {
+	if ( cg.intermissionStarted || ( cg.warmup && cg.warmupCount < 6 ) ) {
 		// NOTE: do we need this?
 		cg.soundBufferIn = 0;
 		cg.soundBufferOut = 0;
