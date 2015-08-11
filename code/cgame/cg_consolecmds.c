@@ -368,17 +368,6 @@ static void CG_spLose_f( void) {
 	CG_CenterPrint(0, "YOU LOSE...", SCREEN_HEIGHT/2, 2.0);
 }
 
-static void CG_blueWins_f( void) {
-//	FIXME: do this sound somewhere else?
-	trap_S_StartLocalSound(cgs.media.blueWinsSound, CHAN_ANNOUNCER);
-//	CG_CenterPrint(0, "BLUE WINS!", SCREEN_HEIGHT/2, 2.0);
-}
- 
-static void CG_redWins_f( void) {
-//	FIXME: do this sound somewhere else?
-	trap_S_StartLocalSound(cgs.media.redWinsSound, CHAN_ANNOUNCER);
-//	CG_CenterPrint(0, "RED WINS!", SCREEN_HEIGHT/2, 2.0);
-}
 #endif
 
 static void CG_TellTarget_f( int localPlayerNum ) {
@@ -862,8 +851,6 @@ static consoleCommand_t	cg_commands[] = {
 #ifdef MISSIONPACK
 	{ "spWin", CG_spWin_f, CMD_INGAME },
 	{ "spLose", CG_spLose_f, CMD_INGAME },
-	{ "redWins", CG_redWins_f, CMD_INGAME },
-	{ "blueWins", CG_blueWins_f, CMD_INGAME },
 #ifdef MISSIONPACK_HUD
 	{ "loadhud", CG_LoadHud_f, CMD_INGAME },
 #endif

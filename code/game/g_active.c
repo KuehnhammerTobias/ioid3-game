@@ -405,10 +405,7 @@ Actions that happen once a second
 */
 void PlayerTimerActions( gentity_t *ent, int msec ) {
 	gplayer_t	*player;
-#ifdef MISSIONPACK
-	int			maxHealth;
-	int			regenFactor;
-#endif
+	int			maxHealth, regenFactor;
 
 	player = ent->player;
 	player->timeResidual += msec;
@@ -422,11 +419,12 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 			maxHealth = player->ps.stats[STAT_MAX_HEALTH] / 2;
 			regenFactor = 1;
 		}
-		else if ( player->ps.powerups[PW_REGEN] ) {
+		else
+#endif
+		if ( player->ps.powerups[PW_REGEN] ) {
 			maxHealth = player->ps.stats[STAT_MAX_HEALTH];
 			regenFactor = 2;
-		}
-		else {
+		} else {
 			maxHealth = 0;
 			regenFactor = 0;
 		}
@@ -444,22 +442,6 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 				}
 				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
 			}
-#else
-		if ( player->ps.powerups[PW_REGEN] ) {
-			if ( ent->health < player->ps.stats[STAT_MAX_HEALTH]) {
-				ent->health += 15;
-				if ( ent->health > player->ps.stats[STAT_MAX_HEALTH] * 1.1 ) {
-					ent->health = player->ps.stats[STAT_MAX_HEALTH] * 1.1;
-				}
-				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-			} else if ( ent->health < player->ps.stats[STAT_MAX_HEALTH] * 2) {
-				ent->health += 5;
-				if ( ent->health > player->ps.stats[STAT_MAX_HEALTH] * 2 ) {
-					ent->health = player->ps.stats[STAT_MAX_HEALTH] * 2;
-				}
-				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
-			}
-#endif
 		} else {
 			// count down health when over max
 			if ( ent->health > player->ps.stats[STAT_MAX_HEALTH] ) {
@@ -921,22 +903,21 @@ void PlayerThink_real( gentity_t *ent ) {
 	VectorCopy( player->ps.origin, player->oldOrigin );
 
 #ifdef MISSIONPACK
-		if (level.intermissionQueued != 0 && g_singlePlayer.integer) {
-			if ( level.time - level.intermissionQueued >= 1000  ) {
-				pm.cmd.buttons = 0;
-				pm.cmd.forwardmove = 0;
-				pm.cmd.rightmove = 0;
-				pm.cmd.upmove = 0;
-				if ( level.time - level.intermissionQueued >= 2000 && level.time - level.intermissionQueued <= 2500 ) {
-					trap_Cmd_ExecuteText( EXEC_APPEND, "centerview\n");
-				}
-				ent->player->ps.pm_type = PM_SPINTERMISSION;
+	if ( level.intermissionQueued != 0 && g_singlePlayer.integer ) {
+		if ( level.time - level.intermissionQueued >= 1000 ) {
+			pm.cmd.buttons = 0;
+			pm.cmd.forwardmove = 0;
+			pm.cmd.rightmove = 0;
+			pm.cmd.upmove = 0;
+			if ( level.time - level.intermissionQueued >= 2000 && level.time - level.intermissionQueued <= 2500 ) {
+				trap_Cmd_ExecuteText( EXEC_APPEND, "centerview\n" );
 			}
+			ent->player->ps.pm_type = PM_SPINTERMISSION;
 		}
-		Pmove (&pm);
-#else
-		Pmove (&pm);
+	}
 #endif
+
+	Pmove (&pm);
 
 	// save results of pmove
 	if ( ent->player->ps.eventSequence != oldEventSequence ) {

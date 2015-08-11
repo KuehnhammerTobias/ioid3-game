@@ -252,7 +252,7 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	}
 	else
 #endif
-	max = other->player->ps.stats[STAT_MAX_HEALTH];
+		max = other->player->ps.stats[STAT_MAX_HEALTH];
 
 	if ( ent->count ) {
 		quantity = ent->count;
@@ -273,27 +273,22 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 //======================================================================
 
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
-#ifdef MISSIONPACK
 	int		upperBound;
 
-	other->player->ps.stats[STAT_ARMOR] += ent->item->quantity;
-
-	if( other->player && BG_ItemForItemNum( other->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
+#ifdef MISSIONPACK
+	if( BG_ItemForItemNum( other->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 		upperBound = other->player->ps.stats[STAT_MAX_HEALTH];
 	}
-	else {
+	else
+#endif
+	{
 		upperBound = other->player->ps.stats[STAT_MAX_HEALTH] * 2;
 	}
 
+	other->player->ps.stats[STAT_ARMOR] += ent->item->quantity;
 	if ( other->player->ps.stats[STAT_ARMOR] > upperBound ) {
 		other->player->ps.stats[STAT_ARMOR] = upperBound;
 	}
-#else
-	other->player->ps.stats[STAT_ARMOR] += ent->item->quantity;
-	if ( other->player->ps.stats[STAT_ARMOR] > other->player->ps.stats[STAT_MAX_HEALTH] * 2 ) {
-		other->player->ps.stats[STAT_ARMOR] = other->player->ps.stats[STAT_MAX_HEALTH] * 2;
-	}
-#endif
 
 	return RESPAWN_ARMOR;
 }

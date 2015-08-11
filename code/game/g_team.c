@@ -285,7 +285,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 	gentity_t *ent;
 	int flag_pw, enemy_flag_pw;
 	int otherteam;
-	int tokens;
 	gentity_t *flag, *carrier = NULL;
 	char *c;
 	vec3_t v1, v2;
@@ -316,12 +315,6 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 #endif
 
 	// did the attacker frag the flag carrier?
-	tokens = 0;
-#ifdef MISSIONPACK
-	if( g_gametype.integer == GT_HARVESTER ) {
-		tokens = targ->player->ps.tokens;
-	}
-#endif
 	if (targ->player->ps.powerups[enemy_flag_pw]) {
 		attacker->player->pers.teamState.lastfraggedcarrier = level.time;
 		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS);
@@ -338,8 +331,11 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		return;
 	}
 
-	// did the attacker frag a head carrier?
-	if (tokens) {
+	// did the attacker frag a skull carrier?
+#ifdef MISSIONPACK
+	if (g_gametype.integer == GT_HARVESTER && targ->player->ps.tokens) {
+		int tokens = targ->player->ps.tokens;
+
 		attacker->player->pers.teamState.lastfraggedcarrier = level.time;
 		AddScore(attacker, targ->r.currentOrigin, CTF_FRAG_CARRIER_BONUS * tokens * tokens);
 		PrintMsg(NULL, "%s" S_COLOR_WHITE " fragged %s's skull carrier!\n",
@@ -354,6 +350,7 @@ void Team_FragBonuses(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker
 		}
 		return;
 	}
+#endif
 
 	if (targ->player->pers.teamState.lasthurtcarrier &&
 		level.time - targ->player->pers.teamState.lasthurtcarrier < CTF_CARRIER_DANGER_PROTECT_TIMEOUT &&
