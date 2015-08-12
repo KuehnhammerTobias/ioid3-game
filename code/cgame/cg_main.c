@@ -796,8 +796,8 @@ void CG_AddNotifyText( int realTime, qboolean restoredText ) {
 	}
 
 	// [player #] perfix for text that only shows up in notify area for one local player
-	if ( !Q_strncmp( buffer, "[player ", 8 ) && isdigit(buffer[8]) && buffer[9] == ']' ) {
-		localPlayerBits = 1 << ( atoi( &buffer[8] ) - 1 );
+	if ( !Q_strncmp( buffer, "[player ", 8 ) && buffer[8] >= '1' && buffer[8] < '1'+MAX_SPLITVIEW && buffer[9] == ']' ) {
+		localPlayerBits = 1 << ( buffer[8] - '1' );
 
 		buffer += 10;
 	} else {
@@ -813,12 +813,17 @@ void CG_AddNotifyText( int realTime, qboolean restoredText ) {
 
 		player = &cg.localPlayers[i];
 
-		if( player->numConsoleLines == MAX_CONSOLE_LINES )
+		if ( player->numConsoleLines == MAX_CONSOLE_LINES ) {
 			CG_RemoveNotifyLine( player );
+		}
 
 		// free lines until there is enough space to fit buffer
 		while ( strlen( player->consoleText ) + bufferLen > MAX_CONSOLE_TEXT ) {
 			CG_RemoveNotifyLine( player );
+		}
+
+		if ( player->numConsoleLines == MAX_CONSOLE_LINES ) {
+			continue; // this shouldn't ever happen
 		}
 
 		Q_strcat( player->consoleText, MAX_CONSOLE_TEXT, buffer );
