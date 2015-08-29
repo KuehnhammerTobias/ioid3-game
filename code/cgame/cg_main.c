@@ -1139,6 +1139,10 @@ static void CG_RegisterSounds( void ) {
 		cgs.media.redLeadsSound = trap_S_RegisterSound( "sound/feedback/redleads.wav", qtrue );
 		cgs.media.blueLeadsSound = trap_S_RegisterSound( "sound/feedback/blueleads.wav", qtrue );
 		cgs.media.teamsTiedSound = trap_S_RegisterSound( "sound/feedback/teamstied.wav", qtrue );
+#ifdef MISSIONPACK
+		cgs.media.redWinsSound = trap_S_RegisterSound( "sound/teamplay/voc_redwins.wav", qtrue );
+		cgs.media.blueWinsSound = trap_S_RegisterSound( "sound/teamplay/voc_bluewins.wav", qtrue );
+#endif
 		cgs.media.hitTeamSound = trap_S_RegisterSound( "sound/feedback/hit_teammate.wav", qtrue );
 
 		cgs.media.redScoredSound = trap_S_RegisterSound( "sound/teamplay/voc_red_scores.wav", qtrue );

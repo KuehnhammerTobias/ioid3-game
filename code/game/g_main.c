@@ -1519,6 +1519,9 @@ can see the last frag.
 void CheckExitRules( void ) {
  	int			i;
 	gplayer_t	*cl;
+#ifdef MISSIONPACK
+	qboolean won = qtrue;
+#endif
 	// if at the intermission, wait for all non-bots to
 	// signal ready, then go to next level
 	if ( level.intermissiontime ) {
@@ -1531,6 +1534,15 @@ void CheckExitRules( void ) {
 		int time = (g_singlePlayer.integer) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
 		if ( level.time - level.intermissionQueued >= time ) {
 			level.intermissionQueued = 0;
+
+			if ( g_gametype.integer >= GT_TEAM ) {
+				if (level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE]) {
+					won = qfalse;
+				}
+
+				trap_SendServerCommand( -1, (won) ? "blueWins\n" : "redWins\n" );
+			}
+
 			BeginIntermission();
 		}
 #else
