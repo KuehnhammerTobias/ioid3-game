@@ -36,6 +36,7 @@ Suite 120, Rockville, Maryland 20850 USA.
 #ifdef MISSIONPACK_HUD
 #include "../ui/ui_shared.h"
 
+static const char *DayAbbrev[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 // used for scoreboard
 extern displayContextDef_t cgDC;
 menuDef_t *menuScoreboard = NULL;
@@ -1157,30 +1158,69 @@ static float CG_DrawPowerups( float y ) {
 
 	return y;
 }
-#endif // MISSIONPACK_HUD
+#else // MISSIONPACK_HUD
+/*
+=================
+CG_DrawRealTimeClock
+=================
+*/
+static float CG_DrawRealTimeClock(float y) {
+	char *s;
+	qtime_t qtime;
 
+	if (!cg_drawClock.integer) {
+		return y;
+	}
+
+	trap_RealTime(&qtime);
+
+	if (cg_drawClock.integer == 2) {
+		s = va("%02d.%02d.%02d, %s, %02d:%02d", qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], qtime.tm_hour, qtime.tm_min);
+	} else {
+		char *pm = "am";
+		int h = qtime.tm_hour;
+
+		if (h == 0) {
+			h = 12;
+		} else if (h == 12) {
+			pm = "pm";
+		} else if (h > 12) {
+			h -= 12;
+			pm = "pm";
+		}
+
+		s = va("%02d.%02d.%02d, %s, %d:%02d%s", qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], h, qtime.tm_min, pm);
+	}
+
+	CG_DrawString(635, y + 2, s, UI_RIGHT|UI_DROPSHADOW|UI_TINYFONT, NULL);
+	return y;
+}
+#endif // MISSIONPACK_HUD
 /*
 =====================
 CG_DrawLowerRight
 
 =====================
 */
-#ifndef MISSIONPACK_HUD
 static void CG_DrawLowerRight( void ) {
 	float	y;
-
+#ifndef MISSIONPACK_HUD
 	y = 480 - ICON_SIZE;
-
+#else
+	y = 480 - 10;
+#endif
 	CG_SetScreenPlacement(PLACE_RIGHT, PLACE_BOTTOM);
-
+#ifndef MISSIONPACK_HUD
 	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 2 ) {
 		y = CG_DrawTeamOverlay( y, qtrue, qfalse );
 	} 
 
 	y = CG_DrawScores( y );
 	CG_DrawPowerups( y );
-}
+#else // MISSIONPACK_HUD
+	y = CG_DrawRealTimeClock(y);
 #endif // MISSIONPACK_HUD
+}
 
 /*
 ===================
@@ -2744,8 +2784,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawUpperRight(stereoFrame);
 #endif
 
-#ifndef MISSIONPACK_HUD
 	CG_DrawLowerRight();
+#ifndef MISSIONPACK_HUD
 	CG_DrawLowerLeft();
 #endif
 
