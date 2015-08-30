@@ -94,10 +94,10 @@ BotNumTeamMates
 ==================
 */
 int BotNumTeamMates(bot_state_t *bs) {
-	int i, numplayers;
+	int i, numteammates;
 	char buf[MAX_INFO_STRING];
 
-	numplayers = 0;
+	numteammates = 0;
 	for (i = 0; i < level.maxplayers; i++) {
 		trap_GetConfigstring(CS_PLAYERS+i, buf, sizeof(buf));
 		//if no config string or no name
@@ -106,10 +106,10 @@ int BotNumTeamMates(bot_state_t *bs) {
 		if (atoi(Info_ValueForKey(buf, "t")) == TEAM_SPECTATOR) continue;
 		//
 		if (BotSameTeam(bs, i)) {
-			numplayers++;
+			numteammates++;
 		}
 	}
-	return numplayers;
+	return numteammates;
 }
 
 /*
