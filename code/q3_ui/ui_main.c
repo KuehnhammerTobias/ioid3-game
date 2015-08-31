@@ -133,32 +133,32 @@ vmCvar_t	ui_server16;
 vmCvar_t	ui_ioq3;
 
 static cvarTable_t		cvarTable[] = {
-	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
-	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "0", CVAR_ARCHIVE },
+	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "0", CVAR_ARCHIVE },
+	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "15", CVAR_ARCHIVE },
 
 	{ &ui_tourney_fraglimit, "ui_tourney_fraglimit", "0", CVAR_ARCHIVE },
 	{ &ui_tourney_timelimit, "ui_tourney_timelimit", "15", CVAR_ARCHIVE },
 
 	{ &ui_team_fraglimit, "ui_team_fraglimit", "0", CVAR_ARCHIVE },
-	{ &ui_team_timelimit, "ui_team_timelimit", "20", CVAR_ARCHIVE },
+	{ &ui_team_timelimit, "ui_team_timelimit", "15", CVAR_ARCHIVE },
 	{ &ui_team_friendly, "ui_team_friendly",  "1", CVAR_ARCHIVE },
 
 	{ &ui_ctf_capturelimit, "ui_ctf_capturelimit", "8", CVAR_ARCHIVE },
-	{ &ui_ctf_timelimit, "ui_ctf_timelimit", "30", CVAR_ARCHIVE },
-	{ &ui_ctf_friendly, "ui_ctf_friendly",  "0", CVAR_ARCHIVE },
+	{ &ui_ctf_timelimit, "ui_ctf_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_ctf_friendly, "ui_ctf_friendly",  "1", CVAR_ARCHIVE },
 
 #ifdef MISSIONPACK
-	{ &ui_1flag_capturelimit, "ui_1flag_capturelimit", "5", CVAR_ARCHIVE },
-	{ &ui_1flag_timelimit, "ui_1flag_timelimit", "30", CVAR_ARCHIVE },
-	{ &ui_1flag_friendly, "ui_1flag_friendly",  "0", CVAR_ARCHIVE },
+	{ &ui_1flag_capturelimit, "ui_1flag_capturelimit", "8", CVAR_ARCHIVE },
+	{ &ui_1flag_timelimit, "ui_1flag_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_1flag_friendly, "ui_1flag_friendly",  "1", CVAR_ARCHIVE },
 
-	{ &ui_obelisk_capturelimit, "ui_obelisk_capturelimit", "5", CVAR_ARCHIVE },
-	{ &ui_obelisk_timelimit, "ui_obelisk_timelimit", "20", CVAR_ARCHIVE },
-	{ &ui_obelisk_friendly, "ui_obelisk_friendly",  "0", CVAR_ARCHIVE },
+	{ &ui_obelisk_capturelimit, "ui_obelisk_capturelimit", "8", CVAR_ARCHIVE },
+	{ &ui_obelisk_timelimit, "ui_obelisk_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_obelisk_friendly, "ui_obelisk_friendly",  "1", CVAR_ARCHIVE },
 
-	{ &ui_harvester_capturelimit, "ui_harvester_capturelimit", "5", CVAR_ARCHIVE },
-	{ &ui_harvester_timelimit, "ui_harvester_timelimit", "30", CVAR_ARCHIVE },
-	{ &ui_harvester_friendly, "ui_harvester_friendly",  "0", CVAR_ARCHIVE },
+	{ &ui_harvester_capturelimit, "ui_harvester_capturelimit", "8", CVAR_ARCHIVE },
+	{ &ui_harvester_timelimit, "ui_harvester_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_harvester_friendly, "ui_harvester_friendly",  "1", CVAR_ARCHIVE },
 #endif
 
 	{ &ui_publicServer, "ui_publicServer", "1", CVAR_ARCHIVE },
@@ -185,7 +185,7 @@ static cvarTable_t		cvarTable[] = {
 
 	{ &ui_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
 	{ &ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
-	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
+	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "0", CVAR_ARCHIVE },
 	{ &ui_marks, "cg_marks", "1", CVAR_ARCHIVE },
 
 	{ &ui_server1, "server1", "", CVAR_ARCHIVE },

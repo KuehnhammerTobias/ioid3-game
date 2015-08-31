@@ -858,7 +858,7 @@ typedef struct animation_s {
 
 
 #define DEFAULT_PLAYER_NAME		"UnnamedPlayer"
-#define DEFAULT_PLAYER_COLOR1	4
+#define DEFAULT_PLAYER_COLOR1	5
 #define DEFAULT_PLAYER_COLOR2	5
 
 // Default player model names for the splitscreen players

@@ -2629,10 +2629,10 @@ static void UI_StartSkirmish(qboolean next) {
 	trap_Cvar_SetValue("cg_cameraOrbit", 0);
 	trap_Cvar_SetValue("cg_thirdPerson", 0);
 	trap_Cvar_SetValue("cg_drawTimer", 1);
-	trap_Cvar_SetValue("g_doWarmup", 1);
-	trap_Cvar_SetValue("g_warmup", 15);
-	trap_Cvar_SetValue("sv_pure", 0);
-	trap_Cvar_SetValue("g_friendlyFire", 0);
+	trap_Cvar_SetValue("g_doWarmup", 0);
+	trap_Cvar_SetValue("g_warmup", 6);
+	trap_Cvar_SetValue("sv_pure", 1);
+	trap_Cvar_SetValue("g_friendlyFire", 1);
 	trap_Cvar_Set("g_redTeam", CG_Cvar_VariableString("ui_teamName"));
 	trap_Cvar_Set("g_blueTeam", CG_Cvar_VariableString("ui_opponentName"));
 
@@ -4734,8 +4734,8 @@ void UI_Init( qboolean inGameLoad, int maxSplitView ) {
 	uiInfo.previewMovie = -1;
 
 	if ( trap_Cvar_VariableValue("ui_TeamArenaFirstRun") == 0 ) {
-		trap_Cvar_SetValue( "s_volume", 0.8 );
-		trap_Cvar_SetValue( "s_musicvolume", 0.5 );
+		trap_Cvar_SetValue( "s_volume", 1.0 );
+		trap_Cvar_SetValue( "s_musicvolume", 0.0 );
 		trap_Cvar_SetValue( "ui_TeamArenaFirstRun", 1 );
 	}
 
@@ -5204,7 +5204,7 @@ vmCvar_t	ui_ffa_timelimit;
 
 vmCvar_t	ui_tourney_fraglimit;
 vmCvar_t	ui_tourney_timelimit;
-
+vmCvar_t	ui_timelimit;
 vmCvar_t	ui_team_fraglimit;
 vmCvar_t	ui_team_timelimit;
 vmCvar_t	ui_team_friendly;
@@ -5212,7 +5212,7 @@ vmCvar_t	ui_team_friendly;
 vmCvar_t	ui_ctf_capturelimit;
 vmCvar_t	ui_ctf_timelimit;
 vmCvar_t	ui_ctf_friendly;
-
+vmCvar_t	ui_friendlyFire;
 vmCvar_t	ui_arenasFile;
 vmCvar_t	ui_botsFile;
 vmCvar_t	ui_spScores1;
@@ -5223,7 +5223,7 @@ vmCvar_t	ui_spScores5;
 vmCvar_t	ui_spAwards;
 vmCvar_t	ui_spVideos;
 vmCvar_t	ui_spSkill;
-
+vmCvar_t	ui_pure;
 vmCvar_t	ui_spSelection;
 
 vmCvar_t	ui_browserMaster;
@@ -5236,7 +5236,8 @@ vmCvar_t	ui_brassTime;
 vmCvar_t	ui_drawCrosshair;
 vmCvar_t	ui_drawCrosshairNames;
 vmCvar_t	ui_marks;
-
+vmCvar_t	ui_drawGun;
+vmCvar_t	ui_drawTimer;
 vmCvar_t	ui_server1;
 vmCvar_t	ui_server2;
 vmCvar_t	ui_server3;
@@ -5253,7 +5254,9 @@ vmCvar_t	ui_server13;
 vmCvar_t	ui_server14;
 vmCvar_t	ui_server15;
 vmCvar_t	ui_server16;
-
+vmCvar_t	ui_allowVote;
+vmCvar_t	ui_teamAutoJoin;
+vmCvar_t	ui_teamForceBalance;
 vmCvar_t	ui_redteam;
 vmCvar_t	ui_redteam1;
 vmCvar_t	ui_redteam2;
@@ -5319,20 +5322,20 @@ vmCvar_t	ui_realWarmUp;
 vmCvar_t	ui_serverStatusTimeOut;
 
 static cvarTable_t		cvarTable[] = {
-	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "20", CVAR_ARCHIVE },
-	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "0", CVAR_ARCHIVE },
+	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "0", CVAR_ARCHIVE },
+	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "15", CVAR_ARCHIVE },
 
 	{ &ui_tourney_fraglimit, "ui_tourney_fraglimit", "0", CVAR_ARCHIVE },
 	{ &ui_tourney_timelimit, "ui_tourney_timelimit", "15", CVAR_ARCHIVE },
-
+	{ &ui_timelimit, "timelimit", "15", CVAR_ARCHIVE }, 
 	{ &ui_team_fraglimit, "ui_team_fraglimit", "0", CVAR_ARCHIVE },
-	{ &ui_team_timelimit, "ui_team_timelimit", "20", CVAR_ARCHIVE },
+	{ &ui_team_timelimit, "ui_team_timelimit", "15", CVAR_ARCHIVE },
 	{ &ui_team_friendly, "ui_team_friendly",  "1", CVAR_ARCHIVE },
 
 	{ &ui_ctf_capturelimit, "ui_ctf_capturelimit", "8", CVAR_ARCHIVE },
-	{ &ui_ctf_timelimit, "ui_ctf_timelimit", "30", CVAR_ARCHIVE },
-	{ &ui_ctf_friendly, "ui_ctf_friendly",  "0", CVAR_ARCHIVE },
-
+	{ &ui_ctf_timelimit, "ui_ctf_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_ctf_friendly, "ui_ctf_friendly",  "1", CVAR_ARCHIVE },
+	{ &ui_friendlyFire, "g_friendlyFire", "1", CVAR_ARCHIVE },
 	{ &ui_arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM },
 	{ &ui_botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM },
 	{ &ui_spScores1, "g_spScores1", "", CVAR_ARCHIVE },
@@ -5342,8 +5345,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_spScores5, "g_spScores5", "", CVAR_ARCHIVE },
 	{ &ui_spAwards, "g_spAwards", "", CVAR_ARCHIVE },
 	{ &ui_spVideos, "g_spVideos", "", CVAR_ARCHIVE },
-	{ &ui_spSkill, "g_spSkill", "2", CVAR_ARCHIVE },
-
+	{ &ui_spSkill, "g_spSkill", "4", CVAR_ARCHIVE },
+	{ &ui_pure, "sv_pure", "1", CVAR_SYSTEMINFO },
 	{ &ui_spSelection, "ui_spSelection", "", CVAR_ROM },
 
 	{ &ui_browserMaster, "ui_browserMaster", "0", CVAR_ARCHIVE },
@@ -5354,9 +5357,13 @@ static cvarTable_t		cvarTable[] = {
 
 	{ &ui_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
 	{ &ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
-	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "1", CVAR_ARCHIVE },
+	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "0", CVAR_ARCHIVE },
 	{ &ui_marks, "cg_marks", "1", CVAR_ARCHIVE },
-
+	{ &ui_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE },
+	{ &ui_drawTimer, "cg_drawTimer", "1", CVAR_ARCHIVE },
+	{ &ui_allowVote, "g_allowVote", "1", CVAR_ARCHIVE },
+	{ &ui_teamAutoJoin, "g_teamAutoJoin", "1", CVAR_ARCHIVE },
+	{ &ui_teamForceBalance, "g_teamForceBalance", "1", CVAR_ARCHIVE },
 	{ &ui_server1, "server1", "", CVAR_ARCHIVE },
 	{ &ui_server2, "server2", "", CVAR_ARCHIVE },
 	{ &ui_server3, "server3", "", CVAR_ARCHIVE },
@@ -5427,8 +5434,8 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_scoreTimeBonus, "ui_scoreTimeBonus", "0", CVAR_ARCHIVE},
 	{ &ui_scoreSkillBonus, "ui_scoreSkillBonus", "0", CVAR_ARCHIVE},
 	{ &ui_scoreShutoutBonus, "ui_scoreShutoutBonus", "0", CVAR_ARCHIVE},
-	{ &ui_fragLimit, "ui_fragLimit", "10", 0},
-	{ &ui_captureLimit, "ui_captureLimit", "5", 0},
+	{ &ui_fragLimit, "ui_fragLimit", "0", 0},
+	{ &ui_captureLimit, "ui_captureLimit", "8", 0},
 	{ &ui_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE},
 	{ &ui_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE},
 	{ &ui_findPlayer, "ui_findPlayer", DEFAULT_MODEL, CVAR_ARCHIVE},
@@ -5436,7 +5443,7 @@ static cvarTable_t		cvarTable[] = {
 	{ &ui_hudFiles, "cg_hudFiles", "ui/hud.txt", CVAR_ARCHIVE},
 	{ &ui_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE},
 	{ &ui_teamArenaFirstRun, "ui_teamArenaFirstRun", "0", CVAR_ARCHIVE},
-	{ &ui_realWarmUp, "g_warmup", "20", CVAR_ARCHIVE},
+	{ &ui_realWarmUp, "g_warmup", "6", CVAR_ARCHIVE},
 	{ &ui_realCaptureLimit, "capturelimit", "8", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART},
 	{ &ui_serverStatusTimeOut, "ui_serverStatusTimeOut", "7000", CVAR_ARCHIVE},
 
