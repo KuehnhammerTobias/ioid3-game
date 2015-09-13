@@ -1345,6 +1345,7 @@ extern	vmCvar_t		cg_simpleItems;
 extern	vmCvar_t		cg_fov;
 extern	vmCvar_t		cg_zoomFov;
 extern	vmCvar_t		cg_splitviewVertical;
+extern	vmCvar_t		cg_splitviewThirdEqual;
 extern	vmCvar_t		cg_lagometer;
 extern	vmCvar_t		cg_drawAttacker;
 extern	vmCvar_t		cg_synchronousClients;

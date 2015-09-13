@@ -202,6 +202,7 @@ vmCvar_t	cg_simpleItems;
 vmCvar_t	cg_fov;
 vmCvar_t	cg_zoomFov;
 vmCvar_t	cg_splitviewVertical;
+vmCvar_t	cg_splitviewThirdEqual;
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
 vmCvar_t	cg_synchronousClients;
@@ -377,6 +378,7 @@ static cvarTable_t cgameCvarTable[] = {
 	{ &cg_tracerWidth, "cg_tracerwidth", "1", CVAR_CHEAT, RANGE_ALL },
 	{ &cg_tracerLength, "cg_tracerlength", "100", CVAR_CHEAT, RANGE_ALL },
 	{ &cg_splitviewVertical, "cg_splitviewVertical", "0", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_splitviewThirdEqual, "cg_splitviewThirdEqual", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE, RANGE_INT( 0, TEAMCHAT_HEIGHT ) },
 	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE, RANGE_BOOL },
@@ -2687,10 +2689,15 @@ Draw the frame
 =================
 */
 void CG_Refresh( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback, connstate_t state, int realTime ) {
+	int i;
 
 	CG_SetConnectionState( state );
 	cg.realFrameTime = realTime - cg.realTime;
 	cg.realTime = realTime;
+
+	for ( i = 0; i < CG_MaxSplitView(); i++ ) {
+		CG_UpdateMouseState( i );
+	}
 
 	// update cvars
 	CG_UpdateCvars();
@@ -2974,20 +2981,27 @@ CG_UpdateMouseState
 ====================
 */
 void CG_UpdateMouseState( int localPlayerNum ) {
-	int state;
+	int state = 0;
 
-	if ( ( Key_GetCatcher() & KEYCATCH_CONSOLE ) || ( cg.connState != CA_DISCONNECTED && cg.connState != CA_ACTIVE )
-		|| trap_GetDemoState() == DS_PLAYBACK ) {
+	if ( Key_GetCatcher() & KEYCATCH_CONSOLE ) {
 		// no grab, show system cursor
-		state = MOUSE_SYSTEMCURSOR;
-	} else {
-		state = 0;
+		state |= MOUSE_SYSTEMCURSOR;
 	}
 
+	// controling UI mouse cursor
 	if ( Key_GetCatcher() & KEYCATCH_UI ) {
 		// call mouse move event, no grab, hide system cursor
 		state |= MOUSE_CGAME;
-	} else if ( !( state & MOUSE_SYSTEMCURSOR ) ) {
+	}
+	// not controlling view angles
+	else if ( cg.demoPlayback || cg.connState != CA_ACTIVE
+			|| ( cg.snap && ( cg.snap->pss[localPlayerNum].pm_flags & (PMF_FOLLOW|PMF_SCOREBOARD) ) ) ) {
+		// no grab, show system cursor
+		state |= MOUSE_SYSTEMCURSOR;
+	}
+	// if console isn't open, not UI, and not other non-view angle modes
+	else if ( state == 0 )
+	{
 		// change viewangles, grab mouse, hide system cursor
 		state = MOUSE_CLIENT;
 	}
