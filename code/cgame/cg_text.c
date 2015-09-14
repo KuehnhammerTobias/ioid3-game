@@ -39,7 +39,7 @@ void CG_TextInit( void ) {
 	cgs.media.bigFontHeight = 20;
 
 	if ( !CG_InitTrueTypeFont( "fonts/tinyfont", 8, &cgs.media.tinyFont ) ) {
-		CG_InitBitmapFont( &cgs.media.tinyFont, 8, 4 );
+		CG_InitBitmapFont( &cgs.media.tinyFont, 8, 8 );
 	}
 
 	if ( !CG_InitTrueTypeFont( "fonts/smallfont", 12, &cgs.media.smallFont ) ) {
