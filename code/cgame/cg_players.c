@@ -2538,7 +2538,7 @@ void CG_Player( centity_t *cent ) {
 	VectorScale(legs.axis[1], 1.19, legs.axis[1]);
 	VectorScale(legs.axis[2], 1.19, legs.axis[2]);
 	legs.nonNormalizedAxes = qtrue;
-	cent->lerpOrigin[2] -= 10;
+	cent->lerpOrigin[2] += 4;
 // end
 	// get the animation state (after rotation, to allow feet shuffle)
 	CG_PlayerAnimation( cent, &legs.oldframe, &legs.frame, &legs.backlerp,

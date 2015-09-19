@@ -1298,7 +1298,7 @@ static void PM_CheckDuck (void)
 		if (pm->ps->pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
-			pm->ps->maxs[2] = 32;
+			pm->ps->maxs[2] = 46;
 			pm->trace (&trace, pm->ps->origin, pm->ps->mins, pm->ps->maxs, pm->ps->origin, pm->ps->playerNum, pm->tracemask );
 			if (!trace.allsolid)
 				pm->ps->pm_flags &= ~PMF_DUCKED;
@@ -1312,7 +1312,7 @@ static void PM_CheckDuck (void)
 	}
 	else
 	{
-		pm->ps->maxs[2] = 32;
+		pm->ps->maxs[2] = 46;
 		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 	}
 }
