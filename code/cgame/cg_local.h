@@ -838,6 +838,7 @@ typedef struct {
 	fontInfo_t	smallFont;
 	fontInfo_t	textFont;
 	fontInfo_t	bigFont;
+	fontInfo_t	numberFont; // status bar giant number font
 
 	int			smallFontHeight;
 	int			bigFontHeight;
@@ -935,8 +936,6 @@ typedef struct {
 	qhandle_t	nailPuffShader;
 	qhandle_t	blueProxMine;
 #endif
-
-	qhandle_t	numberShaders[11];
 
 	qhandle_t	shadowMarkShader;
 
@@ -1544,7 +1543,7 @@ void CG_LerpColor( const vec4_t a, const vec4_t b, vec4_t c, float t );
 void CG_DrawString( int x, int y, const char* str, int style, const vec4_t color );
 void CG_DrawStringWithCursor( int x, int y, const char* str, int style, const vec4_t color, int cursorPos, int cursorChar );
 void CG_DrawStringExt( int x, int y, const char* str, int style, const vec4_t color, float scale, int maxChars, float shadowOffset );
-void CG_DrawStringExtWithCursor( int x, int y, const char* str, int style, const vec4_t color, float scale, int maxChars, float shadowOffset, int cursorPos, int cursorChar );
+void CG_DrawStringExtWithCursor( int x, int y, const char* str, int style, const vec4_t color, float scale, int maxChars, float shadowOffset, float gradient, int cursorPos, int cursorChar );
 void CG_DrawBigString( int x, int y, const char *s, float alpha );
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color );
 void CG_DrawSmallString( int x, int y, const char *s, float alpha );
@@ -1617,6 +1616,7 @@ qboolean CG_AnyScoreboardShowing( void );
 //
 void CG_TextInit( void );
 void CG_InitBitmapFont( fontInfo_t *font, int charHeight, int charWidth );
+void CG_InitBitmapNumberFont( fontInfo_t *font );
 qboolean CG_InitTrueTypeFont( const char *name, int pointSize, fontInfo_t *font );
 fontInfo_t *CG_FontForScale( float scale );
 
@@ -1624,9 +1624,9 @@ const glyphInfo_t *Text_GetGlyph( const fontInfo_t *font, unsigned long index );
 int Text_Width( const char *text, const fontInfo_t *font, float scale, int limit );
 int Text_Height( const char *text, const fontInfo_t *font, float scale, int limit );
 void Text_PaintChar( float x, float y, float width, float height, float useScale, float s, float t, float s2, float t2, qhandle_t hShader );
-void Text_PaintGlyph( float x, float y, float useScale, const glyphInfo_t *glyph );
-void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, float adjust, int limit, float shadowOffset, qboolean forceColor );
-void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, int cursorPos, char cursor, float adjust, int limit, float shadowOffset, qboolean forceColor );
+void Text_PaintGlyph( float x, float y, float useScale, const glyphInfo_t *glyph, float *gradientColor );
+void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, float adjust, int limit, float shadowOffset, float gradient, qboolean forceColor );
+void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, int cursorPos, char cursor, float adjust, int limit, float shadowOffset, float gradient, qboolean forceColor );
 void Text_Paint_Limit( float *maxX, float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char* text, float adjust, int limit );
 
 void CG_Text_Paint( float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int textStyle );
@@ -1781,6 +1781,7 @@ void CG_SurfaceRailRings( const refEntity_t *re );
 void CG_SurfaceRailCore( const refEntity_t *re );
 void CG_SurfaceLightningBolt( const refEntity_t *re );
 void CG_SurfaceBeam( const refEntity_t *re );
+void CG_SurfaceText( const refEntity_t *re, const fontInfo_t *font, float scale, const char *text, float adjust, int limit, float gradient, qboolean forceColor );
 
 //
 // cg_spawn.c

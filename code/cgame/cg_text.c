@@ -61,6 +61,11 @@ void CG_TextInit( void ) {
 		// team arena truetype style
 		//CG_InitBitmapFont( &cgs.media.bigFont, 20, 10 );
 	}
+
+	// note: the original Q3 number bitmaps look like font1_prop
+	if ( !CG_InitTrueTypeFont( "fonts/numberfont", 48, &cgs.media.numberFont ) ) {
+		CG_InitBitmapNumberFont( &cgs.media.numberFont );
+	}
 }
 
 // 256x256 image with characters that are 16x16
@@ -95,6 +100,54 @@ void CG_InitBitmapFont( fontInfo_t *font, int charHeight, int charWidth ) {
 		font->glyphs[i].s2 = col*0.0625 + 0.0625;
 		font->glyphs[i].t2 = row*0.0625 + 0.0625;
 		font->glyphs[i].glyph = hShader;
+		Q_strncpyz( font->glyphs[i].shaderName, shaderName, sizeof ( font->glyphs[i].shaderName ) );
+	}
+}
+
+// Status bar number font, separeate 32x32 images for 0-9 and minus
+void CG_InitBitmapNumberFont( fontInfo_t *font ) {
+	int			i, index;
+	const char	*shaderName;
+	static char	*sb_nums[11] = {
+		"gfx/2d/numbers/zero_32b",
+		"gfx/2d/numbers/one_32b",
+		"gfx/2d/numbers/two_32b",
+		"gfx/2d/numbers/three_32b",
+		"gfx/2d/numbers/four_32b",
+		"gfx/2d/numbers/five_32b",
+		"gfx/2d/numbers/six_32b",
+		"gfx/2d/numbers/seven_32b",
+		"gfx/2d/numbers/eight_32b",
+		"gfx/2d/numbers/nine_32b",
+		"gfx/2d/numbers/minus_32b",
+	};
+
+	Com_Memset( font, 0, sizeof( fontInfo_t ) );
+
+	Com_sprintf( font->name, sizeof ( font->name ), "numberfont" );
+	font->glyphScale = 48.0f / 48;
+
+	for ( index = 0; index < 11; index++ ) {
+		shaderName = sb_nums[index];
+
+		if ( index == 10 ) {
+			i = '-';
+		} else {
+			i = '0' + index;
+		}
+
+		font->glyphs[i].height = 48;
+		font->glyphs[i].top = 48;
+		font->glyphs[i].left = 0;
+		font->glyphs[i].pitch = 32;
+		font->glyphs[i].xSkip = 32;
+		font->glyphs[i].imageWidth = 32;
+		font->glyphs[i].imageHeight = 48;
+		font->glyphs[i].s = 0;
+		font->glyphs[i].t = 0;
+		font->glyphs[i].s2 = 1;
+		font->glyphs[i].t2 = 1;
+		font->glyphs[i].glyph = trap_R_RegisterShader( shaderName );
 		Q_strncpyz( font->glyphs[i].shaderName, shaderName, sizeof ( font->glyphs[i].shaderName ) );
 	}
 }
@@ -238,19 +291,25 @@ void Text_PaintChar( float x, float y, float width, float height, float useScale
 }
 
 // Note: scale must be multiplied by font->glyphScale
-void Text_PaintGlyph( float x, float y, float useScale, const glyphInfo_t *glyph ) {
+void Text_PaintGlyph( float x, float y, float useScale, const glyphInfo_t *glyph, float *gradientColor ) {
 	float w, h;
 
 	w = glyph->imageWidth * useScale;
 	h = glyph->imageHeight * useScale;
 
 	CG_AdjustFrom640( &x, &y, &w, &h );
-	trap_R_DrawStretchPic( x, y, w, h, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph );
+
+	if ( gradientColor ) {
+		trap_R_DrawStretchPicGradient( x, y, w, h, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph, gradientColor, 0 );
+	} else {
+		trap_R_DrawStretchPic( x, y, w, h, glyph->s, glyph->t, glyph->s2, glyph->t2, glyph->glyph );
+	}
 }
 
-void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, float adjust, int limit, float shadowOffset, qboolean forceColor ) {
+void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, float adjust, int limit, float shadowOffset, float gradient, qboolean forceColor ) {
 	int len, count;
 	vec4_t newColor;
+	vec4_t gradientColor;
 	const glyphInfo_t *glyph;
 	const char *s;
 	float yadj, xadj;
@@ -265,6 +324,11 @@ void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const ve
 	trap_R_SetColor( color );
 	Vector4Copy( color, newColor );
 
+	gradientColor[0] = Com_Clamp( 0, 1, newColor[0] - gradient );
+	gradientColor[1] = Com_Clamp( 0, 1, newColor[1] - gradient );
+	gradientColor[2] = Com_Clamp( 0, 1, newColor[2] - gradient );
+	gradientColor[3] = color[3];
+
 	len = Q_UTF8_PrintStrlen( text );
 	if ( limit > 0 && len > limit ) {
 		len = limit;
@@ -278,6 +342,11 @@ void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const ve
 				VectorCopy( g_color_table[ColorIndex(*(s+1))], newColor );
 				newColor[3] = color[3];
 				trap_R_SetColor( newColor );
+
+				gradientColor[0] = Com_Clamp( 0, 1, newColor[0] - gradient );
+				gradientColor[1] = Com_Clamp( 0, 1, newColor[1] - gradient );
+				gradientColor[2] = Com_Clamp( 0, 1, newColor[2] - gradient );
+				gradientColor[3] = color[3];
 			}
 			s += 2;
 			continue;
@@ -290,11 +359,11 @@ void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const ve
 		if ( shadowOffset ) {
 			colorBlack[3] = newColor[3];
 			trap_R_SetColor( colorBlack );
-			Text_PaintGlyph( x + xadj + shadowOffset, y - yadj + shadowOffset, useScale, glyph );
+			Text_PaintGlyph( x + xadj + shadowOffset, y - yadj + shadowOffset, useScale, glyph, NULL );
 			trap_R_SetColor( newColor );
 			colorBlack[3] = 1.0f;
 		}
-		Text_PaintGlyph( x + xadj, y - yadj, useScale, glyph );
+		Text_PaintGlyph( x + xadj, y - yadj, useScale, glyph, ( gradient != 0 ) ? gradientColor : NULL );
 
 		x += ( glyph->xSkip * useScale ) + adjust;
 		count++;
@@ -303,9 +372,10 @@ void Text_Paint( float x, float y, const fontInfo_t *font, float scale, const ve
 	trap_R_SetColor( NULL );
 }
 
-void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, int cursorPos, char cursor, float adjust, int limit, float shadowOffset, qboolean forceColor ) {
+void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale, const vec4_t color, const char *text, int cursorPos, char cursor, float adjust, int limit, float shadowOffset, float gradient, qboolean forceColor ) {
 	int len, count;
 	vec4_t newColor;
+	vec4_t gradientColor;
 	const glyphInfo_t *glyph, *glyph2;
 	float yadj, xadj;
 	float useScale;
@@ -319,6 +389,11 @@ void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale
 
 	trap_R_SetColor( color );
 	Vector4Copy( color, newColor );
+
+	gradientColor[0] = Com_Clamp( 0, 1, newColor[0] - gradient );
+	gradientColor[1] = Com_Clamp( 0, 1, newColor[1] - gradient );
+	gradientColor[2] = Com_Clamp( 0, 1, newColor[2] - gradient );
+	gradientColor[3] = color[3];
 
 	// note: doesn't use Q_UTF8_PrintStrlen because this function draws color codes
 	len = Q_UTF8_Strlen( text );
@@ -336,6 +411,11 @@ void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale
 				VectorCopy( g_color_table[ColorIndex(*(s+1))], newColor );
 				newColor[3] = color[3];
 				trap_R_SetColor( newColor );
+
+				gradientColor[0] = Com_Clamp( 0, 1, newColor[0] - gradient );
+				gradientColor[1] = Com_Clamp( 0, 1, newColor[1] - gradient );
+				gradientColor[2] = Com_Clamp( 0, 1, newColor[2] - gradient );
+				gradientColor[3] = color[3];
 			}
 			// display color codes in edit fields instead of skipping them
 		}
@@ -362,7 +442,7 @@ void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale
 		if ( shadowOffset ) {
 			colorBlack[3] = newColor[3];
 			trap_R_SetColor( colorBlack );
-			Text_PaintGlyph( x + xadj + shadowOffset, y - yadj + shadowOffset, useScale, glyph );
+			Text_PaintGlyph( x + xadj + shadowOffset, y - yadj + shadowOffset, useScale, glyph, NULL );
 			trap_R_SetColor( newColor );
 			colorBlack[3] = 1.0f;
 		}
@@ -378,9 +458,11 @@ void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale
 			invertedColor[3] = color[3];
 
 			trap_R_SetColor( invertedColor );
-		}
 
-		Text_PaintGlyph( x + xadj, y - yadj, useScale, glyph );
+			Text_PaintGlyph( x + xadj, y - yadj, useScale, glyph, NULL );
+		} else {
+			Text_PaintGlyph( x + xadj, y - yadj, useScale, glyph, ( gradient != 0 ) ? gradientColor : NULL );
+		}
 
 		if ( count == cursorPos && !( ( cg.realTime / BLINK_DIVISOR ) & 1 ) && cursor == 11 ) {
 			// restore color
@@ -394,7 +476,7 @@ void Text_PaintWithCursor( float x, float y, const fontInfo_t *font, float scale
 	// need to paint cursor at end of text
 	if ( cursorPos == len && !( ( cg.realTime / BLINK_DIVISOR ) & 1 ) ) {
 		yadj = useScale * glyph2->top;
-		Text_PaintGlyph( x, y - yadj, useScale, glyph2 );
+		Text_PaintGlyph( x, y - yadj, useScale, glyph2, NULL );
 	}
 
 	trap_R_SetColor( NULL );
@@ -444,7 +526,7 @@ void Text_Paint_Limit( float *maxX, float x, float y, const fontInfo_t *font, fl
 		yadj = useScale * glyph->top;
 		xadj = useScale * glyph->left;
 
-		Text_PaintGlyph( x + xadj, y - yadj, useScale, glyph );
+		Text_PaintGlyph( x + xadj, y - yadj, useScale, glyph, NULL );
 		x += ( glyph->xSkip * useScale ) + adjust;
 		*maxX = x;
 		count++;
