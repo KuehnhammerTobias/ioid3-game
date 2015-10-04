@@ -348,7 +348,7 @@ void BotVoiceChat_FollowMe(bot_state_t *bs, int playernum, int mode) {
 	bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 	//set the ltg type
 	bs->ltgtype = LTG_TEAMACCOMPANY;
-	bs->formation_dist = 128
+	bs->formation_dist = 128;
 	bs->arrive_time = 0;
 	//
 	BotSetTeamStatus(bs);

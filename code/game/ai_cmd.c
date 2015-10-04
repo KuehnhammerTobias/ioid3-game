@@ -592,7 +592,7 @@ void BotMatch_HelpAccompany(bot_state_t *bs, bot_match_t *match) {
 	else {
 		bs->ltgtype = LTG_TEAMACCOMPANY;
 		if (!bs->teamgoal_time) bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
-		bs->formation_dist = 128
+		bs->formation_dist = 128;
 		bs->arrive_time = 0;
 		//
 		BotSetTeamStatus(bs);
