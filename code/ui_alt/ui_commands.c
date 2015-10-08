@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Zack Middleton
 
 This file is part of Spearmint Source Code.
 
@@ -27,36 +27,21 @@ terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc.,
 Suite 120, Rockville, Maryland 20850 USA.
 ===========================================================================
 */
-//
+
 #include "ui_local.h"
 
-void UI_SPArena_Start( const char *arenaInfo ) {
-	char	*map;
-	int		level;
-	int		n;
-	char	*txt;
-
-	n = (int)trap_Cvar_VariableValue( "sv_maxclients" );
-	if ( n < 8 ) {
-		trap_Cvar_SetValue( "sv_maxclients", 8 );
-	}
-
-	level = atoi( Info_ValueForKey( arenaInfo, "num" ) );
-	txt = Info_ValueForKey( arenaInfo, "special" );
-	if( txt[0] ) {
-		if( Q_stricmp( txt, "training" ) == 0 ) {
-			level = -ARENAS_PER_TIER;
-		}
-		else if( Q_stricmp( txt, "final" ) == 0 ) {
-			level = UI_GetNumSPTiers() * ARENAS_PER_TIER;
-		}
-	}
-	trap_Cvar_SetValue( "ui_spSelection", level );
-
-	trap_Cvar_SetValue( "ui_singlePlayerActive", 1 );
-	trap_Cvar_SetValue( "g_gametype", GT_SINGLE_PLAYER );
-	trap_Cvar_SetValue( "g_doWarmup", 0 );
-
-	map = Info_ValueForKey( arenaInfo, "map" );
-	trap_Cmd_ExecuteText( EXEC_APPEND, va( "map %s\n", map ) );
+static void UI_Postgame_f( void ) {
+	// TODO: show stats like Q3A and Team Arena
+	UI_SetActiveMenu( UIMENU_POSTGAME );
 }
+
+// UI commands
+consoleCommand_t ui_commands[] = {
+	{ "postgame", UI_Postgame_f, CMD_INGAME },
+};
+int ui_numCommands = ARRAY_LEN( ui_commands );
+
+void	UI_ConsoleCommand( int realTime ) {
+
+}
+
