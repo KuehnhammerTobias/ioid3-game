@@ -245,10 +245,6 @@ qboolean UI_MenuItemChangeValue( currentMenu_t *current, int itemNum, int dir ) 
 
 	item = &current->items[itemNum];
 
-	if ( !item->cvarName ) {
-		return qtrue;
-	}
-
 	if ( item->cvarPairs && item->numPairs > 0 ) {
 		const char *value;
 
@@ -264,8 +260,10 @@ qboolean UI_MenuItemChangeValue( currentMenu_t *current, int itemNum, int dir ) 
 
 		if ( item->cvarPairs[ item->cvarPair ].type == CVT_CMD ) {
 			trap_Cmd_ExecuteText( EXEC_APPEND, value );
-		} else {
+		} else if ( item->cvarName ) {
 			trap_Cvar_Set( item->cvarName, value );
+		} else {
+			Com_Printf( S_COLOR_YELLOW "WARNING: menu item '%s' doesn't have a cvarName but it's value requires it\n", item->caption );
 		}
 	}
 	else if ( item->cvarRange )
@@ -290,7 +288,7 @@ qboolean UI_MenuItemChangeValue( currentMenu_t *current, int itemNum, int dir ) 
 		}
 
 		// FIXME: slider will always be true here .. is the other case going to be needed? ratio buttons will use cvarPairs.
-		if ( UI_ItemIsSlider( item ) ) {
+		if ( item->widgetType == UIW_SLIDER ) {
 			// added elipse for min=0, max=1, step=0.1 not being able to go to max
 			if ( value < min - 0.001f || value > max + 0.001f ) {
 				// play buzz sound
@@ -299,7 +297,7 @@ qboolean UI_MenuItemChangeValue( currentMenu_t *current, int itemNum, int dir ) 
 			}
 			value = Com_Clamp( min, max, value );
 		}
-		// ratio button, ..erm or any wrapping value
+		// wrapping value
 		else if ( min != max ) {
 			// if cvar has min and max and out of range, wrap around
 			if ( value < min ) {
@@ -309,7 +307,11 @@ qboolean UI_MenuItemChangeValue( currentMenu_t *current, int itemNum, int dir ) 
 			}
 		}
 
-		trap_Cvar_SetValue( item->cvarName, value );
+		if ( item->cvarName ) {
+			trap_Cvar_SetValue( item->cvarName, value );
+		} else {
+			Com_Printf( S_COLOR_YELLOW "WARNING: menu item '%s' doesn't have a cvarName but it's value requires it\n", item->caption );
+		}
 	}
 
 	return qtrue;
@@ -358,9 +360,11 @@ qboolean UI_MenuMouseAction( currentMenu_t *current, int itemNum, int x, int y, 
 
 	item = &current->items[itemNum];
 
-	if ( UI_ItemIsSlider( item ) ) {
+	if ( item->widgetType == UIW_SLIDER || item->widgetType == UIW_COLORBAR ) {
 		float frac, sliderx, targetStep, targetValue, min, max;
 		qboolean reversed;
+		int sliderWidth;
+		float value, halfStep;
 
 		// clicked slider caption, ignore -- still allow clicking it to run an action
 		//if ( x < item->captionPos.x + item->captionPos.width && state == MACTION_PRESS )
@@ -377,12 +381,18 @@ qboolean UI_MenuMouseAction( currentMenu_t *current, int itemNum, int x, int y, 
 			max = item->cvarRange->max;
 		}
 
+		if ( item->widgetType == UIW_COLORBAR ) {
+			sliderWidth = 128;
+		} else {
+			sliderWidth = 96;
+		}
+
 		// click slider item outside of slider bar... eat action
-		if ( ( x < sliderx || x > sliderx + 96 ) && state == MACTION_PRESS ) {
+		if ( ( x < sliderx || x > sliderx + sliderWidth ) && state == MACTION_PRESS ) {
 			return qtrue;
 		} else {
 			sliderx += 8;
-			frac = Com_Clamp( 0, 1, ( x - 6 - sliderx ) / ( 96 - 16 ) );
+			frac = Com_Clamp( 0, 1, ( x - 6 - sliderx ) / ( sliderWidth - 16 ) );
 
 			if ( reversed ) {
 				frac = 1.0f - frac;
@@ -392,19 +402,30 @@ qboolean UI_MenuMouseAction( currentMenu_t *current, int itemNum, int x, int y, 
 			targetValue = targetStep + min;
 		}
 
+		//
+		// round to nearest
+		//
+		halfStep = item->cvarRange->stepSize / 2.0f;
+
+		// snap to step
+		value = 0;
+		while ( value + halfStep <= targetStep ) {
+			value += item->cvarRange->stepSize;
+		}
+		value += min;
+
+		value = Com_Clamp( min, max, value );
+
+		// color bar uses values in a non-linear order
+		if ( item->numPairs ) {
+			item->cvarPair = Com_Clamp( 0, item->numPairs, ( value - min ) / item->cvarRange->stepSize );
+
+			// ZTM: TODO: handle CVT_CMD and CVT_STRING
+			// display the cvar value, not the index value
+			targetValue = value = atof( item->cvarPairs[item->cvarPair].value );
+		}
+
 		if ( state == MACTION_RELEASE ) {
-			float value, halfStep;
-
-			halfStep = item->cvarRange->stepSize / 2.0f;
-
-			// snap to step
-			value = 0;
-			while ( value + halfStep <= targetStep ) {
-				value += item->cvarRange->stepSize;
-			}
-			value += min;
-
-			value = Com_Clamp( min, max, value );
 			trap_Cvar_SetValue( item->cvarName, value );
 
 #if 0 // ZTM: Old code. Now the cvar will automatically update to latched value each frame (derp, but only if the string changes -- i.e. not when snaps to existing value)
@@ -426,11 +447,7 @@ qboolean UI_MenuMouseAction( currentMenu_t *current, int itemNum, int x, int y, 
 	return qfalse;
 }
 
-qboolean UI_ItemIsSlider( currentMenuItem_t *item ) {
-	return ( item->cvarRange && item->numPairs == 0 );
-}
-
-static int UI_NumCvarPairs( cvarValuePair_t *cvarPairs ) {
+int UI_NumCvarPairs( cvarValuePair_t *cvarPairs ) {
 	int pair;
 
 	if ( !cvarPairs ) {
@@ -450,18 +467,6 @@ static void UI_SetMenuCvarValue( currentMenuItem_t *item ) {
 	int pair;
 
 	if ( !item->cvarName || !item->cvarPairs ) {
-		return;
-	}
-
-	// HACK: need to override this for resolution (r_mode)
-	if ( item->cvarPairs == cp_resolution ) {
-		item->cvarPair = uis.currentResPair;
-		return;
-	}
-
-	// HACK: TODO: need to override this for Geometric Detail
-	if ( !Q_stricmp( item->cvarName, "r_lodBias" ) ) {
-		item->cvarPair = 0;
 		return;
 	}
 
@@ -507,11 +512,15 @@ void UI_RegisterMenuCvars( currentMenu_t *current ) {
 		item->vmCvar.value = atof( item->vmCvar.string );
 		item->vmCvar.integer = atoi( item->vmCvar.string );
 
-		item->numPairs = UI_NumCvarPairs( item->cvarPairs );
-		UI_SetMenuCvarValue( item );
+		// HACK: need to override this for resolution (r_mode)
+		if ( item->cvarPairs == cp_resolution ) {
+			item->cvarPair = uis.currentResPair;
+		} else {
+			UI_SetMenuCvarValue( item );
+		}
 
 		// cvar for demos/mods/cinematics list box needs to be set initially
-		if ( item->flags & MIF_LISTBOX ) {
+		if ( item->widgetType == UIW_LISTBOX ) {
 			// FIXME: should CVT_CMD be run?
 			if ( item->cvarPairs[ item->cvarPair ].type != CVT_CMD ) {
 				trap_Cvar_Set( item->cvarName, item->cvarPairs[ item->cvarPair ].value );
@@ -525,7 +534,7 @@ void UI_UpdateMenuCvars( currentMenu_t *current ) {
 	currentMenuItem_t *item;
 	int i;
 	int modCount;
-	float oldValue;
+	//float oldValue;
 	char oldString[MAX_CVAR_VALUE_STRING];
 
 	for ( i = 0, item = current->items; i < current->numItems; i++, item++ ) {
@@ -533,22 +542,8 @@ void UI_UpdateMenuCvars( currentMenu_t *current ) {
 			continue;
 		}
 
-		// HACK: don't update r_mode, it's hard coded to always get set to the initial pair
-		if ( item->cvarPairs == cp_resolution ) {
-			continue;
-		}
-
-		// HACK: Geometric Detail item references two cvars using cvarPairs all as CVT_CMD
-		if ( !Q_stricmp( item->cvarName, "r_lodBias" ) ) {
-			continue;
-		}
-		// HACK: same as above
-		if ( !Q_stricmp( item->cvarName, "r_ext_max_anisotropy" ) ) {
-			continue;
-		}
-
 		modCount = item->vmCvar.modificationCount;
-		oldValue = item->vmCvar.value;
+		//oldValue = item->vmCvar.value;
 		Q_strncpyz( oldString, item->vmCvar.string, sizeof (oldString) );
 		trap_Cvar_Update( &item->vmCvar );
 
@@ -560,7 +555,7 @@ void UI_UpdateMenuCvars( currentMenu_t *current ) {
 			item->vmCvar.value = atof( item->vmCvar.string );
 			item->vmCvar.integer = atoi( item->vmCvar.string );
 
-			Com_Printf("Cvar changed! %s: %s -> %s. %f -> %f.\n", item->cvarName, oldString, item->vmCvar.string, oldValue, item->vmCvar.value );
+			//Com_Printf("DEBUG: Cvar changed! %s: %s -> %s. %f -> %f.\n", item->cvarName, oldString, item->vmCvar.string, oldValue, item->vmCvar.value );
 			UI_SetMenuCvarValue( item );
 			// should action function get run? well, if add it here it would run twice. and currently I don't want it _only_ here.
 		}
@@ -568,8 +563,112 @@ void UI_UpdateMenuCvars( currentMenu_t *current ) {
 		// should there just a string compare? could get rid of the trap_Cvar_Update call.
 		// also, why does this not always get changed?
 		if ( modCount != item->vmCvar.modificationCount ) {
-			Com_Printf("Cvar mod cound changed! %s: %s -> %s. %f -> %f.\n", item->cvarName, oldString, item->vmCvar.string, oldValue, item->vmCvar.value );
+			//Com_Printf("DEBUG: Cvar mod cound changed! %s: %s -> %s. %f -> %f.\n", item->cvarName, oldString, item->vmCvar.string, oldValue, item->vmCvar.value );
 		}
 	}
+}
+
+static int UI_CvarPairsStringCompare( const void *a, const void *b ) {
+	return Q_stricmp( ((const cvarValuePair_t*)a)->string, ((const cvarValuePair_t*)b)->string );
+}
+
+void UI_InitFileList( currentMenu_t *current, currentMenuItem_t *item, const char *extData ) {
+	char	dirName[MAX_QPATH], extension[MAX_QPATH], defaultMessage[128];
+	char	*name;
+	int		i, len, file, numFilenames;
+	cvarValuePair_t *filePairs;
+	int		maxFilePairs;
+	char	*fileNames;
+	int		fileNamesSize;
+
+	filePairs = &current->filePairs[current->numFilePairs];
+	maxFilePairs = ARRAY_LEN( current->filePairs ) - current->numFilePairs;
+
+	fileNames = &current->fileText[current->fileTextLength];
+	fileNamesSize = ARRAY_LEN( current->fileText ) - current->fileTextLength;
+
+	Q_strncpyz( dirName, Info_ValueForKey( extData, "dir" ), sizeof (dirName) );
+	Q_strncpyz( extension, Info_ValueForKey( extData, "ext" ), sizeof (extension) );
+	// defaultMessage cannot be local memory...
+	Q_strncpyz( defaultMessage, Info_ValueForKey( extData, "empty" ), sizeof (defaultMessage) );
+
+	numFilenames = trap_FS_GetFileList( dirName, extension, fileNames, fileNamesSize );
+
+	// mod list is "gamedir\0description\0"
+	if ( !Q_stricmp( dirName, "$modlist" ) ) {
+		numFilenames /= 2;
+		if ( numFilenames >= maxFilePairs ) {
+			numFilenames = maxFilePairs - 1;
+		}
+		name = fileNames;
+		for ( i = 0; i < numFilenames; i++ ) {
+			filePairs[i].type = CVT_STRING;
+
+			// gamedir
+			filePairs[i].value = name;
+			name += strlen( name ) + 1;
+
+			// description
+			filePairs[i].string = name;
+			name += strlen( name ) + 1;
+		}
+
+		// sort list by displayed names
+		qsort( filePairs, numFilenames, sizeof ( filePairs[0] ), UI_CvarPairsStringCompare );
+	} else {
+		if ( numFilenames >= maxFilePairs ) {
+			numFilenames = maxFilePairs - 1;
+		}
+		name = fileNames;
+		for ( file = 0, i = 0; file < numFilenames; file++ ) {
+			len = strlen( name );
+
+			// special handling for list of directories
+			// ZTM: FIXME: directories in pk3dirs do not have slash at end, but from pk3s do. causes duplicates if exist in both
+			if ( *extension == '/' ) {
+				if ( name[ len - 1 ] == '/' ) {
+					name[ len - 1 ] = 0;
+				} else if ( Q_stricmp( name, "." ) == 0 || Q_stricmp( name, ".." ) == 0 ) {
+					name[0] = '\0';
+				}
+			} else {
+				COM_StripExtension( name, name, len+1 );
+			}
+
+			if ( *name ) {
+				filePairs[i].type = CVT_STRING;
+				filePairs[i].value = name;
+				filePairs[i].string = name;
+				i++;
+			}
+
+			name += len + 1;
+		}
+	}
+
+	// create default message placeholder and store text in menu's fileText
+	if ( !numFilenames && defaultMessage[0] ) {
+		filePairs[numFilenames].type = CVT_STRING;
+		filePairs[numFilenames].value = "";
+		filePairs[numFilenames].string = name;
+		Q_strncpyz( name, defaultMessage, fileNamesSize );
+		name += strlen( name ) + 1;
+
+		numFilenames++;
+		item->flags &= ~MIF_SELECTABLE;
+	}
+
+	filePairs[numFilenames].type = CVT_NONE;
+	filePairs[numFilenames].value = NULL;
+	filePairs[numFilenames].string = NULL;
+
+	item->cvarPairs = filePairs;
+	item->numPairs = numFilenames;
+
+	// don't overwrite the CVT_NONE list terminator
+	numFilenames++;
+
+	current->fileTextLength += (int)(name - fileNames);
+	current->numFilePairs += numFilenames;
 }
 

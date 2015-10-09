@@ -73,6 +73,37 @@ Suite 120, Rockville, Maryland 20850 USA.
 
 #endif
 
+// color bar
+#define ART_FX_BASE			"menu/art/fx_base"
+#define ART_FX_BLUE			"menu/art/fx_blue"
+#define ART_FX_CYAN			"menu/art/fx_cyan"
+#define ART_FX_GREEN		"menu/art/fx_grn"
+#define ART_FX_RED			"menu/art/fx_red"
+#define ART_FX_TEAL			"menu/art/fx_teal"
+#define ART_FX_WHITE		"menu/art/fx_white"
+#define ART_FX_YELLOW		"menu/art/fx_yel"
+#define ART_FX_ORANGE		"menu/art/fx_orange"
+#define ART_FX_LIME			"menu/art/fx_lime"
+#define ART_FX_VIVIDGREEN	"menu/art/fx_vividgreen"
+#define ART_FX_LIGHTBLUE	"menu/art/fx_lightblue"
+#define ART_FX_PURPLE		"menu/art/fx_purple"
+#define ART_FX_PINK			"menu/art/fx_pink"
+
+#define NUM_COLOR_EFFECTS 13
+
+/*
+	List of Widgets
+*/
+typedef enum {
+	UIW_GENERIC, // text button
+	UIW_BITMAP, // bitmap button
+	UIW_SLIDER,
+	UIW_COLORBAR,
+	UIW_RADIO,
+	UIW_LISTBOX,
+
+	UIW_NUM_WIDGETS
+} uiWidgetType_t;
 
 /*
 	List of menus
@@ -128,7 +159,7 @@ typedef enum {
 #define		MIF_HEADER		0x0200	// A Team Arena main menu header
 #define		MIF_PANEL		0x0400	// Begin a 'tab' aka 'panel' of a menu
 #define		MIF_BACKBUTTON	0x0800	// automatically set on back button
-#define		MIF_LISTBOX		0x1000	// display cvarPairs as a list box
+#define		MIF_FILELIST	0x1000	// create cvarPairs using file list information in extData
 
 //#define		MIF_CVAR		0x1000
 //#define		MIF_CONTROL		0x2000	// y is PC_* (PlayerControl Index)
@@ -162,8 +193,10 @@ typedef struct {
 	void (*action)(int item); // used for MIF_CALL
 	menuId_t menuid; // used for MIF_SUBMENU and MIF_SWAPMENU
 	const char *extData; // info string containing extra rarely specified data.
+						 // for any: "widget"
 						 // for everything: "x" and "y" (in pixels)
-						 // for list box: "dir", "ext", "empty", "width" (in pixels), "listboxheight" (in number of text lines)
+						 // for file list: "dir", "ext", "empty"
+						 // for list box: "width" (in pixels), "listboxheight" (in number of text lines)
 
 	const char	*cvarName;
 
@@ -220,6 +253,15 @@ typedef struct {
 	int				numPairs;
 	int				bitmapIndex;
 
+	uiWidgetType_t	widgetType;
+#if 0
+	union {
+		struct {
+			qboolean	colorBar;
+		} slider;
+	} widget;
+#endif
+
 } currentMenuItem_t;
 
 #define MAX_MENU_DEPTH	20
@@ -244,7 +286,39 @@ typedef struct {
 	currentMenuItem_t	items[MAX_MENU_ITEMS];
 	int numItems;
 
+	// file list information
+	cvarValuePair_t filePairs[1024];
+	int		numFilePairs;
+	char	fileText[4096];
+	int		fileTextLength;
+
 } currentMenu_t;
+
+/*
+
+	Widgets
+
+*/
+
+typedef struct {
+	//void	(*cache)(); // called once at UI load
+	void	(*init)( currentMenuItem_t *item, const char *extData );
+	void	(*draw)( currentMenuItem_t *item, vec4_t color, int style );
+	void	(*mouseAction)( currentMenuItem_t *item );
+
+} uiWidget_t;
+
+extern uiWidget_t ui_widgets[UIW_NUM_WIDGETS];
+
+qboolean UI_ItemIsSlider( currentMenuItem_t *item );
+qboolean UI_ItemIsRadioButton( currentMenuItem_t *item );
+
+
+/*
+
+	Main UI system
+
+*/
 
 typedef struct {
 	int x, y;
@@ -274,7 +348,66 @@ typedef struct {
 
 } uiStatic_t;
 
+typedef struct {
+	qhandle_t menuBackground;
+	qhandle_t menuBackgroundNoLogo;
+	qhandle_t connectBackground;
+
+#ifdef MISSIONPACK
+	qhandle_t menuBackgroundB;
+	qhandle_t menuBackgroundC;
+	qhandle_t menuBackgroundD;
+	qhandle_t menuBackgroundE;
+	qhandle_t levelShotDetail;
+
+	qhandle_t gradientBar;
+	qhandle_t lightningShader;
+#else
+	qhandle_t bannerModel;
+
+	qhandle_t frameLeft;
+	qhandle_t frameLeftFilled; // player model select menu
+	qhandle_t frameRight;
+#endif
+
+	qhandle_t sliderBar;
+	qhandle_t sliderButton;
+	qhandle_t sliderButtonSelected;
+
+	qhandle_t radioButtonOff;
+	qhandle_t radioButtonOn;
+
+	qhandle_t dialogSmallBackground;
+	qhandle_t dialogLargeBackground;
+
+	qhandle_t fxBasePic;
+	qhandle_t fxPic[NUM_COLOR_EFFECTS];
+
+} uiAssets_t;
+
+typedef struct {
+	const char	*text;
+
+	// only used for back and next buttons
+	int			horizontalPad;
+	int			verticialPad;
+
+	const char	*offName;
+	int			offWidth;
+	int			offHeight;
+
+	const char	*onName;
+	int			onWidth;
+	int			onHeight;
+
+	// filled in at run time
+	qhandle_t	offShader;
+	qhandle_t	onShader;
+} uiBitmap_t;
+
 extern uiStatic_t uis;
+extern uiAssets_t uiAssets;
+extern uiBitmap_t ui_bitmaps[];
 
 // ui_main.c
 #define MAX_RESOLUTIONS	32
@@ -306,9 +439,10 @@ void UI_MenuCursorPoint( currentMenu_t *current, int x, int y );
 void UI_MenuAction( currentMenu_t *current, int itemNum, int dir );
 qboolean UI_MenuMouseAction( currentMenu_t *current, int itemNum, int x, int y, mouseActionState_t state );
 qboolean UI_MenuItemChangeValue( currentMenu_t *current, int itemNum, int dir );
-qboolean UI_ItemIsSlider( currentMenuItem_t *item );
+int UI_NumCvarPairs( cvarValuePair_t *cvarPairs );
 void UI_RegisterMenuCvars( currentMenu_t *current );
 void UI_UpdateMenuCvars( currentMenu_t *current );
+void UI_InitFileList( currentMenu_t *current, currentMenuItem_t *item, const char *extData );
 
 
 // ui_fonts.c

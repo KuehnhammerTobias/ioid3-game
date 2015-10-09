@@ -132,8 +132,8 @@ void restartMap( int item ) {
 #define VCMD( x, str ) { CVT_CMD, x, str }
 #define VEND { CVT_NONE, NULL, NULL }
 
-static cvarValuePair_t cp_bool[] = { VINT( 0, "off" ), VINT( 1, "on" ), VEND };
-static cvarValuePair_t cp_boolInvert[] = { VINT( 0, "on" ), VINT( 1, "off" ), VEND };
+static cvarValuePair_t cp_bool[] = { VINT( 0, "Off" ), VINT( 1, "On" ), VEND };
+static cvarValuePair_t cp_boolInvert[] = { VINT( 0, "On" ), VINT( 1, "Off" ), VEND };
 
 // 0.0 to 1.0 slider
 static cvarRange_t cr_zeroToOne = { 0, 1, 0.05f };
@@ -234,19 +234,19 @@ menuitem_t setupmenu_items[] =
 
 menuitem_t demosmenu_items[] =
 {
-	{ MIF_LISTBOX|MIF_CALL, NULL, NULL, M_NONE, "\\dir\\demos\\ext\\$demos\\empty\\No demos found", "ui_selectedDemo", NULL },
+	{ MIF_FILELIST|MIF_CALL, NULL, NULL, M_NONE, "\\widget\\listbox\\dir\\demos\\ext\\$demos\\empty\\No demos found", "ui_selectedDemo", NULL },
 	{ MIF_BIGTEXT|MIF_CALL|MIF_NEXTBUTTON, "Play Demo", demoHandler, M_NONE, 0 },
 };
 
 menuitem_t cinematicsmenu_items[] =
 {
-	{ MIF_LISTBOX|MIF_CALL, NULL, NULL, M_NONE, "\\dir\\video\\ext\\$videos\\empty\\No cinematics found", "ui_selectedCinematic", NULL },
+	{ MIF_FILELIST|MIF_CALL, NULL, NULL, M_NONE, "\\widget\\listbox\\dir\\video\\ext\\$videos\\empty\\No cinematics found", "ui_selectedCinematic", NULL },
 	{ MIF_BIGTEXT|MIF_CALL|MIF_NEXTBUTTON, "Play Cinematic", cinematicHandler, M_NONE, 0 },
 };
 
 menuitem_t modsmenu_items[] =
 {
-	{ MIF_LISTBOX|MIF_CALL, NULL, NULL, M_NONE, "\\dir\\$modlist\\empty\\No mods found", "ui_selectedMod", NULL },
+	{ MIF_FILELIST|MIF_CALL, NULL, NULL, M_NONE, "\\widget\\listbox\\dir\\$modlist\\empty\\No mods found", "ui_selectedMod", NULL },
 	{ MIF_BIGTEXT|MIF_CALL|MIF_NEXTBUTTON, "Load Mod", modHandler, M_NONE, 0 },
 };
 
@@ -306,11 +306,32 @@ static cvarValuePair_t cp_handicap[] = {
 	VEND
 };
 
+static cvarRange_t cr_colorEffect = { 1, 13, 1 };
+static cvarValuePair_t cp_colorEffect[] = {
+	VINT( 4, "Red" ),
+	VINT( 8, "Orange" ),
+	VINT( 6, "Yellow" ),
+	VINT( 9, "Lime" ),
+	VINT( 2, "Green" ),
+	VINT( 10, "Vivid green" ),
+	VINT( 3, "Cyan" ),
+	VINT( 11, "Light blue" ),
+	VINT( 1, "Blue" ),
+	VINT( 12, "Purple" ),
+	VINT( 5, "Magenta" ),
+	VINT( 13, "Pink" ),
+	VINT( 7, "White" ),
+	VEND
+};
+
 menuitem_t playermenu_items[] =
 {
-	{ MIF_CALL, "Name:",	NULL, M_NONE, 0, "name" }, // TODO: make it an edit field
+	{ MIF_CALL, "Name:",		NULL, M_NONE, 0, "name" }, // TODO: make it an edit field
 	{ MIF_CALL, "Handicap:",	NULL, M_NONE, 0, "handicap", cp_handicap },
-	{ MIF_LISTBOX|MIF_CALL, "Model:", playerModelUpdate, M_NONE, "\\dir\\models/players\\ext\\/\\empty\\No players found\\width\\80\\listboxheight\\8", "model", NULL },
+	{ MIF_CALL, "Effects:",		NULL, M_NONE, "\\widget\\colorbar", "color1", cp_colorEffect, &cr_colorEffect },
+	{ MIF_CALL, NULL,			NULL, M_NONE, "\\widget\\colorbar", "color2", cp_colorEffect, &cr_colorEffect },
+		/// \\widget\\listbox
+	{ MIF_FILELIST|MIF_CALL, "Model:", playerModelUpdate, M_NONE, "\\dir\\models/players\\ext\\/\\empty\\No players found\\width\\80\\listboxheight\\8", "model", NULL },
 };
 
 
@@ -321,6 +342,7 @@ menuitem_t playermenu_items[] =
 */
 // From Team Arena's ui_main.c
 // ZTM: TODO: add anisotropy, multisample, and compressed textures
+// ZTM: TODO: Update graphics presets based my q3_ui changes
 void graphicsPresetUpdate( int item ) {
 	int val;
 
@@ -446,15 +468,15 @@ static cvarRange_t cr_viewsize = { 30, 100, 10 };
 
 static cvarValuePair_t cp_anaglyphMode[] =
 {
-	VINT( 0, "off" ),
-	VINT( 1, "red-cyan" ),
-	VINT( 2, "red-blue" ),
-	VINT( 3, "red-green" ),
-	VINT( 4, "green-magenta" ),
-	VINT( 5, "cyan-red" ),
-	VINT( 6, "blue-red" ),
-	VINT( 7, "green-red" ),
-	VINT( 8, "magenta-green" ),
+	VINT( 0, "Off" ),
+	VINT( 1, "Red-cyan" ),
+	VINT( 2, "Red-blue" ),
+	VINT( 3, "Red-green" ),
+	VINT( 4, "Green-magenta" ),
+	VINT( 5, "Cyan-red" ),
+	VINT( 6, "Blue-red" ),
+	VINT( 7, "Green-red" ),
+	VINT( 8, "Magenta-green" ),
 	VEND
 };
 
@@ -470,19 +492,19 @@ menuitem_t systemmenu_items[] = {
 	// ZTM: let's remove this, because generally no one should turn it off
 	//{ MIF_CALL, "GL Extensions:",		NULL, M_NONE, 0, "r_allowExtensions", cp_bool },
 	// ZTM: NOTE: I don't really like how Aspect Ratio works in q3_ui and don't feel like implementing it right now. Should aspect just be displayed after resolution size?
-	//{ MIF_CALL, "Aspect Ratio:",		NULL, M_NONE, 0 }, // 4:3, ...
-	{ MIF_CALL, "Resolution:",			NULL, M_NONE, 0, "r_mode", cp_resolution }, // 1024x768 ...
+	//{ MIF_CALL, "Aspect Ratio:",		NULL, M_NONE, 0 },
+	{ MIF_CALL, "Resolution:",			NULL, M_NONE, 0, NULL, cp_resolution }, // modifies r_mode, r_customwidth, r_customheight
 	{ MIF_CALL, "Fullscreen:",			NULL, M_NONE, 0, "r_fullscreen", cp_bool },
 	{ MIF_CALL, "Anti-aliasing:",		NULL, M_NONE, 0, "r_ext_multisample", cp_multisample }, // ZTM: new
 	{ MIF_CALL, "Lighting:",			NULL, M_NONE, 0, "r_vertexLight", cp_lighting },
 	{ MIF_CALL, "Flares:",				NULL, M_NONE, 0, "r_flares", cp_bool },
 	// ZTM: FIXME: Geometric Detail always defaults to 'low' when opening menu
-	{ MIF_CALL, "Geometric Detail:",	NULL, M_NONE, 0, "r_lodBias", cp_geometricDetail }, // modifies both "r_lodBias" and "r_subdivisions" cvars
+	{ MIF_CALL, "Geometric Detail:",	NULL, M_NONE, 0, NULL, cp_geometricDetail }, // modifies r_lodBias, r_subdivisions
 	{ MIF_CALL, "Texture Detail:",		NULL, M_NONE, 0, "r_picmip", cp_textureDetail },
 	{ MIF_CALL, "Texture Quality:",		NULL, M_NONE, 0, "r_texturebits", cp_textureQuality },
 	{ MIF_CALL, "Compress Textures:",	NULL, M_NONE, 0, "r_ext_compressed_textures", cp_bool }, // ZTM: new, from team arena
 	// ZTM: FIXME: Texture Filter always defaults to 'Bilinear' when opening menu
-	{ MIF_CALL, "Texture Filter:",		NULL, M_NONE, 0, "r_textureMode", cp_textureFilter }, // modifies r_textureMode, r_ext_texture_filter_anisotropic, r_ext_max_anisotropy
+	{ MIF_CALL, "Texture Filter:",		NULL, M_NONE, 0, NULL, cp_textureFilter }, // modifies r_textureMode, r_ext_texture_filter_anisotropic, r_ext_max_anisotropy
 
 	// missing driver info button
 
@@ -511,12 +533,12 @@ menuitem_t systemmenu_items[] = {
 ============================================================================
 */
 #ifndef MISSIONPACK_HUD
-static cvarValuePair_t cp_teamoverlay[] = { VINT( 0, "off" ), VINT( 1, "upper right" ), VINT( 2, "lower right" ), VINT( 3, "lower left" ), VEND };
+static cvarValuePair_t cp_teamoverlay[] = { VINT( 0, "Off" ), VINT( 1, "Upper right" ), VINT( 2, "Lower right" ), VINT( 3, "Lower left" ), VEND };
 #endif
-static cvarValuePair_t cp_splitvertical[] = { VINT( 0, "horizontal" ), VINT( 1, "vertical" ), VEND };
-static cvarValuePair_t cp_atmeffects[] = { VINT( 0, "off" ), VFLOAT( 0.5, "low" ), VINT( 1, "high" ), VEND };
-static cvarValuePair_t cp_brassTime[] = { VINT( 0, "off" ), VINT( 1250, "short" ), VINT( 2500, "long" ), VEND };
-static cvarValuePair_t cp_drawGun[] = { VINT( 0, "off" ), VINT( 1, "right-handed" ), VINT( 3, "centered" ), VINT( 2, "left-handed" ), VEND };
+static cvarValuePair_t cp_splitvertical[] = { VINT( 0, "Horizontal" ), VINT( 1, "Vertical" ), VEND };
+static cvarValuePair_t cp_atmeffects[] = { VINT( 0, "Off" ), VFLOAT( 0.5, "Low" ), VINT( 1, "High" ), VEND };
+static cvarValuePair_t cp_brassTime[] = { VINT( 0, "Off" ), VINT( 1250, "Short" ), VINT( 2500, "Long" ), VEND };
+static cvarValuePair_t cp_drawGun[] = { VINT( 0, "Off" ), VINT( 1, "Right-handed" ), VINT( 3, "Centered" ), VINT( 2, "Left-handed" ), VEND };
 
 // ZTM: TODO: remove the MIF_CALL? I think it's there so they are selectable...
 menuitem_t gameoptionsmenu_items[] =
