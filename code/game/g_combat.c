@@ -384,15 +384,14 @@ char	*modNames[] = {
 	"MOD_NAIL",
 	"MOD_CHAINGUN",
 	"MOD_PROXIMITY_MINE",
-#ifdef MISSIONPACK
 	"MOD_KAMIKAZE",
+#ifdef MISSIONPACK
 	"MOD_JUICED",
 #endif
 	"MOD_GRAPPLE",
 	"MOD_SUICIDE_TEAM_CHANGE"
 };
 
-#ifdef MISSIONPACK
 /*
 ==================
 Kamikaze_DeathActivate
@@ -420,8 +419,6 @@ void Kamikaze_DeathTimer( gentity_t *self ) {
 
 	ent->activator = self;
 }
-
-#endif
 
 /*
 ==================
@@ -703,11 +700,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		// the body can still be gibbed
 		self->die = body_die;
 
-#ifdef MISSIONPACK
 		if (self->s.eFlags & EF_KAMIKAZE) {
 			Kamikaze_DeathTimer( self );
 		}
-#endif
 	}
 
 	// normal death
@@ -995,7 +990,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #ifdef MISSIONPACK
 		if ( mod != MOD_JUICED && targ != attacker && !(dflags & DAMAGE_NO_TEAM_PROTECTION) && OnSameTeam (targ, attacker)  ) {
 #else	
-		if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
+		if ( targ != attacker && !(dflags & DAMAGE_NO_TEAM_PROTECTION) && OnSameTeam (targ, attacker) ) {
 #endif
 			if ( !g_friendlyFire.integer ) {
 				return;

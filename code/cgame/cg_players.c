@@ -2481,12 +2481,12 @@ void CG_Player( centity_t *cent ) {
 	float			shadowAlpha;
 	float			bodySinkOffset;
 	refEntity_t		powerup;
-#ifdef MISSIONPACK
 	refEntity_t		skull;
-	int				t;
-	float			c;
 	float			angle;
 	vec3_t			dir, angles;
+#ifdef MISSIONPACK
+	int				t;
+	float			c;
 #endif
 
 	// the player number is stored in playerNum.  It can't be derived
@@ -2622,7 +2622,6 @@ void CG_Player( centity_t *cent ) {
 	// add the talk baloon or disconnect icon
 	CG_PlayerSprites( cent, &torso );
 
-#ifdef MISSIONPACK
 	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
 
 		memset( &skull, 0, sizeof(skull) );
@@ -2731,7 +2730,7 @@ void CG_Player( centity_t *cent ) {
 			CG_AddRefEntityWithMinLight( &skull );
 		}
 	}
-#endif
+
 	if ( cent->currentState.powerups & ( 1 << PW_GUARD ) ) {
 		memcpy(&powerup, &torso, sizeof(torso));
 		powerup.hModel = cgs.media.guardPowerupModel;

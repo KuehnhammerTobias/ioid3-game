@@ -888,9 +888,6 @@ void FireWeapon( gentity_t *ent ) {
 	}
 }
 
-
-#ifdef MISSIONPACK
-
 /*
 ===============
 KamikazeRadiusDamage
@@ -1139,4 +1136,3 @@ void G_StartKamikaze( gentity_t *ent ) {
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = GTS_KAMIKAZE;
 }
-#endif

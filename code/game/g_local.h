@@ -166,11 +166,8 @@ struct gentity_s {
 	gentity_t	*teamchain;		// next entity in team
 	gentity_t	*teammaster;	// master of the team
 
-#ifdef MISSIONPACK
 	int			kamikazeTime;
 	int			kamikazeShockTime;
-#endif
-
 	int			watertype;
 	int			waterlevel;
 
@@ -552,9 +549,7 @@ void TossPlayerCubes( gentity_t *self );
 #define DAMAGE_NO_ARMOR				0x00000002	// armour does not protect from this damage
 #define DAMAGE_NO_KNOCKBACK			0x00000004	// do not affect velocity, just view angles
 #define DAMAGE_NO_PROTECTION		0x00000008  // armor, shields, invulnerability, and godmode have no effect
-#ifdef MISSIONPACK
 #define DAMAGE_NO_TEAM_PROTECTION	0x00000010  // armor, shields, invulnerability, and godmode have no effect
-#endif
 
 //
 // g_missile.c
@@ -643,9 +638,7 @@ qboolean G_FilterPacket (char *from);
 // g_weapon.c
 //
 void FireWeapon( gentity_t *ent );
-#ifdef MISSIONPACK
 void G_StartKamikaze( gentity_t *ent );
-#endif
 
 //
 // g_cmds.c

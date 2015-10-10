@@ -275,9 +275,9 @@ typedef enum {
 	LE_SCALE_FADE,
 	LE_SCOREPLUM,
 	LE_BUBBLE,
+	LE_KAMIKAZE
 #ifdef MISSIONPACK
-	LE_KAMIKAZE,
-	LE_INVULIMPACT,
+	, LE_INVULIMPACT,
 	LE_INVULJUICED,
 	LE_SHOWREFENTITY
 #endif
@@ -947,10 +947,8 @@ typedef struct {
 	qhandle_t	battleSuitShader;
 	qhandle_t	battleWeaponShader;
 	qhandle_t	hastePuffShader;
-#ifdef MISSIONPACK
 	qhandle_t	redKamikazeShader;
 	qhandle_t	blueKamikazeShader;
-#endif
 
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
@@ -970,12 +968,10 @@ typedef struct {
 	// special effects models
 	qhandle_t	teleportEffectModel;
 	qhandle_t	teleportEffectShader;
-#ifdef MISSIONPACK
 	qhandle_t	kamikazeEffectModel;
 	qhandle_t	kamikazeShockWave;
 	qhandle_t	kamikazeHeadModel;
 	qhandle_t	kamikazeHeadTrail;
-#endif
 	qhandle_t	guardPowerupModel;
 	qhandle_t	scoutPowerupModel;
 	qhandle_t	doublerPowerupModel;
@@ -1020,10 +1016,10 @@ typedef struct {
 	sfxHandle_t	sfx_chghitflesh;
 	sfxHandle_t	sfx_chghitmetal;
 	sfxHandle_t	sfx_chgstop;
-#ifdef MISSIONPACK
 	sfxHandle_t kamikazeExplodeSound;
 	sfxHandle_t kamikazeImplodeSound;
 	sfxHandle_t kamikazeFarSound;
+#ifdef MISSIONPACK
 	sfxHandle_t useInvulnerabilitySound;
 	sfxHandle_t invulnerabilityImpactSound1;
 	sfxHandle_t invulnerabilityImpactSound2;
@@ -1733,9 +1729,7 @@ localEntity_t *CG_SmokePuff( const vec3_t p,
 void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing );
 int CG_SpawnBubbles( localEntity_t **bubbles, vec3_t origin, float baseSize, int numBubbles );
 void CG_SpawnEffect( vec3_t org );
-#ifdef MISSIONPACK
 void CG_KamikazeEffect( vec3_t org );
-#endif
 void CG_ObeliskExplode( vec3_t org, int entityNum );
 void CG_ObeliskPain( vec3_t org );
 #ifdef MISSIONPACK

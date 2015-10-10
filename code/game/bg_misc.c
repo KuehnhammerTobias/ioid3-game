@@ -624,7 +624,6 @@ Only in CTF games
 /* sounds */ ""
 	},
 
-#ifdef MISSIONPACK
 /*QUAKED holdable_kamikaze (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -639,7 +638,7 @@ Only in CTF games
 		HI_KAMIKAZE,
 /* sounds */ "sound/items/kamikazerespawn.wav"
 	},
-
+#ifdef MISSIONPACK
 /*QUAKED holdable_portal (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{

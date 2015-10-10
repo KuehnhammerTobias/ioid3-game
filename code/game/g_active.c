@@ -586,14 +586,15 @@ void PlayerEvents( gentity_t *ent, int oldEventSequence ) {
 				ent->health = ent->player->ps.stats[STAT_MAX_HEALTH] + 25;
 				break;
 
-#ifdef MISSIONPACK
 			case HI_KAMIKAZE:
+#ifdef MISSIONPACK
 				// make sure the invulnerability is off
 				ent->player->invulnerabilityTime = 0;
+#endif
 				// start the kamikze
 				G_StartKamikaze( ent );
 				break;
-
+#ifdef MISSIONPACK
 			case HI_PORTAL:
 				if ( ent->player->portalID ) {
 					DropPortalSource( ent );

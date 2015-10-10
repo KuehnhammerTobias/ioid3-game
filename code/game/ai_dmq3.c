@@ -275,7 +275,6 @@ qboolean EntityHasQuad(aas_entityinfo_t *entinfo) {
 	return qfalse;
 }
 
-#ifdef MISSIONPACK
 /*
 ==================
 EntityHasKamikze
@@ -287,7 +286,7 @@ qboolean EntityHasKamikaze(aas_entityinfo_t *entinfo) {
 	}
 	return qfalse;
 }
-#endif
+
 /*
 ==================
 EntityCarriesCubes
@@ -325,12 +324,10 @@ qboolean EntityIsInvisible(aas_entityinfo_t *entinfo) {
 		if (EntityCarriesCubes(entinfo)) {
 			return qfalse;
 		}
-#ifdef MISSIONPACK
 		// kamikaze are always visible
 		if (EntityHasKamikaze(entinfo)) {
 			return qfalse;
 		}
-#endif
 		// invisible
 		return qtrue;
 	}
@@ -1773,8 +1770,8 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_HEALTH] = bs->cur_ps.stats[STAT_HEALTH];
 	bs->inventory[INVENTORY_TELEPORTER] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_TELEPORTER;
 	bs->inventory[INVENTORY_MEDKIT] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_MEDKIT;
-#ifdef MISSIONPACK
 	bs->inventory[INVENTORY_KAMIKAZE] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_KAMIKAZE;
+#ifdef MISSIONPACK
 	bs->inventory[INVENTORY_PORTAL] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_PORTAL;
 	bs->inventory[INVENTORY_INVULNERABILITY] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_INVULNERABILITY;
 #endif
@@ -1821,7 +1818,6 @@ void BotUpdateBattleInventory(bot_state_t *bs, int enemy) {
 	//FIXME: add num visible enemies and num visible team mates to the inventory
 }
 
-#ifdef MISSIONPACK
 /*
 ==================
 BotUseKamikaze
@@ -1931,7 +1927,7 @@ void BotUseKamikaze(bot_state_t *bs) {
 		return;
 	}
 }
-
+#ifdef MISSIONPACK
 /*
 ==================
 BotUseInvulnerability
@@ -2060,8 +2056,9 @@ void BotBattleUseItems(bot_state_t *bs) {
 			EA_Use(bs->playernum);
 		}
 	}
-#ifdef MISSIONPACK
+
 	BotUseKamikaze(bs);
+#ifdef MISSIONPACK
 	BotUseInvulnerability(bs);
 #endif
 }
@@ -5007,7 +5004,7 @@ void BotCheckForProxMines(bot_state_t *bs, entityState_t *state) {
 	bs->proxmines[bs->numproxmines] = state->number;
 	bs->numproxmines++;
 }
-#ifdef MISSIONPACK
+
 /*
 ==================
 BotCheckForKamikazeBody
@@ -5023,7 +5020,6 @@ void BotCheckForKamikazeBody(bot_state_t *bs, entityState_t *state) {
 	//remember this kamikaze body
 	bs->kamikazebody = state->number;
 }
-#endif
 
 /*
 ==================
@@ -5151,14 +5147,10 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 				bs->flagstatuschanged = qtrue;
 			}
 			else*/
-#ifdef MISSIONPACK
 			if (!strcmp(buf, "sound/items/kamikazerespawn.wav" )) {
 				//the kamikaze respawned so dont avoid it
 				BotDontAvoid(bs, "Kamikaze");
-			}
-			else
-#endif
-				if (!strcmp(buf, "sound/items/poweruprespawn.wav")) {
+			} else if (!strcmp(buf, "sound/items/poweruprespawn.wav")) {
 				//powerup respawned... go get it
 				BotGoForPowerups(bs);
 			}
@@ -5329,10 +5321,8 @@ void BotCheckSnapshot(bot_state_t *bs) {
 		BotCheckForGrenades(bs, &state);
 		//check for proximity mines which the bot should deactivate
 		BotCheckForProxMines(bs, &state);
-#ifdef MISSIONPACK
 		//check for dead bodies with the kamikaze effect which should be gibbed
 		BotCheckForKamikazeBody(bs, &state);
-#endif
 	}
 	//check the player state for events
 	BotAI_GetEntityState(bs->playernum, &state);

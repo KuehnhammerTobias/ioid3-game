@@ -312,7 +312,7 @@ void CG_LightningBoltBeam( vec3_t start, vec3_t end ) {
 	beam->reType = RT_LIGHTNING;
 	beam->customShader = cgs.media.lightningShader;
 }
-
+#endif
 /*
 ==================
 CG_KamikazeEffect
@@ -343,7 +343,7 @@ void CG_KamikazeEffect( vec3_t org ) {
 	VectorCopy( org, re->origin );
 
 }
-#endif
+
 /*
 ==================
 CG_ObeliskExplode
