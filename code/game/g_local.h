@@ -346,10 +346,10 @@ struct gplayer_s {
 	// like health / armor countdowns and regeneration
 	int			timeResidual;
 
-#ifdef MISSIONPACK
 	gentity_t	*persistantPowerup;
-	int			portalID;
 	int			ammoTimes[WP_NUM_WEAPONS];
+#ifdef MISSIONPACK
+	int			portalID;
 	int			invulnerabilityTime;
 #endif
 
@@ -544,9 +544,7 @@ int G_InvulnerabilityEffect( gentity_t *targ, vec3_t dir, vec3_t point, vec3_t i
 void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void TossPlayerItems( gentity_t *self );
 void TossPlayerGametypeItems( gentity_t *self );
-#ifdef MISSIONPACK
 void TossPlayerPersistantPowerups( gentity_t *self );
-#endif
 void TossPlayerCubes( gentity_t *self );
 
 // damage flags

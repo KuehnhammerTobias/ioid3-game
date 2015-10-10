@@ -714,7 +714,6 @@ Only in CTF games
 		WP_CHAINGUN,
 /* sounds */ ""
 	},
-#ifdef MISSIONPACK
 	//
 	// PERSISTANT POWERUP ITEMS
 	//
@@ -777,7 +776,6 @@ Only in CTF games
 		PW_AMMOREGEN,
 /* sounds */ ""
 	},
-#endif
 	/*QUAKED team_CTF_neutralflag (0 0 1) (-16 -16 -16) (16 16 16)
 Only in One Flag CTF games
 */
@@ -1262,13 +1260,9 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_ARMOR:
-#ifdef MISSIONPACK
 		if( BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			upperBound = ps->stats[STAT_MAX_HEALTH];
-		}
-		else
-#endif
-		{
+		} else {
 			upperBound = ps->stats[STAT_MAX_HEALTH] * 2;
 		}
 
@@ -1280,29 +1274,23 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	case IT_HEALTH:
 		// don't pick up if already at max
-#ifdef MISSIONPACK
 		if( BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			if (ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] / 2) {
 				return qfalse;
 			}
-		}
-		else
-#endif
-		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
+		} else if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
 			return qfalse;
 		}
 		return qtrue;
 
 	case IT_POWERUP:
-#ifdef MISSIONPACK
 		// scout overrides haste
 		if (item->giTag == PW_HASTE && BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_SCOUT ) {
 			return qfalse;
 		}
-#endif
+
 		return qtrue;
 
-#ifdef MISSIONPACK
 	case IT_PERSISTANT_POWERUP:
 		// can only hold one item at a time
 		if ( ps->stats[STAT_PERSISTANT_POWERUP] ) {
@@ -1315,7 +1303,6 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		}
 
 		return qtrue;
-#endif
 
 	case IT_TEAM: // team items, such as flags
 		if( gametype == GT_1FCTF ) {

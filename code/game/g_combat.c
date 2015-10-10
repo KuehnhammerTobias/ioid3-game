@@ -253,7 +253,6 @@ void TossPlayerCubes( gentity_t *self ) {
 	drop->s.team = self->player->sess.sessionTeam;
 }
 
-#ifdef MISSIONPACK
 /*
 =================
 TossPlayerPersistantPowerups
@@ -280,7 +279,6 @@ void TossPlayerPersistantPowerups( gentity_t *ent ) {
 	ent->player->ps.stats[STAT_PERSISTANT_POWERUP] = 0;
 	ent->player->persistantPowerup = NULL;
 }
-#endif
 
 /*
 ==================
@@ -644,9 +642,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	TossPlayerItems( self );
-#ifdef MISSIONPACK
 	TossPlayerPersistantPowerups( self );
-#endif
+
 	if( g_gametype.integer == GT_HARVESTER ) {
 		TossPlayerCubes( self );
 	}
@@ -930,11 +927,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	// unless they are rocket jumping
 	if ( attacker->player && attacker != targ ) {
 		max = attacker->player->ps.stats[STAT_MAX_HEALTH];
-#ifdef MISSIONPACK
+
 		if( BG_ItemForItemNum( attacker->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			max /= 2;
 		}
-#endif
+
 		damage = damage * max / 100;
 	}
 

@@ -411,14 +411,10 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 		player->timeResidual -= 1000;
 
 		// regenerate
-#ifdef MISSIONPACK
 		if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			maxHealth = player->ps.stats[STAT_MAX_HEALTH] / 2;
 			regenFactor = 1;
-		}
-		else
-#endif
-		if ( player->ps.powerups[PW_REGEN] ) {
+		} else if ( player->ps.powerups[PW_REGEN] ) {
 			maxHealth = player->ps.stats[STAT_MAX_HEALTH];
 			regenFactor = 2;
 		} else {
@@ -451,7 +447,7 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 			player->ps.stats[STAT_ARMOR]--;
 		}
 	}
-#ifdef MISSIONPACK
+
 	if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_AMMOREGEN ) {
 		int w, max, inc, t, i;
     int weapList[]={WP_MACHINEGUN,WP_SHOTGUN,WP_GRENADE_LAUNCHER,WP_ROCKET_LAUNCHER,WP_LIGHTNING,WP_RAILGUN,WP_PLASMAGUN,WP_BFG,WP_NAILGUN,WP_PROX_LAUNCHER,WP_CHAINGUN};
@@ -488,7 +484,6 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 		  }
     }
 	}
-#endif
 }
 
 /*
@@ -812,13 +807,9 @@ void PlayerThink_real( gentity_t *ent ) {
 	// set speed
 	player->ps.speed = g_speed.value;
 
-#ifdef MISSIONPACK
 	if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_SCOUT ) {
 		player->ps.speed *= 1.3;
-	}
-	else
-#endif
-	if ( player->ps.powerups[PW_HASTE] ) {
+	} else if ( player->ps.powerups[PW_HASTE] ) {
 		player->ps.speed *= 1.3;
 	}
 
@@ -1090,8 +1081,6 @@ void PlayerEndFrame( gentity_t *ent ) {
 			ent->player->ps.powerups[ i ] = 0;
 		}
 	}
-
-#ifdef MISSIONPACK
 	// set powerup for player animation
 	if( BG_ItemForItemNum( ent->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 		ent->player->ps.powerups[PW_GUARD] = level.time;
@@ -1105,11 +1094,11 @@ void PlayerEndFrame( gentity_t *ent ) {
 	if( BG_ItemForItemNum( ent->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_AMMOREGEN ) {
 		ent->player->ps.powerups[PW_AMMOREGEN] = level.time;
 	}
+#ifdef MISSIONPACK
 	if ( ent->player->invulnerabilityTime > level.time ) {
 		ent->player->ps.powerups[PW_INVULNERABILITY] = level.time;
 	}
 #endif
-
 	// save network bandwidth
 #if 0
 	if ( !g_synchronousClients->integer && ent->player->ps.pm_type == PM_NORMAL ) {

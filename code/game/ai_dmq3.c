@@ -1575,12 +1575,10 @@ qboolean BotWantsToWalk(bot_state_t *bs) {
 	if (BotHarvesterCarryingCubes(bs)) {
 		return qfalse;
 	}
-#ifdef MISSIONPACK
 	//never walk with the scout powerup
 	if (bs->inventory[INVENTORY_SCOUT]) {
 		return qfalse;
 	}
-#endif
 	//never walk with the haste powerup
 	if (bs->inventory[INVENTORY_HASTE]) {
 		return qfalse;
@@ -1786,12 +1784,10 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_INVISIBILITY] = bs->cur_ps.powerups[PW_INVIS] != 0;
 	bs->inventory[INVENTORY_REGEN] = bs->cur_ps.powerups[PW_REGEN] != 0;
 	bs->inventory[INVENTORY_FLIGHT] = bs->cur_ps.powerups[PW_FLIGHT] != 0;
-#ifdef MISSIONPACK
 	bs->inventory[INVENTORY_SCOUT] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_SCOUT;
 	bs->inventory[INVENTORY_GUARD] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_GUARD;
 	bs->inventory[INVENTORY_DOUBLER] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_DOUBLER;
 	bs->inventory[INVENTORY_AMMOREGEN] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_AMMOREGEN;
-#endif
 	bs->inventory[INVENTORY_REDFLAG] = bs->cur_ps.powerups[PW_REDFLAG] != 0;
 	bs->inventory[INVENTORY_BLUEFLAG] = bs->cur_ps.powerups[PW_BLUEFLAG] != 0;
 	bs->inventory[INVENTORY_NEUTRALFLAG] = bs->cur_ps.powerups[PW_NEUTRALFLAG] != 0;
@@ -2459,7 +2455,7 @@ BotHasPersistantPowerupAndWeapon
 ==================
 */
 int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
-#ifdef MISSIONPACK
+
 	// if the bot does not have a persistant powerup
 	if (!bs->inventory[INVENTORY_SCOUT] &&
 		!bs->inventory[INVENTORY_GUARD] &&
@@ -2467,7 +2463,6 @@ int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
 		!bs->inventory[INVENTORY_AMMOREGEN] ) {
 		return qfalse;
 	}
-#endif
 	//if the bot is very low on health
 	if (bs->inventory[INVENTORY_HEALTH] < 60) return qfalse;
 	//if the bot is low on health
@@ -4600,11 +4595,7 @@ void BotCheckBlockedTeammates(bot_state_t* bs) {
 			mindist = 32;
 		}
 		// teammates with an important item needs even more space, and stay away from dangerous teammates (mined/burning players).
-		if (EntityCarriesFlag(&entinfo) || EntityCarriesCubes(&entinfo) 
-#ifdef MISSIONPACK
-		 || bs->inventory[INVENTORY_SCOUT]
-#endif		
-		|| entinfo.flags & EF_TICKING) {
+		if (EntityCarriesFlag(&entinfo) || EntityCarriesCubes(&entinfo) || bs->inventory[INVENTORY_SCOUT] || entinfo.flags & EF_TICKING) {
 			mindist = 128;
 			speed = 400;
 		}

@@ -521,9 +521,7 @@ typedef enum {
 	STAT_ARMOR,				
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
-//#ifdef MISSIONPACK
 	STAT_PERSISTANT_POWERUP
-//#endif
 } statIndex_t;
 
 

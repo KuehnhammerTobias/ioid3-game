@@ -1073,7 +1073,6 @@ static float CG_DrawPowerups( float y ) {
 			continue;
 		}
 
-#ifdef MISSIONPACK
 		if (i == PW_SCOUT
 			|| i == PW_GUARD
 			|| i == PW_DOUBLER
@@ -1081,7 +1080,6 @@ static float CG_DrawPowerups( float y ) {
 		{
 			continue;
 		}
-#endif
 
 		t = ps->powerups[ i ] - cg.time;
 		// ZOID--don't draw if the power up has unlimited time (999 seconds)
@@ -1353,13 +1351,11 @@ static void CG_DrawHoldableItem( void ) {
 }
 #endif // MISSIONPACK_HUD
 
-#ifdef MISSIONPACK
 /*
 ===================
 CG_DrawPersistantPowerup
 ===================
 */
-#ifndef MISSIONPACK_HUD
 static void CG_DrawPersistantPowerup( void ) { 
 	int		value;
 
@@ -1371,8 +1367,6 @@ static void CG_DrawPersistantPowerup( void ) {
 		CG_DrawPic( 640-ICON_SIZE, (SCREEN_HEIGHT-ICON_SIZE)/2 - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
 	}
 }
-#endif // MISSIONPACK_HUD
-#endif // MISSIONPACK
 
 /*
 ===============================================================================
@@ -2749,10 +2743,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 
 #ifndef MISSIONPACK_HUD
 			CG_DrawHoldableItem();
-#ifdef MISSIONPACK
+#endif
 			CG_DrawPersistantPowerup();
-#endif
-#endif
 		}
     
 		if ( cgs.gametype >= GT_TEAM ) {

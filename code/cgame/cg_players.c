@@ -2480,9 +2480,9 @@ void CG_Player( centity_t *cent ) {
 	vec3_t			shadowOrigin;
 	float			shadowAlpha;
 	float			bodySinkOffset;
+	refEntity_t		powerup;
 #ifdef MISSIONPACK
 	refEntity_t		skull;
-	refEntity_t		powerup;
 	int				t;
 	float			c;
 	float			angle;
@@ -2731,7 +2731,7 @@ void CG_Player( centity_t *cent ) {
 			CG_AddRefEntityWithMinLight( &skull );
 		}
 	}
-
+#endif
 	if ( cent->currentState.powerups & ( 1 << PW_GUARD ) ) {
 		memcpy(&powerup, &torso, sizeof(torso));
 		powerup.hModel = cgs.media.guardPowerupModel;
@@ -2764,6 +2764,7 @@ void CG_Player( centity_t *cent ) {
 		powerup.customSkin = 0;
 		CG_AddRefEntityWithMinLight( &powerup );
 	}
+#ifdef MISSIONPACK
 	if ( cent->currentState.powerups & ( 1 << PW_INVULNERABILITY ) ) {
 		if ( !pi->invulnerabilityStartTime ) {
 			pi->invulnerabilityStartTime = cg.time;

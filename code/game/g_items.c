@@ -124,7 +124,6 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 
 //======================================================================
 
-#ifdef MISSIONPACK
 int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 	float	handicap;
 	int		max;
@@ -156,7 +155,6 @@ int Pickup_PersistantPowerup( gentity_t *ent, gentity_t *other ) {
 }
 
 //======================================================================
-#endif
 
 int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
@@ -246,12 +244,9 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			quantity;
 
 	// don't pick up if already at max
-#ifdef MISSIONPACK
 	if( BG_ItemForItemNum( other->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 		max = other->player->ps.stats[STAT_MAX_HEALTH] / 2;
-	}
-	else
-#endif
+	} else
 		max = other->player->ps.stats[STAT_MAX_HEALTH];
 
 	if ( ent->count ) {
@@ -275,13 +270,9 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 int Pickup_Armor( gentity_t *ent, gentity_t *other ) {
 	int		upperBound;
 
-#ifdef MISSIONPACK
 	if( BG_ItemForItemNum( other->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 		upperBound = other->player->ps.stats[STAT_MAX_HEALTH];
-	}
-	else
-#endif
-	{
+	} else {
 		upperBound = other->player->ps.stats[STAT_MAX_HEALTH] * 2;
 	}
 
@@ -414,11 +405,9 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		respawn = Pickup_Powerup(ent, other);
 		predict = qfalse;
 		break;
-#ifdef MISSIONPACK
 	case IT_PERSISTANT_POWERUP:
 		respawn = Pickup_PersistantPowerup(ent, other);
 		break;
-#endif
 	case IT_TEAM:
 		respawn = Pickup_Team(ent, other);
 		break;
@@ -855,7 +844,6 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 		G_SpawnFloat( "noglobalsound", "0", &ent->speed);
 	}
 
-#ifdef MISSIONPACK
 	if ( item->giType == IT_PERSISTANT_POWERUP ) {
 		// allow both teams to pick it up
 		if ( ( ent->spawnflags & 2 ) && ( ent->spawnflags & 4 ) ) {
@@ -867,7 +855,6 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 		else if ( ent->spawnflags & 4 )
 			ent->s.team = TEAM_BLUE;
 	}
-#endif
 }
 
 

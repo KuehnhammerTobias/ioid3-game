@@ -762,15 +762,12 @@ void PlayerUserinfoChanged( int playerNum ) {
 	}
 
 	// set max health
-#ifdef MISSIONPACK
 	if (player->ps.powerups[PW_GUARD]) {
 		player->pers.maxHealth = 200;
 	} else {
 		player->pers.maxHealth = PlayerHandicap( player );
 	}
-#else
-	player->pers.maxHealth = PlayerHandicap( player );
-#endif
+
 	player->ps.stats[STAT_MAX_HEALTH] = player->pers.maxHealth;
 
 	// set model
@@ -1269,9 +1266,8 @@ void PlayerDisconnect( int playerNum ) {
 		// They don't get to take powerups with them!
 		// Especially important for stuff like CTF flags
 		TossPlayerItems( ent );
-#ifdef MISSIONPACK
 		TossPlayerPersistantPowerups( ent );
-#endif
+
 		if( g_gametype.integer == GT_HARVESTER ) {
 			TossPlayerCubes( ent );
 		}
