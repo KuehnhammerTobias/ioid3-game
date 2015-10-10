@@ -301,9 +301,8 @@ CG_CheckLocalSounds
 ==================
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
-#ifdef MISSIONPACK
 	int			health, armor;
-#endif
+
 	// don't play the sounds if the player just changed teams
 	if ( ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM] ) {
 		return;
@@ -315,7 +314,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	// hit changes
 	if ( cg_hitFeedback.integer ) {
 		if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
-#ifdef MISSIONPACK
 			armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
 			health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
 
@@ -326,9 +324,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			} else {
 				trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 			}
-#else
-			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
-#endif
 		} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
 			trap_S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
 		}
@@ -395,37 +390,27 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 	// reward excellent sound
 	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
-#ifdef MISSIONPACK
 		if (ps->persistant[PERS_EXCELLENT_COUNT] == 1) {
 			CG_AddBufferedSound( cgs.media.firstExcellentSound );
 		}
-#endif
 		// default excellent sound
 		CG_AddBufferedSound( cgs.media.excellentSound );
 	}
 	// reward impressive sound
 	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
-#ifdef MISSIONPACK
 		if (ps->persistant[PERS_IMPRESSIVE_COUNT] == 1) {
 			CG_AddBufferedSound( cgs.media.firstImpressiveSound );
 		} else {
 			CG_AddBufferedSound( cgs.media.impressiveSound );
 		}
-#else
-		CG_AddBufferedSound( cgs.media.impressiveSound );
-#endif
 	}
 	// reward gauntlet sound
 	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
-#ifdef MISSIONPACK
 		if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] == 1) {
 			CG_AddBufferedSound( cgs.media.firstHumiliationSound );
 		} else {
 			CG_AddBufferedSound( cgs.media.humiliationSound );
 		}
-#else
-		CG_AddBufferedSound( cgs.media.humiliationSound );
-#endif
 	}
 	// reward defend sound
 	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {

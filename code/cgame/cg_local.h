@@ -1035,9 +1035,10 @@ typedef struct {
 #ifdef MISSIONPACK
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
+#endif
 	sfxHandle_t	redWinsSound;
 	sfxHandle_t	blueWinsSound;
-#endif
+
 	sfxHandle_t	gibSound;
 	sfxHandle_t	gibBounce1Sound;
 	sfxHandle_t	gibBounce2Sound;
@@ -1140,9 +1141,8 @@ typedef struct {
 	qhandle_t escortShader;
 #endif
 	qhandle_t flagShaders[3];
-#ifdef MISSIONPACK
+
 	sfxHandle_t	countPrepareTeamSound;
-#endif
 	sfxHandle_t ammoregenSound;
 	sfxHandle_t doublerSound;
 	sfxHandle_t guardSound;

@@ -230,12 +230,9 @@ static void CG_ParseWarmup( void ) {
 	if ( warmup == 0 && cg.warmup ) {
 
 	} else if ( warmup > 0 && cg.warmup <= 0 ) {
-#ifdef MISSIONPACK
 		if (cgs.gametype >= GT_CTF) {
 			trap_S_StartLocalSound( cgs.media.countPrepareTeamSound, CHAN_ANNOUNCER );
-		} else
-#endif
-		{
+		} else {
 			trap_S_StartLocalSound( cgs.media.countPrepareSound, CHAN_ANNOUNCER );
 		}
 	}
@@ -354,9 +351,7 @@ static void CG_ConfigStringModified( void ) {
 		cgs.voteModified = qtrue;
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
-#ifdef MISSIONPACK
 		CG_AddBufferedSound( cgs.media.voteNow );
-#endif //MISSIONPACK
 	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
 		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
 		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
@@ -368,9 +363,7 @@ static void CG_ConfigStringModified( void ) {
 		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = qtrue;
 	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
 		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString[0] ) );
-#ifdef MISSIONPACK
 		CG_AddBufferedSound( cgs.media.voteNow );
-#endif
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
@@ -1168,7 +1161,6 @@ static void CG_ServerCommand( void ) {
 
 	// global print to all players
 	if ( !strcmp( cmd, "print" ) && localPlayerBits == -1 ) {
-#ifdef MISSIONPACK
 		cmd = CG_Argv(start+1);			// yes, this is obviously a hack, but so is the way we hear about
 									// votes passing or failing
 		if ( !Q_stricmpn( cmd, "vote failed", 11 ) || !Q_stricmpn( cmd, "team vote failed", 16 )) {
@@ -1176,7 +1168,6 @@ static void CG_ServerCommand( void ) {
 		} else if ( !Q_stricmpn( cmd, "vote passed", 11 ) || !Q_stricmpn( cmd, "team vote passed", 16 ) ) {
 			CG_AddBufferedSound( cgs.media.votePassed );
 		}
-#endif
 
 		CG_Printf("%s", CG_Argv( start+1 ) );
 		return;
@@ -1246,7 +1237,7 @@ static void CG_ServerCommand( void ) {
 		CG_ParseTeamInfo(start);
 		return;
 	}
-#ifdef MISSIONPACK
+
 	if ( !strcmp( cmd, "redWins" ) ) {
 		trap_S_StartLocalSound( cgs.media.redWinsSound, CHAN_ANNOUNCER );
 		return;
@@ -1256,7 +1247,7 @@ static void CG_ServerCommand( void ) {
 		trap_S_StartLocalSound( cgs.media.blueWinsSound, CHAN_ANNOUNCER );
 		return;
 	}
-#endif
+
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		if ( localPlayerBits != -1 ) {
 			return;
