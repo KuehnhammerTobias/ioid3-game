@@ -181,13 +181,10 @@ G_SetPlayerSound
 ===============
 */
 void G_SetPlayerSound( gentity_t *ent ) {
-#ifdef MISSIONPACK
+
 	if( ent->s.eFlags & EF_TICKING ) {
 		ent->player->ps.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav");
-	}
-	else
-#endif
-	if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+	} else if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
 		ent->player->ps.loopSound = level.snd_fry;
 	} else {
 		ent->player->ps.loopSound = 0;

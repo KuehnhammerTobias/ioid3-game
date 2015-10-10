@@ -113,8 +113,8 @@ vmCvar_t	g_redteam;
 vmCvar_t	g_blueteam;
 vmCvar_t	g_enableDust;
 vmCvar_t	g_enableBreath;
-vmCvar_t	g_proxMineTimeout;
 #endif
+vmCvar_t	g_proxMineTimeout;
 vmCvar_t	g_playerCapsule;
 
 static cvarTable_t		gameCvarTable[] = {
@@ -190,8 +190,8 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_enableDust, "g_enableDust", "0", CVAR_SYSTEMINFO, GCF_TRACK_CHANGE, RANGE_BOOL },
 	{ &g_enableBreath, "g_enableBreath", "0", CVAR_SYSTEMINFO, GCF_TRACK_CHANGE, RANGE_BOOL },
-	{ &g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, RANGE_ALL },
 #endif
+	{ &g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, RANGE_ALL },
 	{ &g_playerCapsule, "g_playerCapsule", "0", 0, 0, RANGE_BOOL },
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, RANGE_BOOL },
 	{ &pmove_overbounce, "pmove_overbounce", "0", CVAR_SYSTEMINFO, 0, RANGE_BOOL },

@@ -595,10 +595,9 @@ typedef struct {
 	// voice chat head
 	int			voiceTime;
 	int			currentVoicePlayerNum;
-
+#endif
 	// proxy mine warning
 	int			proxTime;
-#endif
 
 	// orders
 	int			currentOrder;
@@ -924,10 +923,8 @@ typedef struct {
 	qhandle_t	plasmaBallShader;
 	qhandle_t	waterBubbleShader;
 	qhandle_t	bloodTrailShader;
-#ifdef MISSIONPACK
 	qhandle_t	nailPuffShader;
 	qhandle_t	blueProxMine;
-#endif
 
 	qhandle_t	shadowMarkShader;
 
@@ -1013,7 +1010,6 @@ typedef struct {
 	//sfxHandle_t	sfx_railg;
 	sfxHandle_t	sfx_rockexp;
 	sfxHandle_t	sfx_plasmaexp;
-#ifdef MISSIONPACK
 	sfxHandle_t	sfx_proxexp;
 	sfxHandle_t	sfx_nghit;
 	sfxHandle_t	sfx_nghitflesh;
@@ -1022,6 +1018,7 @@ typedef struct {
 	sfxHandle_t	sfx_chghitflesh;
 	sfxHandle_t	sfx_chghitmetal;
 	sfxHandle_t	sfx_chgstop;
+#ifdef MISSIONPACK
 	sfxHandle_t kamikazeExplodeSound;
 	sfxHandle_t kamikazeImplodeSound;
 	sfxHandle_t kamikazeFarSound;

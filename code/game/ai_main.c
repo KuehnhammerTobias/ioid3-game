@@ -1403,10 +1403,7 @@ int BotAILoadMap( int restart ) {
 	return qtrue;
 }
 
-#ifdef MISSIONPACK
 void ProximityMine_Trigger( gentity_t *trigger, gentity_t *other, trace_t *trace );
-#endif
-
 /*
 ==================
 BotAIStartFrame
@@ -1522,7 +1519,6 @@ int BotAIStartFrame(int time) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
-#ifdef MISSIONPACK
 			// never link prox mine triggers
 			if (ent->s.contents == CONTENTS_TRIGGER) {
 				if (ent->touch == ProximityMine_Trigger) {
@@ -1530,8 +1526,7 @@ int BotAIStartFrame(int time) {
 					continue;
 				}
 			}
-#endif
-			//
+
 			ent->botvalid = qtrue;
 			ent->update_time = trap_AAS_Time() - ent->ltime;
 			ent->ltime = trap_AAS_Time();

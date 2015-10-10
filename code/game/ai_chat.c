@@ -296,7 +296,6 @@ char *BotWeaponNameForMeansOfDeath(int mod) {
 		case MOD_BFG_SPLASH:
 			weapon = WP_BFG;
 			break;
-#ifdef MISSIONPACK
 		case MOD_NAIL:
 			weapon = WP_NAILGUN;
 			break;
@@ -306,6 +305,7 @@ char *BotWeaponNameForMeansOfDeath(int mod) {
 		case MOD_PROXIMITY_MINE:
 			weapon = WP_PROX_LAUNCHER;
 			break;
+#ifdef MISSIONPACK
 		case MOD_KAMIKAZE:
 			return "Kamikaze";
 		case MOD_JUICED:

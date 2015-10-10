@@ -383,10 +383,10 @@ char	*modNames[] = {
 	"MOD_SUICIDE",
 	"MOD_TARGET_LASER",
 	"MOD_TRIGGER_HURT",
-#ifdef MISSIONPACK
 	"MOD_NAIL",
 	"MOD_CHAINGUN",
 	"MOD_PROXIMITY_MINE",
+#ifdef MISSIONPACK
 	"MOD_KAMIKAZE",
 	"MOD_JUICED",
 #endif
@@ -542,13 +542,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if (self->player && self->player->hook) {
 		Weapon_HookFree(self->player->hook);
 	}
-#ifdef MISSIONPACK
+
 	if ((self->player->ps.eFlags & EF_TICKING) && self->activator) {
 		self->player->ps.eFlags &= ~EF_TICKING;
 		self->activator->think = G_FreeEntity;
 		self->activator->nextthink = level.time;
 	}
-#endif
+
 	self->player->ps.pm_type = PM_DEAD;
 
 	if ( attacker ) {
@@ -1004,7 +1004,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				return;
 			}
 		}
-#ifdef MISSIONPACK
+
 		if (mod == MOD_PROXIMITY_MINE) {
 			if (inflictor && inflictor->parent && OnSameTeam(targ, inflictor->parent)) {
 				if ( !g_friendlyFire.integer ) {
@@ -1012,8 +1012,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				}
 			}
 		}
-#endif
-
 		// check for godmode
 		if ( targ->flags & FL_GODMODE ) {
 			return;

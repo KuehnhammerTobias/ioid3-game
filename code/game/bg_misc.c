@@ -669,7 +669,7 @@ Only in CTF games
 		HI_INVULNERABILITY,
 /* sounds */ ""
 	},
-
+#endif
 /*QUAKED ammo_nails (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -714,7 +714,7 @@ Only in CTF games
 		WP_CHAINGUN,
 /* sounds */ ""
 	},
-
+#ifdef MISSIONPACK
 	//
 	// PERSISTANT POWERUP ITEMS
 	//
@@ -819,7 +819,7 @@ Only in One Flag CTF games
 		0,
 /* sounds */ ""
 	},
-#ifdef MISSIONPACK
+
 /*QUAKED weapon_nailgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -869,8 +869,6 @@ Only in One Flag CTF games
 		WP_CHAINGUN,
 /* sounds */ "sound/weapons/vulcan/wvulwind.wav"
 	},
-#endif
-
 	// end of list marker
 	{NULL}
 };
