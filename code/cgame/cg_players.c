@@ -1704,7 +1704,6 @@ static void CG_BreathPuff( int playerNum, qboolean firstPerson, vec3_t origin, v
 	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 		numPuffs = CG_SpawnBubbles( puffs, origin, 2, (int)( 3 + random() * 5 ) );
 	} else {
-#ifdef MISSIONPACK
 		if ( cg_enableBreath.integer ) {
 			vec3_t up;
 
@@ -1713,7 +1712,6 @@ static void CG_BreathPuff( int playerNum, qboolean firstPerson, vec3_t origin, v
 			puffs[0] = CG_SmokePuff( origin, up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader );
 			numPuffs = 1;
 		}
-#endif
 	}
 
 	// if first person entity, only draw for specific player in first person
@@ -1779,7 +1777,6 @@ static void CG_AddBreathPuffs( centity_t *cent, refEntity_t *head ) {
 	pi->breathPuffTime = cg.time + 2000;
 }
 
-#ifdef MISSIONPACK
 /*
 ===============
 CG_DustTrail
@@ -1827,8 +1824,6 @@ static void CG_DustTrail( centity_t *cent ) {
 				  0,
 				  cgs.media.dustPuffShader );
 }
-
-#endif
 
 /*
 ===============
@@ -2848,10 +2843,7 @@ void CG_Player( centity_t *cent ) {
 
 	CG_AddBreathPuffs( cent, &head );
 
-#ifdef MISSIONPACK
 	CG_DustTrail(cent);
-#endif
-
 	//
 	// add the gun / barrel / flash
 	//

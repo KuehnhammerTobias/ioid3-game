@@ -273,8 +273,10 @@ vmCvar_t	ui_stretch;
 #ifdef MISSIONPACK
 vmCvar_t 	cg_redTeamName;
 vmCvar_t 	cg_blueTeamName;
+#endif
 vmCvar_t	cg_enableDust;
 vmCvar_t	cg_enableBreath;
+#ifdef MISSIONPACK
 vmCvar_t	cg_recordSPDemo;
 vmCvar_t	cg_recordSPDemoName;
 #endif
@@ -409,8 +411,10 @@ static cvarTable_t cgameCvarTable[] = {
 #ifdef MISSIONPACK
 	{ &cg_redTeamName, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SYSTEMINFO, RANGE_ALL },
 	{ &cg_blueTeamName, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SYSTEMINFO, RANGE_ALL },
+#endif
 	{ &cg_enableDust, "g_enableDust", "0", CVAR_SYSTEMINFO, RANGE_BOOL },
 	{ &cg_enableBreath, "g_enableBreath", "0", CVAR_SYSTEMINFO, RANGE_BOOL },
+#ifdef MISSIONPACK
 	{ &cg_recordSPDemo, "ui_recordSPDemo", "0", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_recordSPDemoName, "ui_recordSPDemoName", "", CVAR_ARCHIVE, RANGE_ALL },
 #endif
@@ -1495,9 +1499,7 @@ static void CG_RegisterGraphics( void ) {
 	}
 
 	cgs.media.redKamikazeShader = trap_R_RegisterShader( "models/weaphits/kamikred" );
-#ifdef MISSIONPACK
 	cgs.media.dustPuffShader = trap_R_RegisterShader("hasteSmokePuff" );
-#endif
 
 	if ( cgs.gametype >= GT_TEAM || cg_buildScript.integer ) {
 		cgs.media.redFriendShader = trap_R_RegisterShader( "sprites/team_red" );

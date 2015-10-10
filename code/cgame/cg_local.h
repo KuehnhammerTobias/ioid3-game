@@ -980,7 +980,9 @@ typedef struct {
 	qhandle_t	invulnerabilityImpactModel;
 	qhandle_t	invulnerabilityJuicedModel;
 	qhandle_t	medkitUsageModel;
+#endif
 	qhandle_t	dustPuffShader;
+#ifdef MISSIONPACK
 	qhandle_t	heartShader;
 	qhandle_t	invulnerabilityPowerupModel;
 #endif
@@ -1394,8 +1396,10 @@ extern	vmCvar_t		ui_stretch;
 #ifdef MISSIONPACK
 extern	vmCvar_t		cg_redTeamName;
 extern	vmCvar_t		cg_blueTeamName;
+#endif
 extern	vmCvar_t		cg_enableDust;
 extern	vmCvar_t		cg_enableBreath;
+#ifdef MISSIONPACK
 extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
 #endif
