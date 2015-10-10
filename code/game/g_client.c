@@ -1271,11 +1271,10 @@ void PlayerDisconnect( int playerNum ) {
 		TossPlayerItems( ent );
 #ifdef MISSIONPACK
 		TossPlayerPersistantPowerups( ent );
+#endif
 		if( g_gametype.integer == GT_HARVESTER ) {
 			TossPlayerCubes( ent );
 		}
-#endif
-
 	}
 
 	G_LogPrintf( "PlayerDisconnect: %i\n", playerNum );

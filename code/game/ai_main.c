@@ -365,9 +365,7 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 		if (BotCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F");
 		}
-	}
-#ifdef MISSIONPACK
-	else if (gametype == GT_1FCTF) {
+	} else if (gametype == GT_1FCTF) {
 		if (Bot1FCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F");
 		}
@@ -378,7 +376,6 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 			else Com_sprintf(carrying, sizeof(carrying), "%2d", bs->inventory[INVENTORY_BLUECUBE]);
 		}
 	}
-#endif
 
 	switch(bs->ltgtype) {
 		case LTG_TEAMHELP:

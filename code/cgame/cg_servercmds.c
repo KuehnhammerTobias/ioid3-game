@@ -260,13 +260,11 @@ void CG_SetConfigValues( void ) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
 		cgs.redflag = s[0] - '0';
 		cgs.blueflag = s[1] - '0';
-	}
-#ifdef MISSIONPACK
-	else if( cgs.gametype == GT_1FCTF ) {
+	} else if( cgs.gametype == GT_1FCTF ) {
 		s = CG_ConfigString( CS_FLAGSTATUS );
 		cgs.flagStatus = s[0] - '0';
 	}
-#endif
+
 	cg.warmup = atoi( CG_ConfigString( CS_WARMUP ) );
 }
 
@@ -393,12 +391,9 @@ static void CG_ConfigStringModified( void ) {
 			// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
 			cgs.redflag = str[0] - '0';
 			cgs.blueflag = str[1] - '0';
-		}
-#ifdef MISSIONPACK
-		else if( cgs.gametype == GT_1FCTF ) {
+		} else if( cgs.gametype == GT_1FCTF ) {
 			cgs.flagStatus = str[0] - '0';
 		}
-#endif
 	}
 	else if ( num == CS_SHADERSTATE ) {
 		CG_ShaderStateChanged();

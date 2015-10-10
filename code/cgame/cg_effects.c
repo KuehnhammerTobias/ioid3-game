@@ -343,7 +343,7 @@ void CG_KamikazeEffect( vec3_t org ) {
 	VectorCopy( org, re->origin );
 
 }
-
+#endif
 /*
 ==================
 CG_ObeliskExplode
@@ -387,7 +387,7 @@ void CG_ObeliskPain( vec3_t org ) {
 	trap_S_StartSound ( org, ENTITYNUM_NONE, CHAN_BODY, sfx );
 }
 
-
+#ifdef MISSIONPACK
 /*
 ==================
 CG_InvulnerabilityImpact

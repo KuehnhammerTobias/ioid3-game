@@ -143,25 +143,17 @@ int BotSortTeamMatesByBaseTravelTime(bot_state_t *bs, int *teammates, int maxtea
 	int traveltimes[MAX_CLIENTS];
 	bot_goal_t *goal = NULL;
 
-#ifdef MISSIONPACK
-	if (gametype == GT_CTF || gametype == GT_1FCTF)
-#else
-	if (gametype == GT_CTF)
-#endif
-	{
+	if (gametype == GT_CTF || gametype == GT_1FCTF) {
 		if (BotTeam(bs) == TEAM_RED)
 			goal = &ctf_redflag;
 		else
 			goal = &ctf_blueflag;
-	}
-#ifdef MISSIONPACK
-	else if (gametype == GT_OBELISK || gametype == GT_HARVESTER) {
+	} else if (gametype == GT_OBELISK || gametype == GT_HARVESTER) {
 		if (BotTeam(bs) == TEAM_RED)
 			goal = &redobelisk;
 		else
 			goal = &blueobelisk;
 	}
-#endif
 
 	numteammates = 0;
 	for (i = 0; i < level.maxplayers; i++) {
@@ -946,8 +938,6 @@ void BotTeamOrders(bot_state_t *bs) {
 		}
 	}
 }
-
-#ifdef MISSIONPACK
 
 /*
 ==================
@@ -1922,7 +1912,6 @@ void BotHarvesterOrders(bot_state_t *bs) {
 		}
 	}
 }
-#endif
 
 /*
 ==================
@@ -2056,7 +2045,6 @@ void BotTeamAI(bot_state_t *bs) {
 			}
 			break;
 		}
-#ifdef MISSIONPACK
 		case GT_1FCTF:
 		{
 			// if the enemy team leads and time limit has expired to 70%, choose aggressive strategy
@@ -2130,7 +2118,6 @@ void BotTeamAI(bot_state_t *bs) {
 			}
 			break;
 		}
-#endif
 	}
 }
 

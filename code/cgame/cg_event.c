@@ -934,6 +934,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_KAMIKAZE");
 		CG_KamikazeEffect( cent->lerpOrigin );
 		break;
+#endif
 	case EV_OBELISKEXPLODE:
 		DEBUGNAME("EV_OBELISKEXPLODE");
 		CG_ObeliskExplode( cent->lerpOrigin, es->eventParm );
@@ -942,6 +943,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_OBELISKPAIN");
 		CG_ObeliskPain( cent->lerpOrigin );
 		break;
+#ifdef MISSIONPACK
 	case EV_INVUL_IMPACT:
 		DEBUGNAME("EV_INVUL_IMPACT");
 		CG_InvulnerabilityImpact( cent->lerpOrigin, cent->currentState.angles );
@@ -1099,11 +1101,10 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 					} else {
 						trap_S_StartLocalSound( cgs.media.returnOpponentSound, CHAN_LOCAL_SOUND );
 					}
-#ifdef MISSIONPACK
+
 					if (cgs.gametype == GT_1FCTF) {
 						CG_AddBufferedSound( cgs.media.neutralFlagReturnedSound );
 					} else
-#endif
 						CG_AddBufferedSound( cgs.media.redFlagReturnedSound );
 					
 
@@ -1115,30 +1116,24 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 						if (!(redTeam && blueTeam)) {
 							// all local players on the blue team
 							if (blueTeam) {
-#ifdef MISSIONPACK
 								if (cgs.gametype == GT_1FCTF) {
 									CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 								} else
-#endif
 									CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 								
 							// all local players on the red team
 							} else if (redTeam) {
-#ifdef MISSIONPACK
 								if (cgs.gametype == GT_1FCTF) {
 									CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
 								} else
-#endif
 									CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
 								
 							}
 						// local players on both teams
 						} else {
-#ifdef MISSIONPACK
 							if (cgs.gametype == GT_1FCTF) {
 								CG_AddBufferedSound( cgs.media.blueTeamTookTheFlagSound );
 							} else
-#endif
 								CG_AddBufferedSound( cgs.media.redTeamTookTheFlagSound );
 							
 						}
@@ -1151,36 +1146,29 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 						if (!(redTeam && blueTeam)) {
 							// all local players on the red team
 							if (redTeam) {
-#ifdef MISSIONPACK
 								if (cgs.gametype == GT_1FCTF) {
 									CG_AddBufferedSound( cgs.media.yourTeamTookTheFlagSound );
 								} else
-#endif
 									CG_AddBufferedSound( cgs.media.enemyTookYourFlagSound );
 								
 							// all local players on the blue team
 							} else if (blueTeam) {
-#ifdef MISSIONPACK
 								if (cgs.gametype == GT_1FCTF) {
 									CG_AddBufferedSound( cgs.media.enemyTookTheFlagSound );
 								} else
-#endif
 									CG_AddBufferedSound( cgs.media.yourTeamTookEnemyFlagSound );
 								
 							}
 						// local players on both teams
 						} else {
-#ifdef MISSIONPACK
 							if (cgs.gametype == GT_1FCTF) {
 								CG_AddBufferedSound( cgs.media.redTeamTookTheFlagSound );
 							} else
-#endif
 								CG_AddBufferedSound( cgs.media.blueTeamTookTheFlagSound );
 							
 						}
 					}
 					break;
-#ifdef MISSIONPACK
 				case GTS_REDOBELISK_ATTACKED: // Overload: red obelisk is being attacked
 					// local players on both teams
 					if (redTeam && blueTeam) {
@@ -1199,8 +1187,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 						CG_AddBufferedSound( cgs.media.yourBaseIsUnderAttackSound );
 					}
 					break;
-#endif
-
 				case GTS_REDTEAM_SCORED:
 					CG_AddBufferedSound(cgs.media.redScoredSound);
 					break;

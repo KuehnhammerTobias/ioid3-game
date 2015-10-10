@@ -804,10 +804,8 @@ typedef struct {
 
 	//==========================
 
-#ifdef MISSIONPACK
 	// skull trails
 	skulltrail_t	skulltrails[MAX_CLIENTS];
-#endif
 
 	// temp working variables for player view
 	float		bobfracsin;
@@ -846,13 +844,10 @@ typedef struct {
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
 	qhandle_t	nodrawShader;
-
-#ifdef MISSIONPACK
 	qhandle_t	redCubeModel;
 	qhandle_t	blueCubeModel;
 	qhandle_t	redCubeIcon;
 	qhandle_t	blueCubeIcon;
-#endif
 	qhandle_t	redFlagModel;
 	qhandle_t	blueFlagModel;
 	qhandle_t	neutralFlagModel;
@@ -870,8 +865,6 @@ typedef struct {
 	qhandle_t	redFlagBaseModel;
 	qhandle_t	blueFlagBaseModel;
 	qhandle_t	neutralFlagBaseModel;
-
-#ifdef MISSIONPACK
 	qhandle_t	overloadBaseModel;
 	qhandle_t	overloadTargetModel;
 	qhandle_t	overloadLightsModel;
@@ -881,7 +874,6 @@ typedef struct {
 	cgSkin_t	harvesterRedSkin;
 	cgSkin_t	harvesterBlueSkin;
 	qhandle_t	harvesterNeutralModel;
-#endif
 
 	qhandle_t	armorModel;
 	qhandle_t	armorIcon;
@@ -1038,10 +1030,12 @@ typedef struct {
 	sfxHandle_t invulnerabilityImpactSound2;
 	sfxHandle_t invulnerabilityImpactSound3;
 	sfxHandle_t invulnerabilityJuicedSound;
+#endif
 	sfxHandle_t obeliskHitSound1;
 	sfxHandle_t obeliskHitSound2;
 	sfxHandle_t obeliskHitSound3;
 	sfxHandle_t	obeliskRespawnSound;
+#ifdef MISSIONPACK
 	sfxHandle_t	winnerSound;
 	sfxHandle_t	loserSound;
 	sfxHandle_t	redWinsSound;
@@ -1117,21 +1111,17 @@ typedef struct {
 
 	sfxHandle_t redFlagReturnedSound;
 	sfxHandle_t blueFlagReturnedSound;
-#ifdef MISSIONPACK
 	sfxHandle_t neutralFlagReturnedSound;
-#endif
 	sfxHandle_t	enemyTookYourFlagSound;
 	sfxHandle_t yourTeamTookEnemyFlagSound;
 	sfxHandle_t	blueTeamTookTheFlagSound;
 	sfxHandle_t	redTeamTookTheFlagSound;
 	sfxHandle_t	youHaveFlagSound;
-#ifdef MISSIONPACK
 	sfxHandle_t	enemyTookTheFlagSound;
 	sfxHandle_t yourTeamTookTheFlagSound;
 	sfxHandle_t yourBaseIsUnderAttackSound;
 	sfxHandle_t	blueBaseIsUnderAttackSound;
 	sfxHandle_t	redBaseIsUnderAttackSound;
-#endif
 	sfxHandle_t holyShitSound;
 
 	// tournament sounds
@@ -1151,7 +1141,9 @@ typedef struct {
 	qhandle_t teamLeaderShader;
 	qhandle_t retrieveShader;
 	qhandle_t escortShader;
+#endif
 	qhandle_t flagShaders[3];
+#ifdef MISSIONPACK
 	sfxHandle_t	countPrepareTeamSound;
 
 	sfxHandle_t ammoregenSound;
@@ -1411,9 +1403,8 @@ extern	vmCvar_t		cg_enableDust;
 extern	vmCvar_t		cg_enableBreath;
 extern  vmCvar_t		cg_recordSPDemo;
 extern  vmCvar_t		cg_recordSPDemoName;
-extern	vmCvar_t		cg_obeliskRespawnDelay;
 #endif
-
+extern	vmCvar_t		cg_obeliskRespawnDelay;
 extern	vmCvar_t		cg_color1[MAX_SPLITVIEW];
 extern	vmCvar_t		cg_color2[MAX_SPLITVIEW];
 extern	vmCvar_t		cg_handicap[MAX_SPLITVIEW];
@@ -1745,8 +1736,10 @@ int CG_SpawnBubbles( localEntity_t **bubbles, vec3_t origin, float baseSize, int
 void CG_SpawnEffect( vec3_t org );
 #ifdef MISSIONPACK
 void CG_KamikazeEffect( vec3_t org );
+#endif
 void CG_ObeliskExplode( vec3_t org, int entityNum );
 void CG_ObeliskPain( vec3_t org );
+#ifdef MISSIONPACK
 void CG_InvulnerabilityImpact( vec3_t org, vec3_t angles );
 void CG_InvulnerabilityJuiced( vec3_t org );
 void CG_LightningBoltBeam( vec3_t start, vec3_t end );

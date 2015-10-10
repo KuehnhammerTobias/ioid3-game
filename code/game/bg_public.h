@@ -94,9 +94,7 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define	BODY_SINK_DELAY		5000
 #define	BODY_SINK_TIME		1500
 
-#ifdef MISSIONPACK
 #define OBELISK_TARGET_HEIGHT	56
-#endif
 
 
 #define MAX_DLIGHT_CONFIGSTRINGS 128
@@ -155,11 +153,10 @@ typedef enum {
 
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
-#ifdef MISSIONPACK
 	GT_1FCTF,
 	GT_OBELISK,
 	GT_HARVESTER,
-#endif
+
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
@@ -744,7 +741,6 @@ typedef enum {
 
 	EV_SCOREPLUM,			// score plum
 
-//#ifdef MISSIONPACK
 	EV_PROXIMITY_MINE_STICK,
 	EV_PROXIMITY_MINE_TRIGGER,
 	EV_KAMIKAZE,			// kamikaze explodes
@@ -753,7 +749,6 @@ typedef enum {
 	EV_INVUL_IMPACT,		// invulnerability sphere impact
 	EV_JUICED,				// invulnerability juiced effect
 	EV_LIGHTNINGBOLT,		// lightning bolt bounced of invulnerability sphere
-//#endif
 
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,

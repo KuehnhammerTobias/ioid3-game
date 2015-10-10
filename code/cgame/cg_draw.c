@@ -908,7 +908,6 @@ static float CG_DrawScores( float y ) {
 			}
 		}
 
-#ifdef MISSIONPACK
 		if ( cgs.gametype == GT_1FCTF ) {
 			// Display flag status
 			item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
@@ -933,7 +932,6 @@ static float CG_DrawScores( float y ) {
 				}
 			}
 		}
-#endif
 
 		color[0] = 1.0f;
 		color[1] = 0.0f;

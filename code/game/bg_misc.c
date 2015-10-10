@@ -777,7 +777,7 @@ Only in CTF games
 		PW_AMMOREGEN,
 /* sounds */ ""
 	},
-
+#endif
 	/*QUAKED team_CTF_neutralflag (0 0 1) (-16 -16 -16) (16 16 16)
 Only in One Flag CTF games
 */
@@ -819,6 +819,7 @@ Only in One Flag CTF games
 		0,
 /* sounds */ ""
 	},
+#ifdef MISSIONPACK
 /*QUAKED weapon_nailgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -1025,11 +1026,9 @@ const char *bg_netGametypeNames[GT_MAX_GAME_TYPE] = {
 	"SP",
 	"TeamDM",
 	"CTF",
-#ifdef MISSIONPACK
 	"1FCTF",
 	"Overload",
 	"Harvester"
-#endif
 };
 
 const char *bg_displayGametypeNames[GT_MAX_GAME_TYPE] = {
@@ -1038,11 +1037,9 @@ const char *bg_displayGametypeNames[GT_MAX_GAME_TYPE] = {
 	"Single Player",
 	"Team Deathmatch",
 	"Capture the Flag",
-#ifdef MISSIONPACK
 	"One Flag CTF",
 	"Overload",
 	"Harvester"
-#endif
 };
 
 /*
@@ -1053,11 +1050,7 @@ BG_CheckSpawnEntity
 qboolean BG_CheckSpawnEntity( const bgEntitySpawnInfo_t *info ) {
 	int			i, gametype;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "tournament", "single", "team", "ctf"
-#ifdef MISSIONPACK
-		, "oneflag", "obelisk", "harvester"
-#endif
-		};
+	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "tournament", "single", "team", "ctf" , "oneflag", "obelisk", "harvester"};
 
 	gametype = info->gametype;
 
@@ -1327,7 +1320,6 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #endif
 
 	case IT_TEAM: // team items, such as flags
-#ifdef MISSIONPACK		
 		if( gametype == GT_1FCTF ) {
 			// neutral flag can always be picked up
 			if( item->giTag == PW_NEUTRALFLAG ) {
@@ -1343,7 +1335,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				}
 			}
 		}
-#endif
+
 		if( gametype == GT_CTF ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
@@ -1361,11 +1353,10 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			}
 		}
 
-#ifdef MISSIONPACK
 		if( gametype == GT_HARVESTER ) {
 			return qtrue;
 		}
-#endif
+
 		return qfalse;
 
 	case IT_HOLDABLE:
@@ -1557,7 +1548,6 @@ char *eventnames[] = {
 
 	"EV_SCOREPLUM",			// score plum
 
-//#ifdef MISSIONPACK
 	"EV_PROXIMITY_MINE_STICK",
 	"EV_PROXIMITY_MINE_TRIGGER",
 	"EV_KAMIKAZE",			// kamikaze explodes
@@ -1566,7 +1556,6 @@ char *eventnames[] = {
 	"EV_INVUL_IMPACT",		// invulnerability sphere impact
 	"EV_JUICED",				// invulnerability juiced effect
 	"EV_LIGHTNINGBOLT",		// lightning bolt bounced of invulnerability sphere
-//#endif
 
 	"EV_DEBUG_LINE",
 	"EV_STOPLOOPINGSOUND",

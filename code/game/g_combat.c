@@ -176,7 +176,6 @@ void TossPlayerGametypeItems(gentity_t *ent) {
 		ent->player->ps.powerups[ j ] = 0;
 	}
 
-#ifdef MISSIONPACK
 	if ( g_gametype.integer == GT_HARVESTER ) {
 		if ( ent->player->ps.tokens > 0 ) {
 			if ( ent->player->sess.sessionTeam == TEAM_RED ) {
@@ -198,10 +197,8 @@ void TossPlayerGametypeItems(gentity_t *ent) {
 			ent->player->ps.tokens = 0;
 		}
 	}
-#endif
 }
 
-#ifdef MISSIONPACK
 
 /*
 =================
@@ -256,7 +253,7 @@ void TossPlayerCubes( gentity_t *self ) {
 	drop->s.team = self->player->sess.sessionTeam;
 }
 
-
+#ifdef MISSIONPACK
 /*
 =================
 TossPlayerPersistantPowerups
@@ -284,7 +281,6 @@ void TossPlayerPersistantPowerups( gentity_t *ent ) {
 	ent->player->persistantPowerup = NULL;
 }
 #endif
-
 
 /*
 ==================
@@ -650,10 +646,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	TossPlayerItems( self );
 #ifdef MISSIONPACK
 	TossPlayerPersistantPowerups( self );
+#endif
 	if( g_gametype.integer == GT_HARVESTER ) {
 		TossPlayerCubes( self );
 	}
-#endif
 
 	Cmd_Score_f( self );		// show scores
 	// send updated scores to any clients that are following this one,
@@ -926,11 +922,10 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 		return;
 	}
-#ifdef MISSIONPACK
+
 	if( g_gametype.integer == GT_OBELISK && CheckObeliskAttack( targ, attacker ) ) {
 		return;
 	}
-#endif
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
 	if ( attacker->player && attacker != targ ) {
@@ -1080,11 +1075,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// See if it's the player hurting the emeny flag carrier
-#ifdef MISSIONPACK
 	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF ) {
-#else	
-	if( g_gametype.integer == GT_CTF) {
-#endif
 		Team_CheckHurtCarrier(targ, attacker);
 	}
 
