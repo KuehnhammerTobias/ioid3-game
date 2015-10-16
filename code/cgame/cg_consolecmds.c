@@ -400,7 +400,7 @@ static void CG_TellAttacker_f( int localPlayerNum ) {
 	trap_SendClientCommand( command );
 }
 
-#ifdef MISSIONPACK
+
 static void CG_VoiceTellTarget_f( int localPlayerNum ) {
 	int		playerNum;
 	char	command[128];
@@ -415,7 +415,7 @@ static void CG_VoiceTellTarget_f( int localPlayerNum ) {
 	Com_sprintf( command, 128, "%s %i %s", Com_LocalPlayerCvarName( localPlayerNum, "vtell" ), playerNum, message );
 	trap_SendClientCommand( command );
 }
-
+#ifdef MISSIONPACK
 static void CG_VoiceTellAttacker_f( int localPlayerNum ) {
 	int		playerNum;
 	char	command[128];
@@ -949,8 +949,8 @@ static playerConsoleCommand_t	playerCommands[] = {
 	{ "tcmd", CG_TargetCommand_f, CMD_INGAME },
 	{ "tell_target", CG_TellTarget_f, CMD_INGAME },
 	{ "tell_attacker", CG_TellAttacker_f, CMD_INGAME },
-#ifdef MISSIONPACK
 	{ "vtell_target", CG_VoiceTellTarget_f, CMD_INGAME },
+#ifdef MISSIONPACK
 	{ "vtell_attacker", CG_VoiceTellAttacker_f, CMD_INGAME },
 	{ "nextTeamMember", CG_NextTeamMember_f, CMD_INGAME },
 	{ "prevTeamMember", CG_PrevTeamMember_f, CMD_INGAME },
@@ -1117,7 +1117,6 @@ void CG_InitConsoleCommands( void ) {
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "say"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "say_team"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "tell"));
-#ifdef MISSIONPACK
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "vsay"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "vsay_team"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "vtell"));
@@ -1125,7 +1124,6 @@ void CG_InitConsoleCommands( void ) {
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "vosay_team"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "votell"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "vtaunt"));
-#endif
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "give"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "god"));
 		trap_AddCommand(Com_LocalPlayerCvarName(i, "notarget"));

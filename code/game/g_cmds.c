@@ -1032,7 +1032,6 @@ static void Cmd_Tell_f( gentity_t *ent ) {
 }
 
 
-#ifdef MISSIONPACK
 static qboolean G_VoiceTo( gentity_t *ent, gentity_t *other, int mode ) {
 	if (!other) {
 		return qfalse;
@@ -1253,7 +1252,6 @@ static void Cmd_VoiceTaunt_f( gentity_t *ent ) {
 	// just say something
 	G_Voice( ent, NULL, SAY_ALL, VOICECHAT_TAUNT, qfalse );
 }
-#endif
 
 
 
@@ -1783,7 +1781,6 @@ void ClientCommand( int connectionNum ) {
 		Cmd_Tell_f ( ent );
 		return;
 	}
-#ifdef MISSIONPACK
 	if (Q_stricmp (cmd, "vsay") == 0) {
 		Cmd_Voice_f (ent, SAY_ALL, qfalse, qfalse);
 		return;
@@ -1812,7 +1809,6 @@ void ClientCommand( int connectionNum ) {
 		Cmd_VoiceTaunt_f ( ent );
 		return;
 	}
-#endif
 	if (Q_stricmp (cmd, "score") == 0) {
 		Cmd_Score_f (ent);
 		return;

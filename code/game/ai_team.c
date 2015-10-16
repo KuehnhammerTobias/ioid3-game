@@ -276,14 +276,11 @@ BotSayTeamOrders
 ==================
 */
 void BotSayTeamOrder(bot_state_t *bs, int toPlayer) {
-#ifdef MISSIONPACK
+
 	// voice chats only
 	char buf[MAX_MESSAGE_SIZE];
 
 	BotGetChatMessage(bs->cs, buf, sizeof(buf));
-#else
-	BotSayTeamOrderAlways(bs, toPlayer);
-#endif
 }
 
 /*
@@ -292,14 +289,13 @@ BotVoiceChat
 ==================
 */
 void BotVoiceChat(bot_state_t *bs, int toPlayer, char *voicechat) {
-#ifdef MISSIONPACK
+
 	if (toPlayer == -1)
 		// voice only say team
 		EA_Command(bs->playernum, va("vsay_team %s", voicechat));
 	else
 		// voice only tell single player
 		EA_Command(bs->playernum, va("vtell %d %s", toPlayer, voicechat));
-#endif
 }
 
 /*
@@ -308,14 +304,13 @@ BotVoiceChatOnly
 ==================
 */
 void BotVoiceChatOnly(bot_state_t *bs, int toPlayer, char *voicechat) {
-#ifdef MISSIONPACK
+
 	if (toPlayer == -1)
 		// voice only say team
 		EA_Command(bs->playernum, va("vosay_team %s", voicechat));
 	else
 		// voice only tell single player
 		EA_Command(bs->playernum, va("votell %d %s", toPlayer, voicechat));
-#endif
 }
 
 /*
@@ -324,9 +319,8 @@ BotSayVoiceTeamOrder
 ==================
 */
 void BotSayVoiceTeamOrder(bot_state_t *bs, int toPlayer, char *voicechat) {
-#ifdef MISSIONPACK
+
 	BotVoiceChat(bs, toPlayer, voicechat);
-#endif
 }
 
 /*

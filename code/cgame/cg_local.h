@@ -591,11 +591,10 @@ typedef struct {
 	// attacking player
 	int			attackerTime;
 
-#ifdef MISSIONPACK
 	// voice chat head
 	int			voiceTime;
 	int			currentVoicePlayerNum;
-#endif
+
 	// proxy mine warning
 	int			proxTime;
 
@@ -790,12 +789,10 @@ typedef struct {
 	int			soundTime;
 	qhandle_t	soundBuffer[MAX_SOUNDBUFFER];
 
-#ifdef MISSIONPACK
 	// for voice chat buffer
 	int			voiceChatTime;
 	int			voiceChatBufferIn;
 	int			voiceChatBufferOut;
-#endif
 
 	// warmup countdown
 	int			warmup;
@@ -1349,10 +1346,8 @@ extern	vmCvar_t		cg_predictItems;
 extern	vmCvar_t		cg_deferPlayers;
 extern	vmCvar_t		cg_drawFriend;
 extern	vmCvar_t		cg_teamChatsOnly;
-#ifdef MISSIONPACK
 extern	vmCvar_t		cg_noVoiceChats;
 extern	vmCvar_t		cg_noVoiceText;
-#endif
 extern  vmCvar_t		cg_scorePlum;
 extern	vmCvar_t		cg_smoothClients;
 extern	vmCvar_t		pmove_overbounce;
@@ -1832,11 +1827,9 @@ void CG_ExecuteNewServerCommands( int latestSequence );
 void CG_ParseServerinfo( void );
 void CG_SetConfigValues( void );
 void CG_ShaderStateChanged(void);
-#ifdef MISSIONPACK
 void CG_LoadVoiceChats( void );
 void CG_VoiceChatLocal( int localPlayerBits, int mode, qboolean voiceOnly, int playerNum, int color, const char *cmd );
 void CG_PlayBufferedVoiceChats( void );
-#endif
 int CG_LocalPlayerBitsForTeam( team_t );
 
 //

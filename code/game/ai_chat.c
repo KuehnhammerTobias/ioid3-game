@@ -508,9 +508,7 @@ int BotChat_StartLevel(bot_state_t *bs) {
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) {
-#ifdef MISSIONPACK
 	    EA_Command(bs->playernum, "vtaunt");
-#endif
 	    return qfalse;
 	}
 	// don't chat in tournament mode
@@ -543,11 +541,9 @@ int BotChat_EndLevel(bot_state_t *bs) {
 	// teamplay
 	if (TeamPlayIsOn()) 
 	{
-#ifdef MISSIONPACK
 		if (BotIsFirstInRankings(bs)) {
 			EA_Command(bs->playernum, "vtaunt");
 		}
-#endif
 		return qtrue;
 	}
 	// don't chat in tournament mode
@@ -624,9 +620,7 @@ int BotChat_Death(bot_state_t *bs) {
 	{
 		//teamplay
 		if (TeamPlayIsOn()) {
-#ifdef MISSIONPACK
 			EA_Command(bs->playernum, "vtaunt");
-#endif
 			return qtrue;
 		}
 		//
@@ -726,9 +720,7 @@ int BotChat_Kill(bot_state_t *bs) {
 	{
 		//don't chat in teamplay
 		if (TeamPlayIsOn()) {
-#ifdef MISSIONPACK
 			EA_Command(bs->playernum, "vtaunt");
-#endif
 			return qfalse;			// don't wait
 		}
 		//
@@ -949,9 +941,7 @@ int BotChat_Random(bot_state_t *bs) {
 		EasyPlayerName(bs->lastkilledplayer, name, sizeof(name));
 	}
 	if (TeamPlayIsOn()) {
-#ifdef MISSIONPACK
 		EA_Command(bs->playernum, "vtaunt");
-#endif
 		return qfalse;			// don't wait
 	}
 	//
