@@ -63,9 +63,6 @@ Suite 120, Rockville, Maryland 20850 USA.
 #include "syn.h"				//synonyms
 #include "match.h"				//string matching types and vars
 
-// for the voice chats
-#include "../../ui/menudef.h"
-
 int notleader[MAX_CLIENTS];
 
 /*

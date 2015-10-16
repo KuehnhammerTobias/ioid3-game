@@ -32,10 +32,6 @@ Suite 120, Rockville, Maryland 20850 USA.
 
 #include "cg_local.h"
 
-// for the voice chats
-#ifdef MISSIONPACK
-#include "../../ui/menudef.h"
-#endif
 //==========================================================================
 
 /*

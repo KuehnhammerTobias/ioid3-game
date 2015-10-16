@@ -30,10 +30,6 @@ Suite 120, Rockville, Maryland 20850 USA.
 //
 #include "g_local.h"
 
-#ifdef MISSIONPACK
-#include "../../ui/menudef.h"			// for the voice chats
-#endif
-
 /*
 ==================
 DeathmatchScoreboardMessage
