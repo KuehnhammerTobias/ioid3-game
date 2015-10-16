@@ -377,7 +377,6 @@ BotSetTeamStatus
 ==================
 */
 void BotSetTeamStatus(bot_state_t *bs) {
-#ifdef MISSIONPACK
 	int teamtask;
 	aas_entityinfo_t entinfo;
 
@@ -432,7 +431,6 @@ void BotSetTeamStatus(bot_state_t *bs) {
 			break;
 	}
 	BotSetUserInfo(bs, "teamtask", va("%d", teamtask));
-#endif
 }
 
 /*
@@ -1638,7 +1636,6 @@ BotCheckItemPickup
 ==================
 */
 void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
-#ifdef MISSIONPACK
 	int offence, leader;
 
 	if (gametype <= GT_TEAM)
@@ -1723,7 +1720,6 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 			bs->teamtaskpreference &= ~TEAMTP_ATTACKER;
 		}
 	}
-#endif
 }
 
 /*
