@@ -716,7 +716,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_TAUNT");
 		trap_S_StartSound (NULL, es->number, CHAN_VOICE, CG_CustomSound( es->number, "*taunt.wav" ) );
 		break;
-#ifdef MISSIONPACK
 	case EV_TAUNT_YES:
 		DEBUGNAME("EV_TAUNT_YES");
 		CG_VoiceChatLocal(~0, SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_YES);
@@ -741,7 +740,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		DEBUGNAME("EV_TAUNT_PATROL");
 		CG_VoiceChatLocal(~0, SAY_TEAM, qfalse, es->number, COLOR_CYAN, VOICECHAT_ONPATROL);
 		break;
-#endif
 	case EV_WATER_TOUCH:
 		DEBUGNAME("EV_WATER_TOUCH");
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.watrInSound );
