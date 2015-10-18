@@ -2152,17 +2152,15 @@ static void CG_DrawSpectator(void) {
 CG_DrawVote
 =================
 */
-static void CG_DrawVote(void) {
+static float CG_DrawVote( float y ) {
 	char	*s;
 	int		sec;
 	char	yesKeys[64];
 	char	noKeys[64];
 
 	if ( !cgs.voteTime ) {
-		return;
+		return y;
 	}
-
-	CG_SetScreenPlacement(PLACE_LEFT, PLACE_TOP);
 
 	// play a talk beep whenever it is modified
 	if ( cgs.voteModified ) {
@@ -2178,14 +2176,9 @@ static void CG_DrawVote(void) {
 	CG_KeysStringForBinding( Com_LocalPlayerCvarName( cg.cur_localPlayerNum, "vote yes" ), yesKeys, sizeof (yesKeys) );
 	CG_KeysStringForBinding( Com_LocalPlayerCvarName( cg.cur_localPlayerNum, "vote no" ), noKeys, sizeof (noKeys) );
 
-	s = va( "Vote (%i): %s", sec, cgs.voteString );
-	CG_DrawSmallString( 2, 58, s, 1.0F );
-	s = va( "Yes (%s): %i, No (%s): %i", yesKeys, cgs.voteYes, noKeys, cgs.voteNo );
-	CG_DrawSmallString( 2, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
-#ifdef MISSIONPACK_HUD
-	s = "or press ESC then click Vote";
-	CG_DrawSmallString( 2, 58 + ( SMALLCHAR_HEIGHT + 2 ) * 2, s, 1.0F );
-#endif
+	s = va( "Vote (%i): %s. Yes: %i, No: %i. Press %s to vote for Yes or %s to vote for No (or press ESC then click Vote).", sec, cgs.voteString, cgs.voteYes, cgs.voteNo, yesKeys, noKeys );
+	CG_DrawSmallString( 1, y, s, 1 );
+	return y + SMALLCHAR_HEIGHT + 1;
 }
 
 /*
@@ -2193,22 +2186,22 @@ static void CG_DrawVote(void) {
 CG_DrawTeamVote
 =================
 */
-static void CG_DrawTeamVote(void) {
+static float CG_DrawTeamVote( float y ) {
 	char	*s;
 	int		sec, cs_offset;
+	char	yesKeys[64];
+	char	noKeys[64];
 
 	if ( cgs.playerinfo[cg.cur_ps->playerNum].team == TEAM_RED )
 		cs_offset = 0;
 	else if ( cgs.playerinfo[cg.cur_ps->playerNum].team == TEAM_BLUE )
 		cs_offset = 1;
 	else
-		return;
+		return y;
 
 	if ( !cgs.teamVoteTime[cs_offset] ) {
-		return;
+		return y;
 	}
-
-	CG_SetScreenPlacement(PLACE_LEFT, PLACE_TOP);
 
 	// play a talk beep whenever it is modified
 	if ( cgs.teamVoteModified[cs_offset] ) {
@@ -2220,9 +2213,10 @@ static void CG_DrawTeamVote(void) {
 	if ( sec < 0 ) {
 		sec = 0;
 	}
-	s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
-							cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
-	CG_DrawSmallString( 0, 90, s, 1.0F );
+
+	s = va("TEAMVOTE (%i): %s. Yes: %i, No: %i. Press %s to vote for Yes or %s to vote for No (or press ESC then click Vote).", sec, cgs.teamVoteString[cs_offset], cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset], yesKeys, noKeys );
+	CG_DrawSmallString( 1, y, s, 1 );
+	return y + SMALLCHAR_HEIGHT + 1;
 }
 
 /*
@@ -2631,7 +2625,7 @@ void CG_DrawSmallWrappedText(int x, int y, const char *textPtr) {
 		strncpy(buff, start, p-start+1);
 		buff[p-start] = '\0';
 		CG_DrawSmallString(x, y, buff, 1.0f );
-		y += SMALLCHAR_HEIGHT + 3;
+		y += SMALLCHAR_HEIGHT + 1;
 		start += p - start + 1;
 		p = strchr(p+1, '\n');
 	}
@@ -2652,13 +2646,13 @@ static float CG_DrawNotify( float y ) {
 	// voice head is being shown
 	if ( !cg.cur_lc->showScores && cg.cur_ps->stats[STAT_HEALTH] > 0 &&
 		cg.cur_lc->voiceTime && cg.cur_lc->voiceTime >= cg.time && cg.cur_lc->playerNum != cg.cur_lc->currentVoicePlayerNum )
-		x = 72;
+		x = 58;
 	else
 #endif
-		x = 0;
+		x = 1;
 
-	CG_DrawSmallWrappedText(x, 2, cg.cur_lc->consoleText);
-	return y + SMALLCHAR_HEIGHT + 2;
+	CG_DrawSmallWrappedText(x, y, cg.cur_lc->consoleText);
+	return y + SMALLCHAR_HEIGHT + 1;
 }
 
 
@@ -2676,7 +2670,11 @@ static void CG_DrawUpperLeft(stereoFrame_t stereoFrame)
 
 	CG_SetScreenPlacement(PLACE_LEFT, PLACE_TOP);
 
-	y = CG_DrawNotify( y );
+	y = CG_DrawVote( y );
+	y = CG_DrawTeamVote( y );
+	CG_DrawNotify( y );
+
+
 }
 
 
@@ -2772,9 +2770,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 #endif
 		}
 	}
-
-	CG_DrawVote();
-	CG_DrawTeamVote();
 
 	CG_DrawLagometer();
 
