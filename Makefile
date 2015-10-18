@@ -124,7 +124,7 @@ MISSIONPACK=missionpack
 endif
 
 ifndef MISSIONPACK_CFLAGS
-MISSIONPACK_CFLAGS=-DMISSIONPACK
+MISSIONPACK_CFLAGS=-DMISSIONPACK -DMISSIONPACK_HUD
 endif
 
 MISSIONPACK_CFLAGS+=-DMODDIR=\"$(MISSIONPACK)\"
@@ -169,8 +169,8 @@ BR=$(BUILD_DIR)/release-$(PLATFORM)-$(ARCH)
 CMDIR=$(MOUNT_DIR)/qcommon
 GDIR=$(MOUNT_DIR)/game
 CGDIR=$(MOUNT_DIR)/cgame
-UIALTDIR=$(MOUNT_DIR)/ui_alt
 UIDIR=$(MOUNT_DIR)/ui
+Q3UIDIR=$(MOUNT_DIR)/q3_ui
 Q3ASMDIR=$(MOUNT_DIR)/tools/asm
 LBURGDIR=$(MOUNT_DIR)/tools/lcc/lburg
 Q3CPPDIR=$(MOUNT_DIR)/tools/lcc/cpp
@@ -1105,19 +1105,16 @@ MPCGOBJ = \
   $(B)/$(MISSIONPACK)/cgame/cg_view.o \
   $(B)/$(MISSIONPACK)/cgame/cg_weapons.o \
   \
-  $(B)/$(MISSIONPACK)/cgame/ui_shared.o \
-  \
-  $(B)/$(MISSIONPACK)/ui/ui_main.o \
-  $(B)/$(MISSIONPACK)/ui/ui_commands.o \
-  $(B)/$(MISSIONPACK)/ui/ui_draw.o \
-  $(B)/$(MISSIONPACK)/ui/ui_logic.o \
-  $(B)/$(MISSIONPACK)/ui/ui_menus.o \
-  $(B)/$(MISSIONPACK)/ui/ui_fonts.o \
-  $(B)/$(MISSIONPACK)/ui/ui_widgets.o \
-  \
   $(B)/$(MISSIONPACK)/qcommon/q_math.o \
   $(B)/$(MISSIONPACK)/qcommon/q_shared.o \
   $(B)/$(MISSIONPACK)/qcommon/q_unicode.o
+
+MPCGOBJ += \
+  $(B)/$(MISSIONPACK)/ui/ui_main.o \
+  $(B)/$(MISSIONPACK)/ui/ui_atoms.o \
+  $(B)/$(MISSIONPACK)/ui/ui_gameinfo.o \
+  $(B)/$(MISSIONPACK)/ui/ui_players.o \
+  $(B)/$(MISSIONPACK)/ui/ui_shared.o
 
 MPCGVMOBJ = $(MPCGOBJ:%.o=%.asm)
 
@@ -1269,7 +1266,7 @@ $(B)/$(BASEGAME)/cgame/bg_%.o: $(GDIR)/bg_%.c
 $(B)/$(BASEGAME)/cgame/%.o: $(CGDIR)/%.c
 	$(DO_CGAME_CC)
 
-$(B)/$(BASEGAME)/ui/%.o: $(UIALTDIR)/%.c
+$(B)/$(BASEGAME)/ui/%.o: $(Q3UIDIR)/%.c
 	$(DO_CGAME_CC)
 
 $(B)/$(BASEGAME)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
@@ -1278,7 +1275,7 @@ $(B)/$(BASEGAME)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 $(B)/$(BASEGAME)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
-$(B)/$(BASEGAME)/ui/%.asm: $(UIALTDIR)/%.c $(Q3LCC)
+$(B)/$(BASEGAME)/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
 $(B)/$(MISSIONPACK)/cgame/bg_%.o: $(GDIR)/bg_%.c
@@ -1287,10 +1284,7 @@ $(B)/$(MISSIONPACK)/cgame/bg_%.o: $(GDIR)/bg_%.c
 $(B)/$(MISSIONPACK)/cgame/%.o: $(CGDIR)/%.c
 	$(DO_CGAME_CC_MISSIONPACK)
 
-$(B)/$(MISSIONPACK)/cgame/ui_%.o: $(UIDIR)/ui_%.c
-	$(DO_CGAME_CC_MISSIONPACK)
-
-$(B)/$(MISSIONPACK)/ui/%.o: $(UIALTDIR)/%.c
+$(B)/$(MISSIONPACK)/ui/%.o: $(UIDIR)/%.c
 	$(DO_CGAME_CC_MISSIONPACK)
 
 $(B)/$(MISSIONPACK)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
@@ -1299,12 +1293,8 @@ $(B)/$(MISSIONPACK)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
 $(B)/$(MISSIONPACK)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC_MISSIONPACK)
 
-$(B)/$(MISSIONPACK)/cgame/ui_%.asm: $(UIDIR)/ui_%.c $(Q3LCC)
+$(B)/$(MISSIONPACK)/ui/%.asm: $(UIDIR)/%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC_MISSIONPACK)
-
-$(B)/$(MISSIONPACK)/ui/%.asm: $(UIALTDIR)/%.c $(Q3LCC)
-	$(DO_CGAME_Q3LCC_MISSIONPACK)
-
 
 $(B)/$(BASEGAME)/game/%.o: $(GDIR)/%.c
 	$(DO_GAME_CC)
