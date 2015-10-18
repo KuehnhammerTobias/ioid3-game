@@ -2645,7 +2645,7 @@ CG_DrawNotify
 Draw console notify area.
 =====================
 */
-void CG_DrawNotify( void ) {
+static float CG_DrawNotify( float y ) {
 	int x;
 
 #ifdef MISSIONPACK_HUD
@@ -2657,9 +2657,28 @@ void CG_DrawNotify( void ) {
 #endif
 		x = 0;
 
-	CG_SetScreenPlacement(PLACE_LEFT, PLACE_TOP);
 	CG_DrawSmallWrappedText(x, 2, cg.cur_lc->consoleText);
+	return y + SMALLCHAR_HEIGHT + 2;
 }
+
+
+/*
+=====================
+CG_DrawUpperLeft
+
+=====================
+*/
+static void CG_DrawUpperLeft(stereoFrame_t stereoFrame)
+{
+	float	y;
+
+	y = 0;
+
+	CG_SetScreenPlacement(PLACE_LEFT, PLACE_TOP);
+
+	y = CG_DrawNotify( y );
+}
+
 
 //==================================================================================
 #ifdef MISSIONPACK_HUD
@@ -2764,9 +2783,11 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 #ifdef MISSIONPACK
 	if (!cg_paused.integer) {
 		CG_DrawUpperRight(stereoFrame);
+		CG_DrawUpperLeft(stereoFrame);
 	}
 #else
 	CG_DrawUpperRight(stereoFrame);
+	CG_DrawUpperLeft(stereoFrame);
 #endif
 
 	CG_DrawLowerRight();
@@ -2931,8 +2952,6 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 
 	// draw status bar and other floating elements
  	CG_Draw2D(stereoView);
-
-	CG_DrawNotify();
 }
 
 /*
