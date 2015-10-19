@@ -60,7 +60,7 @@ Draws large numbers for status bar and powerups
 ==============
 */
 #ifndef MISSIONPACK_HUD
-static void CG_DrawField (int x, int y, int width, int value, float *color) {
+static void CG_DrawField (int x, int y, int style, int width, int value, float *color) {
 	char	num[16];
 
 	if ( width < 1 ) {
@@ -93,7 +93,7 @@ static void CG_DrawField (int x, int y, int width, int value, float *color) {
 
 	Com_sprintf (num, sizeof(num), "%i", value);
 
-	CG_DrawString( x + 2 + CHAR_WIDTH * width, y, num, UI_RIGHT|UI_GRADIENT|UI_NUMBERFONT, color );
+	CG_DrawString( x + 2 + CHAR_WIDTH * width, y, num, UI_RIGHT|UI_GRADIENT|UI_NUMBERFONT|UI_NOSCALE|style, color );
 }
 #endif // MISSIONPACK_HUD
 
@@ -406,7 +406,7 @@ static void CG_DrawStatusBar( void ) {
 		origin[1] = 0;
 		origin[2] = 0;
 		angles[YAW] = 90 + 20 * sin( cg.time / 1000.0 );
-		CG_Draw3DModel( CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE,
+		CG_Draw3DModel( CHAR_WIDTH*3 + TEXT_ICON_SPACE, SCREEN_HEIGHT - ICON_SIZE, ICON_SIZE, ICON_SIZE,
 					   cg_weapons[ cent->currentState.weapon ].ammoModel, NULL, origin, angles );
 	}
 
@@ -425,7 +425,7 @@ static void CG_DrawStatusBar( void ) {
 		origin[1] = 0;
 		origin[2] = -10;
 		angles[YAW] = ( cg.time & 2047 ) * 360 / 2048.0;
-		CG_Draw3DModel( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE,
+		CG_Draw3DModel( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, SCREEN_HEIGHT - ICON_SIZE, ICON_SIZE, ICON_SIZE,
 					   cgs.media.armorModel, NULL, origin, angles );
 	}
 	//
@@ -442,7 +442,7 @@ static void CG_DrawStatusBar( void ) {
 				color = 0;	// green
 			}
 
-			CG_DrawField (0, 432, 3, value, colors[color] );
+			CG_DrawField (0, SCREEN_HEIGHT, UI_VA_BOTTOM, 3, value, colors[color] );
 
 			// if we didn't draw a 3D icon, draw a 2D icon for ammo
 			if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
@@ -450,7 +450,7 @@ static void CG_DrawStatusBar( void ) {
 
 				icon = cg_weapons[ cg.cur_lc->predictedPlayerState.weapon ].ammoIcon;
 				if ( icon ) {
-					CG_DrawPic( CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, icon );
+					CG_DrawPic( CHAR_WIDTH*3 + TEXT_ICON_SPACE, SCREEN_HEIGHT - ICON_SIZE, ICON_SIZE, ICON_SIZE, icon );
 				}
 			}
 		}
@@ -471,7 +471,7 @@ static void CG_DrawStatusBar( void ) {
 	}
 
 	// stretch the health up when taking damage
-	CG_DrawField ( 185, 432, 3, value, colors[color] );
+	CG_DrawField ( 185, SCREEN_HEIGHT, UI_VA_BOTTOM, 3, value, colors[color] );
 
 
 	//
@@ -479,11 +479,11 @@ static void CG_DrawStatusBar( void ) {
 	//
 	value = ps->stats[STAT_ARMOR];
 	if (value > 0 ) {
-		CG_DrawField (370, 432, 3, value, colors[0]);
+		CG_DrawField (370, SCREEN_HEIGHT, UI_VA_BOTTOM, 3, value, colors[0]);
 
 		// if we didn't draw a 3D icon, draw a 2D icon for armor
 		if ( !cg_draw3dIcons.integer && cg_drawIcons.integer ) {
-			CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
+			CG_DrawPic( 370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, SCREEN_HEIGHT - ICON_SIZE, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon );
 		}
 
 	}
@@ -551,7 +551,7 @@ static float CG_DrawAttacker( float y ) {
 	color[3] = 0.5f;
 	CG_DrawString( 635, y + 2, name, UI_RIGHT|UI_DROPSHADOW|UI_BIGFONT, color );
 
-	return y + BIGCHAR_HEIGHT + 2;
+	return y + 2 + CG_DrawStringLineHeight( UI_BIGFONT );
 }
 
 /*
@@ -567,7 +567,7 @@ static float CG_DrawSnapshot( float y ) {
 
 	CG_DrawString( 635, y + 2, s, UI_RIGHT|UI_DROPSHADOW|UI_BIGFONT, NULL );
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + 2 + CG_DrawStringLineHeight( UI_BIGFONT );
 }
 
 /*
@@ -612,7 +612,7 @@ static float CG_DrawFPS( float y ) {
 		CG_DrawString( 635, y + 2, s, UI_RIGHT|UI_DROPSHADOW|UI_BIGFONT, NULL );
 	}
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + 2 + CG_DrawStringLineHeight( UI_BIGFONT );
 }
 
 /*
@@ -639,7 +639,7 @@ static float CG_DrawTimer( float y ) {
 
 	CG_DrawString( 635, y + 2, s, UI_RIGHT|UI_DROPSHADOW|UI_BIGFONT, NULL );
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + 2 + CG_DrawStringLineHeight( UI_BIGFONT );
 }
 
 
@@ -649,6 +649,7 @@ CG_DrawTeamOverlay
 =================
 */
 
+// ZTM: TODO: Use CG_DrawStringLineHeight for team overlay
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	int x, w, h, xx;
 	int i, j, len;
@@ -868,6 +869,7 @@ static float CG_DrawScores( float y ) {
 	vec4_t		color;
 	float		y1;
 	gitem_t		*item;
+	int			scoreHeight;
 
 	if ( !cg_drawScores.integer ) {
 		return y;
@@ -876,7 +878,8 @@ static float CG_DrawScores( float y ) {
 	s1 = cgs.scores1;
 	s2 = cgs.scores2;
 
-	y -=  BIGCHAR_HEIGHT + 8;
+	scoreHeight = CG_DrawStringLineHeight( UI_BIGFONT ) + 6;
+	y -= scoreHeight;
 
 	y1 = y;
 
@@ -890,9 +893,9 @@ static float CG_DrawScores( float y ) {
 		s = va( "%2i", s2 );
 		w = CG_DrawStrlen( s, UI_BIGFONT ) + 8;
 		x -= w;
-		CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+		CG_FillRect( x, y-4,  w, scoreHeight, color );
 		if ( cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE ) {
-			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+			CG_DrawPic( x, y-4, w, scoreHeight, cgs.media.selectShader );
 		}
 		CG_DrawBigString( x + 4, y, s, 1.0F);
 
@@ -901,9 +904,9 @@ static float CG_DrawScores( float y ) {
 			item = BG_FindItemForPowerup( PW_BLUEFLAG );
 
 			if (item) {
-				y1 = y - BIGCHAR_HEIGHT - 8;
+				y1 = y - scoreHeight;
 				if( cgs.blueflag >= 0 && cgs.blueflag <= 2 ) {
-					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.blueFlagShader[cgs.blueflag] );
+					CG_DrawPic( x, y1-4, w, scoreHeight, cgs.media.blueFlagShader[cgs.blueflag] );
 				}
 			}
 		}
@@ -913,7 +916,7 @@ static float CG_DrawScores( float y ) {
 			item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
 
 			if (item) {
-				y1 = y - BIGCHAR_HEIGHT - 8;
+				y1 = y - scoreHeight;
 				if( cgs.flagStatus >= 0 && cgs.flagStatus <= 4 ) {
 					vec4_t color = {1, 1, 1, 1};
 					int index = 0;
@@ -927,7 +930,7 @@ static float CG_DrawScores( float y ) {
 						index = 2;
 					}
 					trap_R_SetColor(color);
-					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.flagShaders[index] );
+					CG_DrawPic( x, y1-4, w, scoreHeight, cgs.media.flagShaders[index] );
 					trap_R_SetColor(NULL);
 				}
 			}
@@ -940,9 +943,9 @@ static float CG_DrawScores( float y ) {
 		s = va( "%2i", s1 );
 		w = CG_DrawStrlen( s, UI_BIGFONT ) + 8;
 		x -= w;
-		CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+		CG_FillRect( x, y-4,  w, scoreHeight, color );
 		if ( cg.cur_ps->persistant[PERS_TEAM] == TEAM_RED ) {
-			CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+			CG_DrawPic( x, y-4, w, scoreHeight, cgs.media.selectShader );
 		}
 		CG_DrawBigString( x + 4, y, s, 1.0F);
 
@@ -951,9 +954,9 @@ static float CG_DrawScores( float y ) {
 			item = BG_FindItemForPowerup( PW_REDFLAG );
 
 			if (item) {
-				y1 = y - BIGCHAR_HEIGHT - 8;
+				y1 = y - scoreHeight;
 				if( cgs.redflag >= 0 && cgs.redflag <= 2 ) {
-					CG_DrawPic( x, y1-4, w, BIGCHAR_HEIGHT+8, cgs.media.redFlagShader[cgs.redflag] );
+					CG_DrawPic( x, y1-4, w, scoreHeight, cgs.media.redFlagShader[cgs.redflag] );
 				}
 			}
 		}
@@ -990,14 +993,14 @@ static float CG_DrawScores( float y ) {
 				color[1] = 0.0f;
 				color[2] = 0.0f;
 				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+				CG_FillRect( x, y-4,  w, scoreHeight, color );
+				CG_DrawPic( x, y-4, w, scoreHeight, cgs.media.selectShader );
 			} else {
 				color[0] = 0.5f;
 				color[1] = 0.5f;
 				color[2] = 0.5f;
 				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+				CG_FillRect( x, y-4,  w, scoreHeight, color );
 			}	
 			CG_DrawBigString( x + 4, y, s, 1.0F);
 		}
@@ -1012,14 +1015,14 @@ static float CG_DrawScores( float y ) {
 				color[1] = 0.0f;
 				color[2] = 1.0f;
 				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
-				CG_DrawPic( x, y-4, w, BIGCHAR_HEIGHT+8, cgs.media.selectShader );
+				CG_FillRect( x, y-4,  w, scoreHeight, color );
+				CG_DrawPic( x, y-4, w, scoreHeight, cgs.media.selectShader );
 			} else {
 				color[0] = 0.5f;
 				color[1] = 0.5f;
 				color[2] = 0.5f;
 				color[3] = 0.33f;
-				CG_FillRect( x, y-4,  w, BIGCHAR_HEIGHT+8, color );
+				CG_FillRect( x, y-4,  w, scoreHeight, color );
 			}	
 			CG_DrawBigString( x + 4, y, s, 1.0F);
 		}
@@ -1114,7 +1117,7 @@ static float CG_DrawPowerups( float y ) {
 
 		  y -= ICON_SIZE;
 
-		  CG_DrawField( x, y, 2, sortedTime[ i ] / 1000, colors[color] );
+		  CG_DrawField( x, y + ICON_SIZE/2, UI_VA_CENTER, 2, sortedTime[ i ] / 1000, colors[color] );
 
 		  t = ps->powerups[ sorted[i] ];
 		  if ( t - cg.time >= POWERUP_BLINKS * POWERUP_BLINK_TIME ) {
@@ -1178,8 +1181,8 @@ static float CG_DrawRealTimeClock(float y) {
 		s = va("%02d.%02d.%02d, %s, %d:%02d%s", qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], h, qtime.tm_min, pm);
 	}
 
-	CG_DrawString(635, y + 2, s, UI_RIGHT|UI_DROPSHADOW|UI_TINYFONT, NULL);
-	return y;
+	CG_DrawString(635, y, s, UI_RIGHT|UI_DROPSHADOW|UI_TINYFONT, NULL);
+	return y + CG_DrawStringLineHeight( UI_TINYFONT );
 }
 #endif // MISSIONPACK_HUD
 /*
@@ -1202,9 +1205,9 @@ static void CG_DrawLowerRight( void ) {
 	} 
 
 	y = CG_DrawScores( y );
-	CG_DrawPowerups( y );
+	y = CG_DrawPowerups( y );
 #else // MISSIONPACK_HUD
-	y = CG_DrawRealTimeClock(y);
+	CG_DrawRealTimeClock(y);
 #endif // MISSIONPACK_HUD
 }
 
@@ -1231,8 +1234,8 @@ static int CG_DrawPickupItem( int y ) {
 			CG_RegisterItemVisuals( value );
 			trap_R_SetColor( fadeColor );
 			CG_DrawPic( 8, y, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
-			CG_DrawBigString( ICON_SIZE + 16, y + (ICON_SIZE/2 - BIGCHAR_HEIGHT/2), BG_ItemForItemNum( value )->pickup_name, fadeColor[0] );
 			trap_R_SetColor( NULL );
+			CG_DrawString( ICON_SIZE + 16, y + (ICON_SIZE/2), BG_ItemForItemNum( value )->pickup_name, UI_VA_CENTER|UI_DROPSHADOW|UI_BIGFONT, fadeColor );
 		}
 	}
 	
@@ -1277,6 +1280,7 @@ static void CG_DrawTeamInfo( void ) {
 	int i;
 	vec4_t		hcolor;
 	int		chatHeight;
+	int		lineHeight;
 
 #define CHATLOC_Y 420 // bottom end
 #define CHATLOC_X 0
@@ -1290,12 +1294,14 @@ static void CG_DrawTeamInfo( void ) {
 
 	CG_SetScreenPlacement( PLACE_LEFT, PLACE_BOTTOM );
 
+	lineHeight = CG_DrawStringLineHeight( UI_TINYFONT );
+
 	if (cgs.teamLastChatPos != cgs.teamChatPos) {
 		if (cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer) {
 			cgs.teamLastChatPos++;
 		}
 
-		h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT;
+		h = (cgs.teamChatPos - cgs.teamLastChatPos) * lineHeight;
 
 		if ( cg.cur_ps->persistant[PERS_TEAM] == TEAM_RED ) {
 			hcolor[0] = 1.0f;
@@ -1323,7 +1329,7 @@ static void CG_DrawTeamInfo( void ) {
 
 		for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
 			CG_DrawString( CHATLOC_X + TINYCHAR_WIDTH, 
-				CHATLOC_Y - (cgs.teamChatPos - i)*TINYCHAR_HEIGHT, 
+				CHATLOC_Y - (cgs.teamChatPos - i)*lineHeight, 
 				cgs.teamChatMsgs[i % chatHeight],
 				UI_TINYFONT, hcolor );
 		}
@@ -1660,6 +1666,12 @@ void CG_CenterPrint( int localPlayerNum, const char *str, int y, float charScale
 
 	player = &cg.localPlayers[localPlayerNum];
 
+	if ( cg.numViewports != 1 ) {
+		charScale *= cg_splitviewTextScale.value;
+	} else {
+		charScale *= cg_hudTextScale.value;
+	}
+
 	Q_strncpyz( player->centerPrint, str, sizeof(player->centerPrint) );
 
 	player->centerPrintTime = cg.time;
@@ -1725,7 +1737,7 @@ static void CG_DrawCenterString( void ) {
 		}
 		linebuffer[l] = 0;
 
-		CG_DrawStringExt( SCREEN_WIDTH / 2, y, linebuffer, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT, color, scale, 0, 0 );
+		CG_DrawStringExt( SCREEN_WIDTH / 2, y, linebuffer, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT|UI_NOSCALE, color, scale, 0, 0 );
 		y += charHeight + 6;
 
 		while ( *start && ( *start != '\n' ) ) {
@@ -2022,6 +2034,7 @@ CG_DrawCrosshairNames
 static void CG_DrawCrosshairNames( void ) {
 	float		*color;
 	char		*name;
+	int			crosshairSize, lineHeight, y;
 
 	if ( !cg_drawCrosshair.integer ) {
 		return;
@@ -2043,6 +2056,18 @@ static void CG_DrawCrosshairNames( void ) {
 	if ( !color ) {
 		return;
 	}
+
+	if (cg.numViewports > 1) {
+		// In splitscreen make crosshair normal [non-splitscreen] size, so it is easier to see.
+		crosshairSize = cg_crosshairSize.value * 2.0f;
+	} else {
+		crosshairSize = cg_crosshairSize.value;
+	}
+
+	// ZTM: TODO: Check how much different this Y is from original 170
+	// space for two lines above crosshair
+	lineHeight = CG_DrawStringLineHeight( UI_BIGFONT );
+	y = ( SCREEN_HEIGHT - crosshairSize ) / 2 - lineHeight * 2;
 
 	name = cgs.playerinfo[ cg.cur_lc->crosshairPlayerNum ].name;
 	color[3] *= 0.5f;
@@ -2069,7 +2094,7 @@ static void CG_DrawCrosshairNames( void ) {
 			buffer[i] = '\0';
 
 			Com_sprintf( string, sizeof ( string ), "VoIP: [%s]", buffer );
-			CG_DrawStringExt( SCREEN_WIDTH / 2, 170 + BIGCHAR_HEIGHT * 1.5f, string, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, color, 0, 0, 1 );
+			CG_DrawStringExt( SCREEN_WIDTH / 2, y + lineHeight, string, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, color, 0, 0, 1 );
 		}
 	}
 }
@@ -2120,7 +2145,7 @@ static void CG_DrawShaderInfo( void ) {
 	CG_SetScreenPlacement(PLACE_LEFT, PLACE_BOTTOM);
 
 	color[3] *= 0.5f;
-	CG_DrawString( 0, SCREEN_HEIGHT - height - 28, name, UI_DROPSHADOW|UI_BIGFONT, color );
+	CG_DrawString( 0, SCREEN_HEIGHT - height, name, UI_VA_BOTTOM|UI_DROPSHADOW|UI_BIGFONT, color );
 
 	x = 0;
 	y = SCREEN_HEIGHT - height;
@@ -2137,13 +2162,21 @@ CG_DrawSpectator
 =================
 */
 static void CG_DrawSpectator(void) {
+	int lineHeight, y;
+
 	CG_SetScreenPlacement(PLACE_CENTER, PLACE_BOTTOM);
-	CG_DrawString(320, 440, "SPECTATOR", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
+
+	lineHeight = CG_DrawStringLineHeight( UI_BIGFONT );
+	y = SCREEN_HEIGHT - lineHeight * 2;
+
+	CG_DrawString(320, y, "Spectator", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
+	y += lineHeight;
+
 	if ( cgs.gametype == GT_TOURNAMENT ) {
-		CG_DrawString(320, 460, "waiting to play", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
+		CG_DrawString(320, y, "Waiting to play", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
 	}
 	else if ( cgs.gametype >= GT_TEAM ) {
-		CG_DrawString(320, 460, "press ESC and use the JOIN menu to play", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
+		CG_DrawString(320, y, "Press ESC and use the JOIN menu to play", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
 	}
 }
 
@@ -2178,7 +2211,7 @@ static float CG_DrawVote( float y ) {
 
 	s = va( "Vote (%i): %s. Yes: %i, No: %i. Press %s to vote for Yes or %s to vote for No (or press ESC then click Vote).", sec, cgs.voteString, cgs.voteYes, cgs.voteNo, yesKeys, noKeys );
 	CG_DrawSmallString( 1, y, s, 1 );
-	return y + SMALLCHAR_HEIGHT + 1;
+	return y + 1 + CG_DrawStringLineHeight( UI_SMALLFONT );
 }
 
 /*
@@ -2216,7 +2249,7 @@ static float CG_DrawTeamVote( float y ) {
 
 	s = va("TEAMVOTE (%i): %s. Yes: %i, No: %i. Press %s to vote for Yes or %s to vote for No (or press ESC then click Vote).", sec, cgs.teamVoteString[cs_offset], cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset], yesKeys, noKeys );
 	CG_DrawSmallString( 1, y, s, 1 );
-	return y + SMALLCHAR_HEIGHT + 1;
+	return y + 1 + CG_DrawStringLineHeight( UI_SMALLFONT );
 }
 
 /*
@@ -2380,6 +2413,7 @@ Draw info for bot that player is following.
 */
 static qboolean CG_DrawBotInfo( int y ) {
 	const char	*info, *str, *leader, *carrying, *action, *node;
+	int lineHeight;
 
 	if ( !(cg.cur_ps->pm_flags & PMF_FOLLOW) ) {
 		return qfalse;
@@ -2391,13 +2425,15 @@ static qboolean CG_DrawBotInfo( int y ) {
 		return qfalse;
 	}
 
+	lineHeight = CG_DrawStringLineHeight( UI_BIGFONT );
+
 	node = Info_ValueForKey(info, "n");
 
 	if ( *node ) {
 		str = va("AI Node: %s", node);
 		CG_DrawString( SCREEN_WIDTH / 2, y, str, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL );
 
-		y += BIGCHAR_HEIGHT + 2;
+		y += lineHeight;
 	}
 
 	action = Info_ValueForKey(info, "a");
@@ -2405,7 +2441,7 @@ static qboolean CG_DrawBotInfo( int y ) {
 	if ( *action ) {
 		CG_DrawString( SCREEN_WIDTH / 2, y, action, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL );
 
-		y += BIGCHAR_HEIGHT + 2;
+		y += lineHeight;
 	}
 
 	leader = Info_ValueForKey(info, "l");
@@ -2414,7 +2450,7 @@ static qboolean CG_DrawBotInfo( int y ) {
 		str = "bot is leader";
 		CG_DrawString( SCREEN_WIDTH / 2, y, str, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL );
 
-		y += BIGCHAR_HEIGHT + 2;
+		y += lineHeight;
 	}
 
 	carrying = Info_ValueForKey(info, "c");
@@ -2434,6 +2470,7 @@ CG_DrawFollow
 */
 static qboolean CG_DrawFollow( void ) {
 	const char	*name;
+	int y;
 
 	if ( !(cg.cur_ps->pm_flags & PMF_FOLLOW) ) {
 		return qfalse;
@@ -2441,13 +2478,17 @@ static qboolean CG_DrawFollow( void ) {
 
 	CG_SetScreenPlacement(PLACE_CENTER, PLACE_TOP);
 
-	CG_DrawString( SCREEN_WIDTH / 2, 24, "following", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL );
+	y = 24;
+
+	CG_DrawString( SCREEN_WIDTH / 2, y, "following", UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL );
+	y += CG_DrawStringLineHeight( UI_BIGFONT );
 
 	name = cgs.playerinfo[ cg.cur_ps->playerNum ].name;
 
-	CG_DrawString( SCREEN_WIDTH / 2, 40, name, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT, NULL );
+	CG_DrawString( SCREEN_WIDTH / 2, y, name, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT, NULL );
+	y += CG_DrawStringLineHeight( UI_GIANTFONT );
 
-	CG_DrawBotInfo( 40 + GIANTCHAR_HEIGHT );
+	CG_DrawBotInfo( y );
 
 	return qtrue;
 }
@@ -2489,6 +2530,7 @@ CG_DrawProxWarning
 static void CG_DrawProxWarning( void ) {
 	char s [32];
   int proxTick;
+	int lineHeight;
 
 	if( !(cg.cur_ps->eFlags & EF_TICKING ) ) {
     cg.cur_lc->proxTime = 0;
@@ -2509,7 +2551,10 @@ static void CG_DrawProxWarning( void ) {
     Com_sprintf(s, sizeof(s), "YOU HAVE BEEN MINED");
   }
 
-	CG_DrawString( SCREEN_WIDTH / 2, 64 + BIGCHAR_HEIGHT, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, g_color_table[ColorIndex(COLOR_RED)] );
+	// put proxy warning below where the out of ammo location
+	lineHeight = CG_DrawStringLineHeight( UI_BIGFONT );
+
+	CG_DrawString( SCREEN_WIDTH / 2, 64 + lineHeight, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, g_color_table[ColorIndex(COLOR_RED)] );
 }
 
 
@@ -2600,7 +2645,7 @@ static void CG_DrawWarmup( void ) {
 		break;
 	}
 
-	CG_DrawStringExt( SCREEN_WIDTH / 2, 70, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL, scale, 0, 0 );
+	CG_DrawStringExt( SCREEN_WIDTH / 2, 70, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT|UI_NOSCALE, NULL, scale, 0, 0 );
 }
 
 
@@ -2614,10 +2659,13 @@ Draw multiline text
 void CG_DrawSmallWrappedText(int x, int y, const char *textPtr) {
 	const char *p, *start;
 	char buff[1024];
+	int lineHeight;
 
 	if (!textPtr || *textPtr == '\0') {
 		return;
 	}
+
+	lineHeight = CG_DrawStringLineHeight( UI_SMALLFONT );
 
 	start = textPtr;
 	p = strchr(textPtr, '\n');
@@ -2625,7 +2673,7 @@ void CG_DrawSmallWrappedText(int x, int y, const char *textPtr) {
 		strncpy(buff, start, p-start+1);
 		buff[p-start] = '\0';
 		CG_DrawSmallString(x, y, buff, 1.0f );
-		y += SMALLCHAR_HEIGHT + 1;
+		y += lineHeight;
 		start += p - start + 1;
 		p = strchr(p+1, '\n');
 	}
@@ -2652,7 +2700,7 @@ static float CG_DrawNotify( float y ) {
 		x = 1;
 
 	CG_DrawSmallWrappedText(x, y, cg.cur_lc->consoleText);
-	return y + SMALLCHAR_HEIGHT + 1;
+	return y + 1 + CG_DrawStringLineHeight( UI_SMALLFONT );
 }
 
 
@@ -2988,7 +3036,7 @@ void CG_DrawMessageMode( void ) {
 	}
 
 	// draw the chat line
-	CG_DrawBigString( 8, 232, cg.messagePrompt, 1.0f );
+	CG_DrawString( 8, 232, cg.messagePrompt, UI_DROPSHADOW|UI_BIGFONT, NULL );
 
 	MField_Draw( &cg.messageField, 8 + CG_DrawStrlen( cg.messagePrompt, UI_BIGFONT ), 232,
 			UI_DROPSHADOW|UI_BIGFONT, NULL, qtrue );
