@@ -91,7 +91,7 @@ Q_EXPORT intptr_t vmMain( int command, int arg0, int arg1, int arg2, int arg3, i
 	case CG_VOIP_STRING:
 		return (intptr_t)CG_VoIPString(arg0);
 	case CG_KEY_EVENT:
-		CG_DistributeKeyEvent(arg0, arg1, arg2, arg3, 0);
+		CG_DistributeKeyEvent(arg0, arg1, arg2, arg3, -1, 0);
 		return 0;
 	case CG_CHAR_EVENT:
 		CG_DistributeCharEvent(arg0, arg1);
@@ -2741,7 +2741,7 @@ an action started before a mode switch.
 
 ===================
 */
-void CG_ParseBinding( int key, qboolean down, unsigned time, connstate_t state, int keyCatcher, int axisNum )
+void CG_ParseBinding( int key, qboolean down, unsigned time, connstate_t state, int keyCatcher, int joystickNum, int axisNum )
 {
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
 	qboolean allCommands, allowUpCmds;
@@ -2774,8 +2774,8 @@ void CG_ParseBinding( int key, qboolean down, unsigned time, connstate_t state, 
 			// subframe corrected
 			if ( allCommands || ( allowUpCmds && !down ) ) {
 				char cmd[1024];
-				Com_sprintf( cmd, sizeof( cmd ), "%c%s %d %d %d\n",
-					( down ) ? '+' : '-', p + 1, key, time, axisNum );
+				Com_sprintf( cmd, sizeof( cmd ), "%c%s %d %d %d %d\n",
+					( down ) ? '+' : '-', p + 1, key, time, joystickNum, axisNum );
 				trap_Cmd_ExecuteText( EXEC_APPEND, cmd );
 			}
 		}
@@ -2839,7 +2839,7 @@ void Message_Key( int key, qboolean down ) {
 CG_DistributeKeyEvent
 ================
 */
-void CG_DistributeKeyEvent( int key, qboolean down, unsigned time, connstate_t state, int axisNum ) {
+void CG_DistributeKeyEvent( int key, qboolean down, unsigned time, connstate_t state, int joystickNum, int axisNum ) {
 	int keyCatcher;
 
 	CG_SetConnectionState( state );
@@ -2904,7 +2904,7 @@ void CG_DistributeKeyEvent( int key, qboolean down, unsigned time, connstate_t s
 		keyCatcher &= ~KEYCATCH_CONSOLE;
 	} else {
 		// send the bound action
-		CG_ParseBinding( key, down, time, state, keyCatcher, axisNum );
+		CG_ParseBinding( key, down, time, state, keyCatcher, joystickNum, axisNum );
 	}
 
 	// distribute the key down event to the apropriate handler
@@ -3152,11 +3152,11 @@ void CG_JoystickAxisEvent( int localPlayerNum, int axis, int value, unsigned tim
 	if ( value == 0 || !!( value < 0 ) != !!( oldvalue < 0 ) ) {
 		if ( oldvalue < 0 ) {
 			if ( negKey != -1 ) {
-				CG_DistributeKeyEvent( negKey, qfalse, time, state, -(axis+1) );
+				CG_DistributeKeyEvent( negKey, qfalse, time, state, localPlayerNum, -(axis+1) );
 			}
 		} else if ( oldvalue > 0 ) {
 			if ( posKey != -1 ) {
-				CG_DistributeKeyEvent( posKey, qfalse, time, state, axis+1 );
+				CG_DistributeKeyEvent( posKey, qfalse, time, state, localPlayerNum, axis+1 );
 			}
 		}
 	}
@@ -3165,12 +3165,12 @@ void CG_JoystickAxisEvent( int localPlayerNum, int axis, int value, unsigned tim
 	if ( value < 0 && oldvalue >= 0 ) {
 		CG_JoystickEvent( localPlayerNum, &negEvent );
 		if ( negKey != -1 ) {
-			CG_DistributeKeyEvent( negKey, qtrue, time, state, -(axis+1) );
+			CG_DistributeKeyEvent( negKey, qtrue, time, state, localPlayerNum, -(axis+1) );
 		}
 	} else if ( value > 0 && oldvalue <= 0 ) {
 		CG_JoystickEvent( localPlayerNum, &posEvent );
 		if ( posKey != -1 ) {
-			CG_DistributeKeyEvent( posKey, qtrue, time, state, axis+1 );
+			CG_DistributeKeyEvent( posKey, qtrue, time, state, localPlayerNum, axis+1 );
 		}
 	}
 }
@@ -3200,7 +3200,7 @@ void CG_JoystickButtonEvent( int localPlayerNum, int button, qboolean down, unsi
 	}
 
 	if ( key != -1 ) {
-		CG_DistributeKeyEvent( key, down, time, state, 0 );
+		CG_DistributeKeyEvent( key, down, time, state, localPlayerNum, 0 );
 	}
 }
 
@@ -3249,7 +3249,7 @@ void CG_JoystickHatEvent( int localPlayerNum, int hat, int value, unsigned time,
 	for ( i = 0; i < 4; i++ ) {
 		if ( ( oldvalue & (1<<i) ) && !( value & (1<<i) ) ) {
 			if ( hatKeys[i] != -1 ) {
-				CG_DistributeKeyEvent( hatKeys[i], qfalse, time, state, 0 );
+				CG_DistributeKeyEvent( hatKeys[i], qfalse, time, state, localPlayerNum, 0 );
 			}
 		}
 	}
@@ -3271,7 +3271,7 @@ void CG_JoystickHatEvent( int localPlayerNum, int hat, int value, unsigned time,
 		if ( !( oldvalue & (1<<i) ) && ( value & (1<<i) ) ) {
 			CG_JoystickEvent( localPlayerNum, &hatEvent[i] );
 			if ( hatKeys[i] != -1 ) {
-				CG_DistributeKeyEvent( hatKeys[i], qtrue, time, state, 0 );
+				CG_DistributeKeyEvent( hatKeys[i], qtrue, time, state, localPlayerNum, 0 );
 			}
 		}
 	}
