@@ -35,8 +35,8 @@ Suite 120, Rockville, Maryland 20850 USA.
 // Team Arena HUD/UI also use separate fonts (specified in .menu files).
 // The truetype font names here are the same as in Team Arena (except tiny font that does not exist)
 void CG_TextInit( void ) {
-	cgs.media.smallFontHeight = 8;
-	cgs.media.bigFontHeight = 24;
+	cgs.media.smallFontHeight = 12;
+	cgs.media.bigFontHeight = 20;
 
 	if ( !CG_InitTrueTypeFont( "fonts/tinyfont", 8, &cgs.media.tinyFont ) ) {
 		CG_InitBitmapFont( &cgs.media.tinyFont, 8, 8 );

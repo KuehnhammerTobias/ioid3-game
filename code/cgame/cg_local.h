@@ -46,17 +46,17 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define	SCREEN_WIDTH		640
 #define	SCREEN_HEIGHT		480
 
-#define TINYCHAR_WIDTH		4
-#define TINYCHAR_HEIGHT		4
+#define TINYCHAR_WIDTH		8
+#define TINYCHAR_HEIGHT		8
 
 #define SMALLCHAR_WIDTH		8
-#define SMALLCHAR_HEIGHT	cgs.media.smallFontHeight // 8
+#define SMALLCHAR_HEIGHT	cgs.media.smallFontHeight //16
 
-#define BIGCHAR_WIDTH		12
-#define BIGCHAR_HEIGHT		12
+#define BIGCHAR_WIDTH		16
+#define BIGCHAR_HEIGHT		16
 
-#define	GIANTCHAR_WIDTH		24
-#define	GIANTCHAR_HEIGHT	cgs.media.bigFontHeight // 24
+#define	GIANTCHAR_WIDTH		32
+#define	GIANTCHAR_HEIGHT	cgs.media.bigFontHeight //48
 
 #define	POWERUP_BLINKS		5
 

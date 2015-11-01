@@ -441,7 +441,7 @@ void CG_DrawStringExtWithCursor( int x, int y, const char* str, int style, const
 	}
 
 	if ( shadowOffset == 0 && ( style & UI_DROPSHADOW ) ) {
-		shadowOffset = 1;
+		shadowOffset = 2;
 	}
 
 	if ( gradient == 0 && ( style & UI_GRADIENT ) ) {
