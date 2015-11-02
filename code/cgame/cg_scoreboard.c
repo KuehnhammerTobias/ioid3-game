@@ -167,29 +167,29 @@ static void CG_DrawPlayerScore( int y, score_t *score, float *color, float fade,
 		CG_DrawHead( headx, y, 16, 16, score->playerNum, headAngles );
 	}
 	// draw the team task
-	switch (pi->teamTask) {
-		case TEAMTASK_OFFENSE :
+	switch ( pi->teamTask ) {
+		case TEAMTASK_OFFENSE:
 			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.assaultShader );
 			break;
-		case TEAMTASK_DEFENSE :
+		case TEAMTASK_DEFENSE:
 			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.defendShader );
 			break;
-		case TEAMTASK_PATROL :
+		case TEAMTASK_PATROL:
 			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.patrolShader );
 			break;
-		case TEAMTASK_FOLLOW :
+		case TEAMTASK_FOLLOW:
 			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.followShader );
 			break;
-		case TEAMTASK_CAMP :
+		case TEAMTASK_CAMP:
 			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.campShader );
 			break;
-		case TEAMTASK_RETRIEVE :
+		case TEAMTASK_RETRIEVE:
 			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.retrieveShader );
 			break;
-		case TEAMTASK_ESCORT :
+		case TEAMTASK_ESCORT:
 			CG_DrawPic( headx + 48, y, 16, 16, cgs.media.escortShader );
 			break;
-		default : 
+		default:
 			break;
 	}
 

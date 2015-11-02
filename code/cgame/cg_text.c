@@ -68,7 +68,7 @@ void CG_TextInit( void ) {
 	}
 }
 
-// 256x256 image with characters that are 16x16
+/// 256x256 image with characters that are 16x16
 void CG_InitBitmapFont( fontInfo_t *font, int charHeight, int charWidth ) {
 	int			i, col, row;
 	const char 	*shaderName;
@@ -207,7 +207,7 @@ const glyphInfo_t *Text_GetGlyph( const fontInfo_t *font, unsigned long index ) 
 	return &font->glyphs[index];
 }
 
-int Text_Width( const char *text, const fontInfo_t *font, float scale, int limit ) {
+float Text_Width( const char *text, const fontInfo_t *font, float scale, int limit ) {
 	int count,len;
 	float out;
 	const glyphInfo_t *glyph;
@@ -242,7 +242,7 @@ int Text_Width( const char *text, const fontInfo_t *font, float scale, int limit
 	return out * useScale;
 }
 
-int Text_Height( const char *text, const fontInfo_t *font, float scale, int limit ) {
+float Text_Height( const char *text, const fontInfo_t *font, float scale, int limit ) {
 	int len, count;
 	float max;
 	const glyphInfo_t *glyph;

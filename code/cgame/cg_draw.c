@@ -648,8 +648,6 @@ static float CG_DrawTimer( float y ) {
 CG_DrawTeamOverlay
 =================
 */
-
-// ZTM: TODO: Use CG_DrawStringLineHeight for team overlay
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	int x, w, h, xx;
 	int i, j, len;
@@ -662,6 +660,9 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	gitem_t	*item;
 	int ret_y, count;
 	int team;
+	int lineHeight;
+	int iconWidth, iconHeight;
+	int healthWidth, armorWidth;
 
 	if ( !cg_drawTeamOverlay.integer ) {
 		return y;
@@ -677,6 +678,12 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 		// Info is too out of date.
 		return y;
 	}
+
+	lineHeight = CG_DrawStringLineHeight( UI_TINYFONT );
+	healthWidth = CG_DrawStrlen( "000", UI_TINYFONT );
+
+	iconWidth = iconHeight = lineHeight;
+	armorWidth = healthWidth;
 
 	plyrs = 0;
 
@@ -713,14 +720,14 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	if (lwidth > TEAM_OVERLAY_MAXLOCATION_WIDTH*TINYCHAR_WIDTH)
 		lwidth = TEAM_OVERLAY_MAXLOCATION_WIDTH*TINYCHAR_WIDTH;
 
-	w = pwidth + lwidth + (4 + 7) * TINYCHAR_WIDTH;
+	w = pwidth + lwidth + healthWidth + armorWidth + iconWidth * 5;
 
 	if ( right )
 		x = 640 - w;
 	else
 		x = 0;
 
-	h = plyrs * TINYCHAR_HEIGHT;
+	h = plyrs * lineHeight;
 
 	if ( upper ) {
 		ret_y = y + h;
@@ -750,42 +757,50 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 
 			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
 
-			xx = x + TINYCHAR_WIDTH;
+			xx = x + iconWidth;
 
 			CG_DrawStringExt( xx, y, pi->name, UI_TINYFONT, NULL, 0, TEAM_OVERLAY_MAXNAME_WIDTH, 0 );
+			xx += pwidth;
 
 			if (lwidth) {
 				p = CG_ConfigString(CS_LOCATIONS + pi->location);
 				if (!p || !*p)
 					p = "unknown";
-				xx = x + TINYCHAR_WIDTH * 2 + pwidth;
+				xx += iconWidth; // not icon related
 				CG_DrawStringExt( xx, y, p, UI_TINYFONT, NULL, 0, TEAM_OVERLAY_MAXLOCATION_WIDTH, 0 );
+				xx += lwidth;
 			}
 
 			CG_GetColorForHealth( pi->health, pi->armor, hcolor );
 
-			Com_sprintf (st, sizeof(st), "%3i %3i", pi->health,	pi->armor);
+			// draw health
+			xx += iconWidth; // not icon related
 
-			xx = x + TINYCHAR_WIDTH * 3 + pwidth + lwidth;
-
+			Com_sprintf( st, sizeof(st), "%3i", pi->health );
 			CG_DrawString( xx, y, st, UI_TINYFONT, hcolor );
 
 			// draw weapon icon
-			xx += TINYCHAR_WIDTH * 3;
+			xx += healthWidth;
 
 			if ( cg_weapons[pi->curWeapon].weaponIcon ) {
-				CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
+				CG_DrawPic( xx, y, iconWidth, iconHeight,
 					cg_weapons[pi->curWeapon].weaponIcon );
 			} else {
-				CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
+				CG_DrawPic( xx, y, iconWidth, iconHeight,
 					cgs.media.deferShader );
 			}
+
+			// draw armor
+			xx += iconWidth;
+
+			Com_sprintf( st, sizeof(st), "%3i", pi->armor );
+			CG_DrawString( xx, y, st, UI_TINYFONT, hcolor );
 
 			// Draw powerup icons
 			if (right) {
 				xx = x;
 			} else {
-				xx = x + w - TINYCHAR_WIDTH;
+				xx = x + w - iconWidth;
 			}
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
 				if (pi->powerups & (1 << j)) {
@@ -793,18 +808,18 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 					item = BG_FindItemForPowerup( j );
 
 					if (item) {
-						CG_DrawPic( xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 
+						CG_DrawPic( xx, y, iconWidth, iconHeight,
 						trap_R_RegisterShader( item->icon ) );
 						if (right) {
-							xx -= TINYCHAR_WIDTH;
+							xx -= iconWidth;
 						} else {
-							xx += TINYCHAR_WIDTH;
+							xx += iconWidth;
 						}
 					}
 				}
 			}
 
-			y += TINYCHAR_HEIGHT;
+			y += lineHeight;
 		}
 	}
 
@@ -1181,8 +1196,8 @@ static float CG_DrawRealTimeClock(float y) {
 		s = va("%02d.%02d.%02d, %s, %d:%02d%s", qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], h, qtime.tm_min, pm);
 	}
 
-	CG_DrawString(635, y, s, UI_RIGHT|UI_DROPSHADOW|UI_TINYFONT, NULL);
-	return y + CG_DrawStringLineHeight( UI_TINYFONT );
+	CG_DrawString(635, y + 2, s, UI_RIGHT|UI_DROPSHADOW|UI_TINYFONT, NULL);
+	return y;
 }
 #endif // MISSIONPACK_HUD
 /*
@@ -1468,8 +1483,13 @@ static void CG_DrawDisconnect( void ) {
 
 	CG_SetScreenPlacement(PLACE_RIGHT, PLACE_BOTTOM);
 
+#ifdef MISSIONPACK_HUD
+	x = 640 - 48;
+	y = 480 - 144;
+#else
 	x = 640 - 48;
 	y = 480 - 48;
+#endif
 
 	CG_DrawPic( x, y, 48, 48, trap_R_RegisterShader("gfx/2d/net.tga" ) );
 }
@@ -1490,7 +1510,7 @@ static void CG_DrawLagometer( void ) {
 	int		color;
 	float	vscale;
 
-	if ( !cg_lagometer.integer || cgs.localServer ) {
+	if ( !cg_drawLagometer.integer || cgs.localServer ) {
 		CG_DrawDisconnect();
 		return;
 	}
@@ -1749,7 +1769,6 @@ static void CG_DrawCenterString( void ) {
 		start++;
 	}
 }
-
 
 /*
 ================================================================================
@@ -2064,14 +2083,13 @@ static void CG_DrawCrosshairNames( void ) {
 		crosshairSize = cg_crosshairSize.value;
 	}
 
-	// ZTM: TODO: Check how much different this Y is from original 170
 	// space for two lines above crosshair
 	lineHeight = CG_DrawStringLineHeight( UI_BIGFONT );
 	y = ( SCREEN_HEIGHT - crosshairSize ) / 2 - lineHeight * 2;
 
 	name = cgs.playerinfo[ cg.cur_lc->crosshairPlayerNum ].name;
 	color[3] *= 0.5f;
-	CG_DrawStringExt( SCREEN_WIDTH / 2, 170, name, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, color, 0, 0, 1 );
+	CG_DrawStringExt( SCREEN_WIDTH / 2, y, name, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, color, 0, 0, 1 );
 
 	if ( cg_voipShowCrosshairMeter.integer )
 	{
@@ -2211,7 +2229,7 @@ static float CG_DrawVote( float y ) {
 
 	s = va( "Vote (%i): %s. Yes: %i, No: %i. Press %s to vote for Yes or %s to vote for No (or press ESC then click Vote).", sec, cgs.voteString, cgs.voteYes, cgs.voteNo, yesKeys, noKeys );
 	CG_DrawSmallString( 1, y, s, 1 );
-	return y + 1 + CG_DrawStringLineHeight( UI_SMALLFONT );
+	return y + CG_DrawStringLineHeight( UI_SMALLFONT ) + 1;
 }
 
 /*
@@ -2247,9 +2265,12 @@ static float CG_DrawTeamVote( float y ) {
 		sec = 0;
 	}
 
+	CG_KeysStringForBinding( Com_LocalPlayerCvarName( cg.cur_localPlayerNum, "vote yes" ), yesKeys, sizeof (yesKeys) );
+	CG_KeysStringForBinding( Com_LocalPlayerCvarName( cg.cur_localPlayerNum, "vote no" ), noKeys, sizeof (noKeys) );
+
 	s = va("TEAMVOTE (%i): %s. Yes: %i, No: %i. Press %s to vote for Yes or %s to vote for No (or press ESC then click Vote).", sec, cgs.teamVoteString[cs_offset], cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset], yesKeys, noKeys );
 	CG_DrawSmallString( 1, y, s, 1 );
-	return y + 1 + CG_DrawStringLineHeight( UI_SMALLFONT );
+	return y + CG_DrawStringLineHeight( UI_SMALLFONT ) + 1;
 }
 
 /*
@@ -2699,8 +2720,8 @@ static float CG_DrawNotify( float y ) {
 #endif
 		x = 1;
 
-	CG_DrawSmallWrappedText(x, y, cg.cur_lc->consoleText);
-	return y + 1 + CG_DrawStringLineHeight( UI_SMALLFONT );
+	CG_DrawSmallWrappedText(x, 2, cg.cur_lc->consoleText);
+	return y + CG_DrawStringLineHeight( UI_SMALLFONT ) + 1;
 }
 
 
