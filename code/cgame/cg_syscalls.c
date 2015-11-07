@@ -354,12 +354,8 @@ qhandle_t trap_R_RegisterShaderNoMip( const char *name ) {
 	return syscall( CG_R_REGISTERSHADERNOMIP, name );
 }
 
-qhandle_t trap_R_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
-	return syscall( CG_R_REGISTERFONT, fontName, pointSize, font, sizeof ( fontInfo_t ) );
-}
-
-int			trap_R_GetFontGlyph( qhandle_t fontHandle, /*unsigned long*/ int index, glyphInfo_t *glyph ) {
-	return syscall( CG_R_GETFONTGLYPH, fontHandle, index, glyph, sizeof ( glyphInfo_t ) );
+void trap_R_RegisterFont(const char *fontName, int pointSize, fontInfo_t *font) {
+	syscall(CG_R_REGISTERFONT, fontName, pointSize, font, sizeof ( fontInfo_t ) );
 }
 
 qhandle_t	trap_R_AllocSkinSurface( const char *surface, qhandle_t hShader ) {

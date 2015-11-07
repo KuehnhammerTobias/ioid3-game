@@ -314,7 +314,6 @@ typedef enum {
 	CG_R_ALLOCSKINSURFACE,
 	CG_R_ADDSKINTOFRAME,
 	CG_R_ADDPOLYREFENTITYTOSCENE,
-	CG_R_GETFONTGLYPH,
 
 	// note: these were not originally available in ui
 	CG_R_LOADWORLDMAP = 350,
