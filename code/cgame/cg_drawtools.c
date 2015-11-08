@@ -667,6 +667,7 @@ int CG_DrawStringLineHeight( int style ) {
 	{
 		case UI_TINYFONT:
 			font = &cgs.media.tinyFont;
+			gap = 1;
 			break;
 
 		case UI_SMALLFONT:

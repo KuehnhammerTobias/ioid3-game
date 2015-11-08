@@ -46,11 +46,11 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define	SCREEN_WIDTH		640
 #define	SCREEN_HEIGHT		480
 
-#define TINYCHAR_WIDTH		8
-#define TINYCHAR_HEIGHT		cgs.media.tinyFont.pointSize // default: 8
+#define TINYCHAR_WIDTH		5
+#define TINYCHAR_HEIGHT		cgs.media.tinyFont.pointSize // default: 5
 
 #define SMALLCHAR_WIDTH		8
-#define SMALLCHAR_HEIGHT	cgs.media.smallFont.pointSize // default: 16 (bitmap), 12 (true type)
+#define SMALLCHAR_HEIGHT	cgs.media.smallFont.pointSize // default: 16 (bitmap), 8 (true type)
 
 #define BIGCHAR_WIDTH		16
 #define BIGCHAR_HEIGHT		cgs.media.textFont.pointSize // default: 16
@@ -523,7 +523,7 @@ typedef struct
   int length;
 } consoleLine_t;
 
-#define MAX_CONSOLE_LINES 4
+#define MAX_CONSOLE_LINES 8
 #define MAX_CONSOLE_TEXT  ( 256 * MAX_CONSOLE_LINES )
 
 // all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action

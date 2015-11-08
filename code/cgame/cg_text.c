@@ -45,8 +45,8 @@ void CG_TextInit( void ) {
 	int giantBitmapSize;
 
 	// TrueType font sizes
-	tinySize = 8;
-	smallSize = 12;
+	tinySize = 5;
+	smallSize = 8;
 	bigSize = 16;
 	giantSize = 20;
 	numberSize = 48;
