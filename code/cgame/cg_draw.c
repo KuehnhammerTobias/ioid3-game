@@ -99,6 +99,54 @@ static void CG_DrawField (int x, int y, int style, int width, int value, float *
 
 /*
 ================
+CG_DrawNamedPlayerIcon
+
+Draw the player icon and name.
+================
+*/
+static void CG_DrawNamedPlayerIcon(float x, float y, float size, int playerNum) {
+	playerInfo_t *pi;
+	const char *info, *name;
+	vec4_t hcolor;
+
+	if ( cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE ) {
+		hcolor[0] = 0;
+		hcolor[1] = 0;
+		hcolor[2] = 1.0f;
+		hcolor[3] = 0.2f;
+	} else if ( cg.cur_ps->persistant[PERS_TEAM] == TEAM_RED ) {
+		hcolor[0] = 1.0f;
+		hcolor[1] = 0;
+		hcolor[2] = 0;
+		hcolor[3] = 0.2f;
+	} else {
+		hcolor[0] = 1.0f;
+		hcolor[1] = 1.0f;
+		hcolor[2] = 1.0f;
+		hcolor[3] = 0.2f;
+	}
+	// draw team colored background
+	CG_FillRect( x, y, size, size, hcolor );
+
+	pi = &cgs.playerinfo[playerNum];
+	// draw the icon
+	CG_DrawPic(x, y, size, size, pi->modelIcon);
+	// if they are deferred, draw a cross out
+	if (pi->deferred) {
+		CG_DrawPic(x, y, size, size, cgs.media.deferShader);
+	}
+	// draw window frame
+	CG_DrawRect( x, y, size, size, 0.33f, colorWhite);
+
+	info = CG_ConfigString(CS_PLAYERS + playerNum);
+	name = Info_ValueForKey(info, "n");
+	y += 2;
+	// draw the name
+	CG_DrawStringExt(x + size/2, y + size, name, UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.33f );
+}
+
+/*
+================
 CG_Draw3DModelEx
 
 ================
@@ -2686,19 +2734,19 @@ void CG_DrawSmallWrappedText(int x, int y, const char *textPtr) {
 		return;
 	}
 
-	lineHeight = CG_DrawStringLineHeight( UI_SMALLFONT );
+	lineHeight = CG_DrawStringLineHeight( UI_TINYFONT );
 
 	start = textPtr;
 	p = strchr(textPtr, '\n');
 	while (p && *p) {
 		strncpy(buff, start, p-start+1);
 		buff[p-start] = '\0';
-		CG_DrawSmallString(x, y, buff, 1.0f );
+		CG_DrawStringExt(x, y, buff, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.33f );
 		y += lineHeight;
 		start += p - start + 1;
 		p = strchr(p+1, '\n');
 	}
-	CG_DrawSmallString(x, y, start, 1.0f );
+	CG_DrawStringExt(x, y, start, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.33f );
 }
 
 /*
@@ -2709,19 +2757,22 @@ Draw console notify area.
 =====================
 */
 static float CG_DrawNotify( float y ) {
-	int x;
+	int playerNum;
+	float size, x;
 
-#ifdef MISSIONPACK_HUD
+	x = 1;
+
+	playerNum = cg.cur_lc->currentVoicePlayerNum;
 	// voice head is being shown
-	if ( !cg.cur_lc->showScores && cg.cur_ps->stats[STAT_HEALTH] > 0 &&
-		cg.cur_lc->voiceTime && cg.cur_lc->voiceTime >= cg.time && cg.cur_lc->playerNum != cg.cur_lc->currentVoicePlayerNum )
-		x = 58;
-	else
-#endif
-		x = 1;
+	if (cg.cur_lc->voiceTime && cg.cur_lc->voiceTime >= cg.time && cg.cur_lc->playerNum != cg.cur_lc->currentVoicePlayerNum) {
+		// scale icon based on text scale.
+		size = CG_DrawStringLineHeight(UI_NUMBERFONT);
+		CG_DrawNamedPlayerIcon(x, y, size, playerNum);
+		x = size + 4;
+	}
 
-	CG_DrawSmallWrappedText(x, 2, cg.cur_lc->consoleText);
-	return y + CG_DrawStringLineHeight( UI_SMALLFONT ) + 1;
+	CG_DrawSmallWrappedText(x, y + 1, cg.cur_lc->consoleText);
+	return y + CG_DrawStringLineHeight( UI_TINYFONT );
 }
 
 
@@ -2735,7 +2786,7 @@ static void CG_DrawUpperLeft(stereoFrame_t stereoFrame)
 {
 	float	y;
 
-	y = 0;
+	y = 1;
 
 	CG_SetScreenPlacement(PLACE_LEFT, PLACE_TOP);
 
@@ -2748,20 +2799,7 @@ static void CG_DrawUpperLeft(stereoFrame_t stereoFrame)
 
 
 //==================================================================================
-#ifdef MISSIONPACK_HUD
-/* 
-=================
-CG_DrawTimedMenus
-=================
-*/
-void CG_DrawTimedMenus( void ) {
-	if ( cg.cur_lc->voiceTime && cg.cur_lc->voiceTime >= cg.time && cg.cur_lc->playerNum != cg.cur_lc->currentVoicePlayerNum ) {
-		Menus_OpenByName("voiceMenu");
-	} else {
-		Menus_CloseByName("voiceMenu");
-	}
-}
-#endif
+
 /*
 =================
 CG_Draw2D
@@ -2812,7 +2850,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			if ( cg_drawStatus.integer ) {
 				CG_SetScreenPlacement(PLACE_CENTER, PLACE_BOTTOM);
 
-				CG_DrawTimedMenus();
 				Menu_PaintAll();
 			}
 #else
