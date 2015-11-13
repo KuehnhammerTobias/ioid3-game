@@ -33,6 +33,7 @@ Suite 120, Rockville, Maryland 20850 USA.
 // for checking if EC is used by match templates
 #include "ai_chat_sys.h"
 
+
 /*
 ==================
 DeathmatchScoreboardMessage
