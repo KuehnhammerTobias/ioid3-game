@@ -648,6 +648,136 @@ static float CG_DrawFPS( float y ) {
 
 /*
 =================
+CG_DrawTeamScores
+=================
+*/
+static float CG_DrawTeamScores( float y ) {
+	const char *s;
+	int s1, s2, x, v, wn, wb, wr;
+	float size;
+	vec4_t color;
+	gitem_t *item;
+
+	if (!cg_drawScores.integer) {
+		return y;
+	}
+
+	s1 = cgs.scores1;
+	s2 = cgs.scores2;
+	// draw from the right side to left
+	x = 639;
+	y += 3;
+	size = CG_DrawStringLineHeight(UI_SMALLFONT) + 4;
+	// color neutral
+	color[0] = 1.0f;
+	color[1] = 1.0f;
+	color[2] = 1.0f;
+	color[3] = 0.5f;
+	// draw the timelimit or capturelimit
+	if (cgs.gametype >= GT_CTF) {
+		v = cgs.capturelimit;
+	} else {
+		v = cgs.fraglimit;
+	}
+
+	s = va("%i", v);
+	wn = CG_DrawStrlen(s, UI_SMALLFONT) + 8;
+	x -= wn;
+	// draw neutral background
+	CG_FillRect(x, y - 3, wn, size, color);
+	// draw the limits
+	CG_DrawStringExt(x + wn/2, y, s, UI_CENTER|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+
+	if (cgs.gametype == GT_1FCTF) {
+		// display neutral flag status
+		item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
+
+		if (item) {
+			x -= size;
+			wn += size;
+
+			if (cgs.flagStatus >= 0 && cgs.flagStatus <= 4) {
+				vec4_t color = {1, 1, 1, 1};
+				int index = 0;
+
+				if (cgs.flagStatus == FLAG_TAKEN_RED) {
+					color[1] = color[2] = 0;
+					index = 1;
+				} else if (cgs.flagStatus == FLAG_TAKEN_BLUE) {
+					color[0] = color[1] = 0;
+					index = 1;
+				} else if (cgs.flagStatus == FLAG_DROPPED) {
+					index = 2;
+				}
+
+				trap_R_SetColor(color);
+				CG_DrawPic(x, y - 3, size, size, cgs.media.flagShaders[index]);
+				trap_R_SetColor(NULL);
+			}
+		}
+	}
+	// color red team
+	color[0] = 1.0f;
+	color[1] = 0.0f;
+	color[2] = 0.0f;
+	color[3] = 0.5f;
+
+	s = va("%i", s1);
+	wr = CG_DrawStrlen(s, UI_SMALLFONT) + 8;
+	x -= wr;
+	// draw red team background
+	CG_FillRect(x, y - 3, wr, size, color);
+	// draw the red team scores
+	CG_DrawStringExt(x + wr/2, y, s, UI_CENTER|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+
+	if (cgs.gametype == GT_CTF) {
+		// display red flag status
+		item = BG_FindItemForPowerup(PW_REDFLAG);
+
+		if (item) {
+			x -= size;
+			wr += size;
+
+			if (cgs.redflag >= 0 && cgs.redflag <= 2) {
+				CG_DrawPic(x, y - 3, size, size, cgs.media.redFlagShader[cgs.redflag]);
+			}
+		}
+	}
+	// color blue team
+	color[0] = 0.0f;
+	color[1] = 0.4f;
+	color[2] = 1.0f;
+	color[3] = 0.5f;
+
+	s = va("%i", s2);
+	wb = CG_DrawStrlen(s, UI_SMALLFONT) + 8;
+	x -= wb;
+	// draw blue team background
+	CG_FillRect(x, y - 3, wb, size, color);
+	// draw the blue team scores
+	CG_DrawStringExt(x + wb/2, y, s, UI_CENTER|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+
+	if (cgs.gametype == GT_CTF) {
+		// display blue flag status
+		item = BG_FindItemForPowerup(PW_BLUEFLAG);
+
+		if (item) {
+			x -= size;
+			wb += size;
+
+			if (cgs.blueflag >= 0 && cgs.blueflag <= 2) {
+				CG_DrawPic(x, y - 3, size, size, cgs.media.blueFlagShader[cgs.blueflag]);
+			}
+		}
+	}
+	// draw window frame
+	CG_DrawRect(x, y - 3, wn + wr + wb, size, 0.33f, colorWhite);
+
+	return y + CG_DrawStringLineHeight( UI_SMALLFONT ) + 2;
+}
+
+/*
+=================
 CG_DrawTimer
 =================
 */
@@ -852,6 +982,10 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 
 	if ( cg_drawTimer.integer ) {
 		y = CG_DrawTimer( y );
+	}
+
+	if ( cgs.gametype >= GT_TEAM) {
+		y = CG_DrawTeamScores( y );
 	}
 
 	if ( cg_drawSnapshot.integer ) {
