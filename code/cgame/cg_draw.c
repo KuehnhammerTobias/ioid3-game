@@ -828,7 +828,7 @@ static float CG_DrawPowerups(float y) {
 		item = BG_FindItemForPowerup(sorted[i]);
 
     	if (item) {
-		  	Com_sprintf(num, sizeof(num), "%s %i", item->pickup_name, sortedTime[i] / 1000);
+		  	Com_sprintf(num, sizeof(num), "%s %i", item->pickup_name, sortedTime[i] / 1000); // Tobias FIXME: Please check if this is the best way to print the names? Why don't we use this for the other powerups as well?
 		  	y -= ICON_SIZE - size;
 		  	CG_DrawStringExt(x, y, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 		  	CG_DrawPic(x, y, ICON_SIZE, ICON_SIZE, trap_R_RegisterShader(item->icon));
@@ -910,7 +910,7 @@ static float CG_DrawObjective(float y) {
 	} else {
 		return y;
 	}
-
+	// Tobias FIXME: Use this for skulls?
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
 
 	return y - size - ICON_SIZE - 1;
@@ -944,7 +944,7 @@ static float CG_DrawPlayerStatus(float y) {
 	w = CG_DrawStrlen(s, UI_GIANTFONT);
 	size = CG_DrawStringLineHeight(UI_GIANTFONT);
 
-	CG_DrawStringExt(x, y - size + 4, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1); // Tobis: FIXME
+	CG_DrawStringExt(x, y - size + 4, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1); // Tobias: FIXME
 
 	x += w;
 	// armor
@@ -1041,7 +1041,7 @@ static float CG_DrawWeaponStatus(float y) {
 			x -= w;
 			size = CG_DrawStringLineHeight(UI_GIANTFONT);
 
-			CG_DrawStringExt(x, y - size + 4, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1); // Tobis: FIXME
+			CG_DrawStringExt(x, y - size + 4, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1); // Tobias: FIXME
 			// clip
 //			value = ps->ammoclip[cent->currentState.weapon];
 
