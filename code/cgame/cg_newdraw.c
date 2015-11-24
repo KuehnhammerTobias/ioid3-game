@@ -515,7 +515,7 @@ static void CG_DrawSelectedPlayerStatus( rectDef_t *rect ) {
 	}
 }
 
-
+/*
 static void CG_DrawPlayerStatus( rectDef_t *rect ) {
 	playerInfo_t *pi = &cgs.playerinfo[cg.cur_ps->playerNum];
 	if (pi) {
@@ -523,7 +523,7 @@ static void CG_DrawPlayerStatus( rectDef_t *rect ) {
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, h);
 	}
 }
-
+*/
 
 static void CG_DrawSelectedPlayerName( rectDef_t *rect, float scale, vec4_t color, qboolean voice, int textStyle) {
 	playerInfo_t *pi;
@@ -1670,7 +1670,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 		CG_DrawAreaPowerUp(&rect, align, special, scale, color);
     break;
   case CG_PLAYER_STATUS:
-    CG_DrawPlayerStatus(&rect);
+//    CG_DrawPlayerStatus(&rect);
     break;
   case CG_PLAYER_HASFLAG:
     CG_DrawPlayerHasFlag(&rect, qfalse);
