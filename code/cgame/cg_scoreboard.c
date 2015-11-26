@@ -107,24 +107,24 @@ static void CG_DrawPlayerScore( int y, score_t *score, float *color, float fade,
 	// draw the handicap or bot skill marker (unless player has flag)
 	if ( pi->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
 		if( largeFormat ) {
-			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_FREE, qfalse );
+			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_FREE);
 		}
 		else {
-			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_FREE, qfalse );
+			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_FREE);
 		}
 	} else if ( pi->powerups & ( 1 << PW_REDFLAG ) ) {
 		if( largeFormat ) {
-			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_RED, qfalse );
+			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_RED);
 		}
 		else {
-			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_RED, qfalse );
+			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_RED);
 		}
 	} else if ( pi->powerups & ( 1 << PW_BLUEFLAG ) ) {
 		if( largeFormat ) {
-			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_BLUE, qfalse );
+			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_BLUE);
 		}
 		else {
-			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_BLUE, qfalse );
+			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_BLUE);
 		}
 	} else {
 		if ( pi->botSkill > 0 && pi->botSkill <= 5 ) {

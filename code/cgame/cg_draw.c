@@ -212,58 +212,42 @@ CG_DrawFlagModel
 Used for both the status bar and the scoreboard
 ================
 */
-void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D ) {
+void CG_DrawFlagModel( float x, float y, float w, float h, int team) {
 	qhandle_t		cm;
 	float			len;
 	vec3_t			origin, angles;
 	vec3_t			mins, maxs;
 	qhandle_t		handle;
 
-	if ( !force2D && cg_draw3dIcons.integer ) {
 
-		VectorClear( angles );
 
-		cm = cgs.media.redFlagModel;
+	VectorClear( angles );
 
-		// offset the origin y and z to center the flag
-		trap_R_ModelBounds( cm, mins, maxs, 0, 0, 0 );
+	cm = cgs.media.redFlagModel;
 
-		origin[2] = -0.5 * ( mins[2] + maxs[2] );
-		origin[1] = 0.5 * ( mins[1] + maxs[1] );
+	// offset the origin y and z to center the flag
+	trap_R_ModelBounds( cm, mins, maxs, 0, 0, 0 );
 
-		// calculate distance so the flag nearly fills the box
-		// assume heads are taller than wide
-		len = 0.5 * ( maxs[2] - mins[2] );		
-		origin[0] = len / 0.268;	// len / tan( fov/2 )
+	origin[2] = -0.5 * ( mins[2] + maxs[2] );
+	origin[1] = 0.5 * ( mins[1] + maxs[1] );
 
-		angles[YAW] = 60 * sin( cg.time / 2000.0 );;
+	// calculate distance so the flag nearly fills the box
+	// assume heads are taller than wide
+	len = 0.5 * ( maxs[2] - mins[2] );		
+	origin[0] = len / 0.268;	// len / tan( fov/2 )
 
-		if( team == TEAM_RED ) {
-			handle = cgs.media.redFlagModel;
-		} else if( team == TEAM_BLUE ) {
-			handle = cgs.media.blueFlagModel;
-		} else if( team == TEAM_FREE ) {
-			handle = cgs.media.neutralFlagModel;
-		} else {
-			return;
-		}
-		CG_Draw3DModel( x, y, w, h, handle, NULL, origin, angles );
-	} else if ( cg_drawIcons.integer ) {
-		gitem_t *item;
+	angles[YAW] = 60 * sin( cg.time / 2000.0 );;
 
-		if( team == TEAM_RED ) {
-			item = BG_FindItemForPowerup( PW_REDFLAG );
-		} else if( team == TEAM_BLUE ) {
-			item = BG_FindItemForPowerup( PW_BLUEFLAG );
-		} else if( team == TEAM_FREE ) {
-			item = BG_FindItemForPowerup( PW_NEUTRALFLAG );
-		} else {
-			return;
-		}
-		if (item) {
-		  CG_DrawPic( x, y, w, h, cg_items[ BG_ItemNumForItem( item ) ].icon );
-		}
+	if( team == TEAM_RED ) {
+		handle = cgs.media.redFlagModel;
+	} else if( team == TEAM_BLUE ) {
+		handle = cgs.media.blueFlagModel;
+	} else if( team == TEAM_FREE ) {
+		handle = cgs.media.neutralFlagModel;
+	} else {
+		return;
 	}
+	CG_Draw3DModel( x, y, w, h, handle, NULL, origin, angles );
 }
 
 /*
@@ -779,6 +763,7 @@ static float CG_DrawPowerups(float y) {
 	int sorted[MAX_POWERUPS], sortedTime[MAX_POWERUPS], i, j, k, active, t, x;
 	playerState_t *ps;
 	gitem_t	*item;
+	vec3_t origin, angles;
 	char num[16];
 	float size;
 
@@ -830,8 +815,15 @@ static float CG_DrawPowerups(float y) {
     	if (item) {
 		  	Com_sprintf(num, sizeof(num), "%s %i", item->pickup_name, sortedTime[i] / 1000); // Tobias FIXME: Please check if this is the best way to print the names? Why don't we use this for the other powerups as well?
 		  	y -= ICON_SIZE - size;
-		  	CG_DrawStringExt(x, y, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
-		  	CG_DrawPic(x, y, ICON_SIZE, ICON_SIZE, trap_R_RegisterShader(item->icon));
+			CG_DrawStringExt(x, y, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+
+			VectorClear(angles);
+			origin[0] = 90;
+			origin[1] = 0;
+			origin[2] = -10;
+			angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+			CG_Draw3DModel(x, y, ICON_SIZE, ICON_SIZE, cg_items[BG_ItemNumForItem(item)].models[0], NULL, origin, angles);
 		}
 	}
 
@@ -845,6 +837,7 @@ CG_DrawHoldableItem
 */
 static float CG_DrawHoldableItem(float y) {
 	int x, value;
+	vec3_t origin, angles;
 	float size;
 
 	x = 1;
@@ -855,8 +848,13 @@ static float CG_DrawHoldableItem(float y) {
 	}
 
 	if (value) {
-		CG_RegisterItemVisuals(value);
-		CG_DrawPic(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
+		VectorClear(angles);
+		origin[0] = 90;
+		origin[1] = 0;
+		origin[2] = -10;
+		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles);
 	}
 
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
@@ -871,6 +869,7 @@ CG_DrawPersistantPowerup
 */
 static float CG_DrawPersistantPowerup(float y) {
 	int x, value;
+	vec3_t origin, angles;
 	float size;
 
 	x = 1;
@@ -881,8 +880,13 @@ static float CG_DrawPersistantPowerup(float y) {
 	}
 
 	if (value) {
-		CG_RegisterItemVisuals(value);
-		CG_DrawPic(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
+		VectorClear(angles);
+		origin[0] = 90;
+		origin[1] = 0;
+		origin[2] = -10;
+		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles);
 	}
 
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
@@ -909,13 +913,13 @@ static float CG_DrawObjective(float y) {
 		case GT_CTF:
 		case GT_1FCTF:
 			if (cg.cur_lc->predictedPlayerState.powerups[PW_REDFLAG]) {
-				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_RED, qfalse);
+				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_RED);
 				CG_DrawStringExt(x, y - size, "Red Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 			} else if (cg.cur_lc->predictedPlayerState.powerups[PW_BLUEFLAG]) {
-				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_BLUE, qfalse);
+				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_BLUE);
 				CG_DrawStringExt(x, y - size, "Blue Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 			} else if (cg.cur_lc->predictedPlayerState.powerups[PW_NEUTRALFLAG]) {
-				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_FREE, qfalse);
+				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_FREE);
 				CG_DrawStringExt(x, y - size, "Neutral Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 			} else {
 				return y;
@@ -936,21 +940,20 @@ static float CG_DrawObjective(float y) {
 			Com_sprintf(num, sizeof(num), "%i %s", value, value == 1 ? "Skull" : "Skulls");
 			CG_DrawStringExt(x, y - size, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 
-			if (cg_drawIcons.integer) {
-				VectorClear(angles);
-				origin[0] = 90;
-				origin[1] = 0;
-				origin[2] = -10;
-				angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+			VectorClear(angles);
+			origin[0] = 90;
+			origin[1] = 0;
+			origin[2] = -10;
+			angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 
-				if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE) {
-					handle = cgs.media.redCubeModel;
-				} else {
-					handle = cgs.media.blueCubeModel;
-				}
-
-				CG_Draw3DModel(x, y - ICON_SIZE, 35, 35, handle, NULL, origin, angles);
+			if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+				handle = cgs.media.redCubeModel;
+			} else {
+				handle = cgs.media.blueCubeModel;
 			}
+
+			CG_Draw3DModel(x, y - ICON_SIZE, 35, 35, handle, NULL, origin, angles);
+
 			break;
 		default:
 			break;
