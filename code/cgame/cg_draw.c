@@ -813,8 +813,8 @@ static float CG_DrawPowerups(float y) {
 		item = BG_FindItemForPowerup(sorted[i]);
 
     	if (item) {
-		  	Com_sprintf(num, sizeof(num), "%s %i", item->pickup_name, sortedTime[i] / 1000); // Tobias FIXME: Please check if this is the best way to print the names? Why don't we use this for the other powerups as well?
-		  	y -= ICON_SIZE - size;
+			Com_sprintf(num, sizeof(num), "%s %i", item->pickup_name, sortedTime[i] / 1000); // Tobias FIXME: Please check if this is the best way to print the names?
+			y -= ICON_SIZE - size;
 			CG_DrawStringExt(x, y, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 
 			VectorClear(angles);
@@ -842,12 +842,16 @@ static float CG_DrawHoldableItem(float y) {
 
 	x = 1;
 	value = cg.cur_ps->stats[STAT_HOLDABLE_ITEM];
+	size = CG_DrawStringLineHeight(UI_TINYFONT);
 
 	if (!value) {
 		return y;
 	}
 
 	if (value) {
+		y -= ICON_SIZE - size;
+		CG_DrawStringExt(x, y, BG_ItemForItemNum(value)->pickup_name, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+
 		VectorClear(angles);
 		origin[0] = 90;
 		origin[1] = 0;
@@ -856,8 +860,6 @@ static float CG_DrawHoldableItem(float y) {
 
 		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles);
 	}
-
-	size = CG_DrawStringLineHeight(UI_TINYFONT);
 
 	return y - size - ICON_SIZE - 1;
 }
@@ -874,12 +876,16 @@ static float CG_DrawPersistantPowerup(float y) {
 
 	x = 1;
 	value = cg.cur_ps->stats[STAT_PERSISTANT_POWERUP];
+	size = CG_DrawStringLineHeight(UI_TINYFONT);
 
 	if (!value) {
 		return y;
 	}
 
 	if (value) {
+		y -= ICON_SIZE - size;
+		CG_DrawStringExt(x, y, BG_ItemForItemNum(value)->pickup_name, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+
 		VectorClear(angles);
 		origin[0] = 90;
 		origin[1] = 0;
@@ -888,8 +894,6 @@ static float CG_DrawPersistantPowerup(float y) {
 
 		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles);
 	}
-
-	size = CG_DrawStringLineHeight(UI_TINYFONT);
 
 	return y - size - ICON_SIZE - 1;
 }
