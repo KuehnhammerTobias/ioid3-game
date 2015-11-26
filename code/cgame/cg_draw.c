@@ -896,22 +896,65 @@ CG_DrawObjective
 ===================
 */
 static float CG_DrawObjective(float y) {
-	int x;
+	int x, value;
+	qhandle_t handle;
+	char num[16];
 	float size;
+	vec3_t origin, angles;
 
 	x = 1;
-
-	if( cg.cur_lc->predictedPlayerState.powerups[PW_REDFLAG] ) {
-		CG_DrawFlagModel( x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_RED, qfalse );
-	} else if( cg.cur_lc->predictedPlayerState.powerups[PW_BLUEFLAG] ) {
-		CG_DrawFlagModel( x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_BLUE, qfalse );
-	} else if( cg.cur_lc->predictedPlayerState.powerups[PW_NEUTRALFLAG] ) {
-		CG_DrawFlagModel( x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_FREE, qfalse );
-	} else {
-		return y;
-	}
-	// Tobias FIXME: Use this for skulls?
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
+
+	switch (cgs.gametype) {
+		case GT_CTF:
+		case GT_1FCTF:
+			if (cg.cur_lc->predictedPlayerState.powerups[PW_REDFLAG]) {
+				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_RED, qfalse);
+				CG_DrawStringExt(x, y - size, "Red Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+			} else if (cg.cur_lc->predictedPlayerState.powerups[PW_BLUEFLAG]) {
+				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_BLUE, qfalse);
+				CG_DrawStringExt(x, y - size, "Blue Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+			} else if (cg.cur_lc->predictedPlayerState.powerups[PW_NEUTRALFLAG]) {
+				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_FREE, qfalse);
+				CG_DrawStringExt(x, y - size, "Neutral Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+			} else {
+				return y;
+			}
+
+			break;
+		case GT_HARVESTER:
+			value = cg.cur_ps->tokens;
+
+			if (!value) {
+				return y;
+			}
+
+			if (value > 99) {
+				value = 99;
+			}
+
+			Com_sprintf(num, sizeof(num), "%i %s", value, value == 1 ? "Skull" : "Skulls");
+			CG_DrawStringExt(x, y - size, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+
+			if (cg_drawIcons.integer) {
+				VectorClear(angles);
+				origin[0] = 90;
+				origin[1] = 0;
+				origin[2] = -10;
+				angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+				if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+					handle = cgs.media.redCubeModel;
+				} else {
+					handle = cgs.media.blueCubeModel;
+				}
+
+				CG_Draw3DModel(x, y - ICON_SIZE, 35, 35, handle, NULL, origin, angles);
+			}
+			break;
+		default:
+			break;
+	}
 
 	return y - size - ICON_SIZE - 1;
 }
