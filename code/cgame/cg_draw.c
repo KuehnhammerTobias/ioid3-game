@@ -2673,12 +2673,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame) {
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if (!cg.cur_lc->showScores && cg.cur_ps->stats[STAT_HEALTH] > 0) {
-#ifdef MISSIONPACK_HUD
-			if (cg_drawStatus.integer) {
-				CG_SetScreenPlacement(PLACE_CENTER, PLACE_BOTTOM);
-				Menu_PaintAll();
-			}
-#endif
 			CG_DrawAmmoWarning();
 			CG_DrawProxWarning();
 
