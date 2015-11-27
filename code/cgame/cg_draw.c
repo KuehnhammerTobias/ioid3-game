@@ -189,10 +189,10 @@ static void CG_DrawNamedPlayerIcon(float x, float y, float size, int playerNum) 
 
 /*
 ================
-CG_Draw3DModelEx
+CG_Draw3DModel
 ================
 */
-void CG_Draw3DModelEx(float x, float y, float w, float h, qhandle_t model, cgSkin_t *skin, vec3_t origin, vec3_t angles, const byte *rgba) {
+void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, cgSkin_t *skin, vec3_t origin, vec3_t angles, const byte *rgba) {
 	refdef_t refdef;
 	refEntity_t ent;
 
@@ -235,15 +235,6 @@ void CG_Draw3DModelEx(float x, float y, float w, float h, qhandle_t model, cgSki
 
 /*
 ================
-CG_Draw3DModel
-================
-*/
-void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, cgSkin_t *skin, vec3_t origin, vec3_t angles) {
-	CG_Draw3DModelEx(x, y, w, h, model, skin, origin, angles, NULL);
-}
-
-/*
-================
 CG_DrawHead
 
 Used for both the status bar and the scoreboard
@@ -272,7 +263,7 @@ void CG_DrawHead(float x, float y, float w, float h, int playerNum, vec3_t headA
 	// allow per-model tweaking
 	VectorAdd(origin, pi->headOffset, origin);
 
-	CG_Draw3DModelEx(x, y, w, h, pi->headModel, &pi->modelSkin, origin, headAngles, pi->c1RGBA);
+	CG_Draw3DModel(x, y, w, h, pi->headModel, &pi->modelSkin, origin, headAngles, pi->c1RGBA);
 	// if they are deferred, draw a cross out
 	if (pi->deferred) {
 		CG_DrawPic(x, y, w, h, cgs.media.deferShader);
@@ -315,7 +306,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team) {
 		return;
 	}
 
-	CG_Draw3DModel(x, y, w, h, handle, NULL, origin, angles);
+	CG_Draw3DModel(x, y, w, h, handle, NULL, origin, angles, NULL);
 }
 
 /*
@@ -633,14 +624,14 @@ static float CG_DrawWeaponStatus(float y) {
 			origin[2] = 0;
 			angles[YAW] = 125;
 
-			CG_Draw3DModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, cg_weapons[cent->currentState.weapon].weaponModel, NULL, origin, angles);
+			CG_Draw3DModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, cg_weapons[cent->currentState.weapon].weaponModel, NULL, origin, angles, NULL);
 		} else {
 			origin[0] = 70;
 			origin[1] = 0;
 			origin[2] = 0;
 			angles[YAW] = 125;
 
-			CG_Draw3DModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, cg_weapons[cent->currentState.weapon].ammoModel, NULL, origin, angles);
+			CG_Draw3DModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, cg_weapons[cent->currentState.weapon].ammoModel, NULL, origin, angles, NULL);
 		}
 	}
 
@@ -790,7 +781,7 @@ static float CG_DrawPowerups(float y) {
 			origin[2] = -10;
 			angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 
-			CG_Draw3DModel(x, y, ICON_SIZE, ICON_SIZE, cg_items[BG_ItemNumForItem(item)].models[0], NULL, origin, angles);
+			CG_Draw3DModel(x, y, ICON_SIZE, ICON_SIZE, cg_items[BG_ItemNumForItem(item)].models[0], NULL, origin, angles, NULL);
 		}
 	}
 
@@ -825,7 +816,7 @@ static float CG_DrawHoldableItem(float y) {
 		origin[2] = -10;
 		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 
-		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles);
+		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles, NULL);
 	}
 
 	return y - size - ICON_SIZE - 1;
@@ -859,7 +850,7 @@ static float CG_DrawPersistantPowerup(float y) {
 		origin[2] = -10;
 		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 
-		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles);
+		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles, NULL);
 	}
 
 	return y - size - ICON_SIZE - 1;
@@ -923,7 +914,7 @@ static float CG_DrawObjective(float y) {
 				handle = cgs.media.blueCubeModel;
 			}
 
-			CG_Draw3DModel(x, y - ICON_SIZE, 35, 35, handle, NULL, origin, angles);
+			CG_Draw3DModel(x, y - ICON_SIZE, 35, 35, handle, NULL, origin, angles, NULL);
 
 			break;
 		default:

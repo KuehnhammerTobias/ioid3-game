@@ -290,7 +290,7 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 		origin[1] = 0;
 		origin[2] = -10;
 		angles[YAW] = ( cg.time & 2047 ) * 360 / 2048.0f;
-		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cgs.media.armorModel, NULL, origin, angles );
+		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cgs.media.armorModel, NULL, origin, angles, NULL );
 	}
 }
 
@@ -334,7 +334,7 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 			origin[1] = 0;
 			origin[2] = 0;
 			angles[YAW] = 90 + 20 * sin( cg.time / 1000.0 );
-			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].ammoModel, NULL, origin, angles );
+			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].ammoModel, NULL, origin, angles, NULL );
 		}
 	}
 }
@@ -617,7 +617,7 @@ static void CG_DrawPlayerItem( rectDef_t *rect, float scale, qboolean draw2D) {
   		origin[1] = 0;
    		origin[2] = -10;
   		angles[YAW] = ( cg.time & 2047 ) * 360 / 2048.0;
-			CG_Draw3DModel(rect->x, rect->y, rect->w, rect->h, cg_items[ value ].models[0], NULL, origin, angles );
+			CG_Draw3DModel(rect->x, rect->y, rect->w, rect->h, cg_items[ value ].models[0], NULL, origin, angles, NULL );
 		}
 	}
 
@@ -685,7 +685,7 @@ static void CG_DrawSelectedPlayerHead( rectDef_t *rect, qboolean draw2D, qboolea
 		angles[YAW] = 180;
 		angles[ROLL] = 0;
 
-		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, pi->headModel, &pi->modelSkin, origin, angles );
+		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, pi->headModel, &pi->modelSkin, origin, angles, NULL );
 
 		// if they are deferred, draw a cross out
 		if ( pi->deferred ) {
@@ -882,7 +882,7 @@ static void CG_HarvesterSkulls(rectDef_t *rect, float scale, vec4_t color, qbool
 			} else {
 				handle = cgs.media.blueCubeModel;
 			}
-			CG_Draw3DModel( rect->x, rect->y, 35, 35, handle, NULL, origin, angles );
+			CG_Draw3DModel( rect->x, rect->y, 35, 35, handle, NULL, origin, angles, NULL );
 		} else {
 			if( cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE ) {
 				handle = cgs.media.redCubeIcon;
