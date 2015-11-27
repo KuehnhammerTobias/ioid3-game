@@ -722,38 +722,6 @@ static void CG_DrawLowerRight(void) {
 */
 
 /*
-===================
-CG_DrawPickupItem
-===================
-*/
-#ifndef MISSIONPACK_HUD
-static int CG_DrawPickupItem(int y) {
-	int value;
-	float *fadeColor;
-
-	if (cg.cur_ps->stats[STAT_HEALTH] <= 0) {
-		return y;
-	}
-
-	y -= ICON_SIZE;
-	value = cg.cur_lc->itemPickup;
-
-	if (value) {
-		fadeColor = CG_FadeColor(cg.cur_lc->itemPickupTime, 3000);
-
-		if (fadeColor) {
-			CG_RegisterItemVisuals(value);
-			trap_R_SetColor(fadeColor);
-			CG_DrawPic(8, y, ICON_SIZE, ICON_SIZE, cg_items[value].icon);
-			trap_R_SetColor(NULL);
-			CG_DrawString(ICON_SIZE + 16, y + (ICON_SIZE / 2), BG_ItemForItemNum(value)->pickup_name, UI_VA_CENTER|UI_DROPSHADOW|UI_BIGFONT, fadeColor);
-		}
-	}
-
-	return y;
-}
-#endif // MISSIONPACK_HUD
-/*
 ================
 CG_DrawPowerups
 ================
@@ -1070,9 +1038,6 @@ static void CG_DrawLowerLeft(void) {
 	y = CG_DrawPersistantPowerup(y);
 	y = CG_DrawHoldableItem(y);
 	CG_DrawPowerups(y);
-#ifndef MISSIONPACK_HUD
-	CG_DrawPickupItem(y);
-#endif // MISSIONPACK_HUD
 }
 
 /*

@@ -424,7 +424,6 @@ static void CG_ItemPickup( int localPlayerNum, int itemNum ) {
 	gitem_t *item = BG_ItemForItemNum( itemNum );
 
 	player->itemPickup = itemNum;
-	player->itemPickupTime = cg.time;
 	player->itemPickupBlendTime = cg.time;
 	// see if it should be the grabbed weapon
 	if ( item->giType == IT_WEAPON ) {
