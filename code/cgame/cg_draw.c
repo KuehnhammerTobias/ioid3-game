@@ -196,7 +196,7 @@ void CG_Draw3DModelEx(float x, float y, float w, float h, qhandle_t model, cgSki
 	refdef_t refdef;
 	refEntity_t ent;
 
-	if (!cg_draw3dIcons.integer || !cg_drawIcons.integer) {
+	if (!cg_drawIcons.integer) {
 		return;
 	}
 
@@ -256,28 +256,23 @@ void CG_DrawHead(float x, float y, float w, float h, int playerNum, vec3_t headA
 	vec3_t origin, mins, maxs;
 
 	pi = &cgs.playerinfo[playerNum];
+	cm = pi->headModel;
 
-	if (cg_draw3dIcons.integer) {
-		cm = pi->headModel;
-
-		if (!cm) {
-			return;
-		}
-		// offset the origin y and z to center the head
-		trap_R_ModelBounds(cm, mins, maxs, 0, 0, 0);
-
-		origin[2] = -0.5 * (mins[2] + maxs[2]);
-		origin[1] = 0.5 * (mins[1] + maxs[1]);
-		// calculate distance so the head nearly fills the box, assume heads are taller than wide
-		len = 0.7 * (maxs[2] - mins[2]);		
-		origin[0] = len / 0.268; // len / tan(fov / 2)
-		// allow per-model tweaking
-		VectorAdd(origin, pi->headOffset, origin);
-
-		CG_Draw3DModelEx(x, y, w, h, pi->headModel, &pi->modelSkin, origin, headAngles, pi->c1RGBA);
-	} else if (cg_drawIcons.integer) {
-		CG_DrawPic(x, y, w, h, pi->modelIcon);
+	if (!cm) {
+		return;
 	}
+	// offset the origin y and z to center the head
+	trap_R_ModelBounds(cm, mins, maxs, 0, 0, 0);
+
+	origin[2] = -0.5 * (mins[2] + maxs[2]);
+	origin[1] = 0.5 * (mins[1] + maxs[1]);
+	// calculate distance so the head nearly fills the box, assume heads are taller than wide
+	len = 0.7 * (maxs[2] - mins[2]);		
+	origin[0] = len / 0.268; // len / tan(fov / 2)
+	// allow per-model tweaking
+	VectorAdd(origin, pi->headOffset, origin);
+
+	CG_Draw3DModelEx(x, y, w, h, pi->headModel, &pi->modelSkin, origin, headAngles, pi->c1RGBA);
 	// if they are deferred, draw a cross out
 	if (pi->deferred) {
 		CG_DrawPic(x, y, w, h, cgs.media.deferShader);
@@ -646,16 +641,6 @@ static float CG_DrawWeaponStatus(float y) {
 			angles[YAW] = 125;
 
 			CG_Draw3DModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, cg_weapons[cent->currentState.weapon].ammoModel, NULL, origin, angles);
-		}
-		// if we didn't draw a 3D icon, draw a 2D icon for ammo.
-		if (!cg_draw3dIcons.integer && cg_drawIcons.integer) {
-			qhandle_t icon;
-
-			icon = cg_weapons[cg.cur_lc->predictedPlayerState.weapon].ammoIcon;
-
-			if (icon) {
-				CG_DrawPic(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, icon);
-			}
 		}
 	}
 

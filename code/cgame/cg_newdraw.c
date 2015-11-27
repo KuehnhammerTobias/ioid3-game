@@ -282,9 +282,9 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 		return;
 	}
 
-	if ( draw2D || ( !cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
+	if ( draw2D ) {
 		CG_DrawPic( rect->x, rect->y + rect->h/2 + 1, rect->w, rect->h, cgs.media.armorIcon );
-	} else if (cg_draw3dIcons.integer) {
+	} else {
 		VectorClear( angles );
 		origin[0] = 90;
 		origin[1] = 0;
@@ -321,13 +321,13 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 
 	cent = &cg_entities[cg.cur_ps->playerNum];
 
-	if ( draw2D || (!cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
+	if ( draw2D ) {
 		qhandle_t	icon;
 		icon = cg_weapons[ cg.cur_lc->predictedPlayerState.weapon ].ammoIcon;
 		if ( icon ) {
 			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, icon );
 		}
-	} else if (cg_draw3dIcons.integer) {
+	} else {
 		if ( cent->currentState.weapon && cg_weapons[ cent->currentState.weapon ].ammoModel ) {
 			VectorClear( angles );
 			origin[0] = 70;
@@ -662,34 +662,30 @@ static void CG_DrawSelectedPlayerHead( rectDef_t *rect, qboolean draw2D, qboolea
 	pi = cgs.playerinfo + ((voice) ? cg.cur_lc->currentVoicePlayerNum : sortedTeamPlayers[team][CG_GetSelectedPlayer( cg.cur_localPlayerNum )]);
 
 	if (pi) {
-		if ( cg_draw3dIcons.integer ) {
-			cm = pi->headModel;
-			if ( !cm ) {
-				return;
-			}
-
-			// offset the origin y and z to center the head
-			trap_R_ModelBounds( cm, mins, maxs, 0, 0, 0 );
-
-			origin[2] = -0.5 * ( mins[2] + maxs[2] );
-			origin[1] = 0.5 * ( mins[1] + maxs[1] );
-
-			// calculate distance so the head nearly fills the box
-			// assume heads are taller than wide
-			len = 0.7 * ( maxs[2] - mins[2] );		
-			origin[0] = len / 0.268;	// len / tan( fov/2 )
-
-			// allow per-model tweaking
-			VectorAdd( origin, pi->headOffset, origin );
-
-			angles[PITCH] = 0;
-			angles[YAW] = 180;
-			angles[ROLL] = 0;
-
-			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, pi->headModel, &pi->modelSkin, origin, angles );
-		} else if ( cg_drawIcons.integer ) {
-			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, pi->modelIcon );
+		cm = pi->headModel;
+		if ( !cm ) {
+			return;
 		}
+
+		// offset the origin y and z to center the head
+		trap_R_ModelBounds( cm, mins, maxs, 0, 0, 0 );
+
+		origin[2] = -0.5 * ( mins[2] + maxs[2] );
+		origin[1] = 0.5 * ( mins[1] + maxs[1] );
+
+		// calculate distance so the head nearly fills the box
+		// assume heads are taller than wide
+		len = 0.7 * ( maxs[2] - mins[2] );		
+		origin[0] = len / 0.268;	// len / tan( fov/2 )
+
+		// allow per-model tweaking
+		VectorAdd( origin, pi->headOffset, origin );
+
+		angles[PITCH] = 0;
+		angles[YAW] = 180;
+		angles[ROLL] = 0;
+
+		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, pi->headModel, &pi->modelSkin, origin, angles );
 
 		// if they are deferred, draw a cross out
 		if ( pi->deferred ) {
@@ -875,7 +871,7 @@ static void CG_HarvesterSkulls(rectDef_t *rect, float scale, vec4_t color, qbool
 	CG_Text_Paint(rect->x + (rect->w - value), rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 
 	if (cg_drawIcons.integer) {
-		if (!force2D && cg_draw3dIcons.integer) {
+		if (!force2D) {
 			VectorClear(angles);
 			origin[0] = 90;
 			origin[1] = 0;
