@@ -235,6 +235,36 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, cgSkin_
 
 /*
 ================
+CG_DrawWeaponModel
+
+Used for both the status bar and the weapon bar
+================
+*/
+void CG_DrawWeaponModel(float x, float y, float w, float h, qhandle_t handle) {
+	float len;
+	vec3_t origin, angles, mins, maxs;
+
+	if (!handle) {
+		return;
+	}
+
+	VectorClear(angles);
+	// offset the origin y and z to center the weapon
+	trap_R_ModelBounds(handle, mins, maxs, 0, 0, 0);
+
+	origin[2] = -0.5 * (mins[2] + maxs[2]);
+	origin[1] = 0.5 * (mins[1] + maxs[1]);
+	// calculate distance so the weapon nearly fills the box
+	len = 2 * (maxs[2] - mins[2]);		
+	origin[0] = len / 0.268; // len / tan(fov / 2)
+	// Tobias FIXME: allow per-model tweaking
+	angles[YAW] = 270;
+
+	CG_Draw3DModel(x, y, w, h, handle, NULL, origin, angles, NULL);
+}
+
+/*
+================
 CG_DrawHead
 
 Used for both the status bar and the scoreboard
@@ -291,7 +321,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team) {
 
 	origin[2] = -0.5 * (mins[2] + maxs[2]);
 	origin[1] = 0.5 * (mins[1] + maxs[1]);
-	// calculate distance so the flag nearly fills the box, assume heads are taller than wide
+	// calculate distance so the flag nearly fills the box
 	len = 0.5 * (maxs[2] - mins[2]);		
 	origin[0] = len / 0.268; // len / tan(fov / 2)
 	angles[YAW] = 60 * sin(cg.time / 2000.0);
@@ -562,7 +592,6 @@ static float CG_DrawWeaponStatus(float y) {
 	int x, value, w;
 	float size;
 	char *s, *name;
-	vec3_t angles, origin;
 
 	// don't display if dead
 	if (cg.cur_lc->predictedPlayerState.stats[STAT_HEALTH] <= 0) {
@@ -576,10 +605,12 @@ static float CG_DrawWeaponStatus(float y) {
 	ps = cg.cur_ps;
 	cent = &cg_entities[ps->playerNum];
 	x = SCREEN_WIDTH - 1;
-
-	VectorClear(angles);
 	// draw any 3D icons first, so the changes back to 2D are minimized
 	if (cent->currentState.weapon) {
+		size = CG_DrawStringLineHeight(UI_NUMBERFONT) * 2;
+
+		CG_DrawWeaponModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size + 6, size, size, cg_weapons[cent->currentState.weapon].weaponModel);
+
 		value = ps->ammo[cent->currentState.weapon];
 
 		if (value > -1) {
@@ -614,24 +645,6 @@ static float CG_DrawWeaponStatus(float y) {
 			size = CG_DrawStringLineHeight(UI_SMALLFONT);
 
 			CG_DrawStringExt(x, y - size, name, UI_LEFT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
-		}
-
-		size = CG_DrawStringLineHeight(UI_NUMBERFONT);
-		// draw the weapon model if it is a weapon without ammo.
-		if (!cg_weapons[cent->currentState.weapon].ammoModel) {
-			origin[0] = 40;
-			origin[1] = 0;
-			origin[2] = 0;
-			angles[YAW] = 125;
-
-			CG_Draw3DModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, cg_weapons[cent->currentState.weapon].weaponModel, NULL, origin, angles, NULL);
-		} else {
-			origin[0] = 70;
-			origin[1] = 0;
-			origin[2] = 0;
-			angles[YAW] = 125;
-
-			CG_Draw3DModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size * 1.5, size, size, cg_weapons[cent->currentState.weapon].ammoModel, NULL, origin, angles, NULL);
 		}
 	}
 
