@@ -1686,7 +1686,7 @@ static float CG_DrawVote(float y) {
 CG_DrawUpperLeft
 =====================
 */
-static void CG_DrawUpperLeft(stereoFrame_t stereoFrame) {
+static void CG_DrawUpperLeft(void) {
 	float y;
 
 	y = 1;
@@ -2716,11 +2716,11 @@ static void CG_Draw2D(stereoFrame_t stereoFrame) {
 	CG_DrawVoipMeter();
 #ifdef MISSIONPACK
 	if (!cg_paused.integer) {
-		CG_DrawUpperLeft(stereoFrame);
+		CG_DrawUpperLeft();
 		CG_DrawUpperRight(stereoFrame);
 	}
 #else
-	CG_DrawUpperLeft(stereoFrame);
+	CG_DrawUpperLeft();
 	CG_DrawUpperRight(stereoFrame);
 #endif
 	CG_DrawLowerLeft();
