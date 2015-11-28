@@ -235,36 +235,6 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, cgSkin_
 
 /*
 ================
-CG_DrawWeaponModel
-
-Used for both the status bar and the weapon bar
-================
-*/
-void CG_DrawWeaponModel(float x, float y, float w, float h, qhandle_t handle) {
-	float len;
-	vec3_t origin, angles, mins, maxs;
-
-	if (!handle) {
-		return;
-	}
-
-	VectorClear(angles);
-	// offset the origin y and z to center the weapon
-	trap_R_ModelBounds(handle, mins, maxs, 0, 0, 0);
-
-	origin[2] = -0.5 * (mins[2] + maxs[2]);
-	origin[1] = 0.5 * (mins[1] + maxs[1]);
-	// calculate distance so the weapon nearly fills the box
-	len = 2 * (maxs[2] - mins[2]);		
-	origin[0] = len / 0.268; // len / tan(fov / 2)
-	// Tobias FIXME: allow per-model tweaking
-	angles[YAW] = 270;
-
-	CG_Draw3DModel(x, y, w, h, handle, NULL, origin, angles, NULL);
-}
-
-/*
-================
 CG_DrawHead
 
 Used for both the status bar and the scoreboard
@@ -605,12 +575,8 @@ static float CG_DrawWeaponStatus(float y) {
 	ps = cg.cur_ps;
 	cent = &cg_entities[ps->playerNum];
 	x = SCREEN_WIDTH - 1;
-	// draw any 3D icons first, so the changes back to 2D are minimized
+
 	if (cent->currentState.weapon) {
-		size = CG_DrawStringLineHeight(UI_NUMBERFONT) * 2;
-
-		CG_DrawWeaponModel(SCREEN_WIDTH - 1 - size, SCREEN_HEIGHT - size + 6, size, size, cg_weapons[cent->currentState.weapon].weaponModel);
-
 		value = ps->ammo[cent->currentState.weapon];
 
 		if (value > -1) {
@@ -646,6 +612,10 @@ static float CG_DrawWeaponStatus(float y) {
 
 			CG_DrawStringExt(x, y - size, name, UI_LEFT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
 		}
+		// draw the icons
+		y -= CG_DrawStringLineHeight(UI_GIANTFONT);
+
+		CG_DrawPic(SCREEN_WIDTH - 1 - ICON_SIZE, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_weapons[cent->currentState.weapon].weaponIcon);
 	}
 
 	return y;

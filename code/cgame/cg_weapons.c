@@ -1467,7 +1467,7 @@ void CG_DrawWeaponSelect( void ) {
 		}
 	}
 
-	x = 320 - count * 30;
+	x = 320 - count * 20;
 	y = 380;
 
 	for ( i = 1 ; i < MAX_WEAPONS ; i++ ) {
@@ -1477,8 +1477,8 @@ void CG_DrawWeaponSelect( void ) {
 
 		CG_RegisterWeapon( i );
 
-		// draw weapon model
-		CG_DrawWeaponModel(x, y, 80, 80, cg_weapons[i].weaponModel);
+		// draw weapon icon
+		CG_DrawPic( x, y, 32, 32, cg_weapons[i].weaponIcon );
 
 		// draw selection marker
 		if ( i == cg.cur_lc->weaponSelect ) {
@@ -1490,7 +1490,7 @@ void CG_DrawWeaponSelect( void ) {
 			CG_DrawPic( x, y, 32, 32, cgs.media.noammoShader );
 		}
 
-		x += 60;
+		x += 40;
 	}
 
 	// draw the selected name
