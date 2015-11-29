@@ -47,13 +47,13 @@ void CG_TextInit( void ) {
 	// TrueType font sizes
 	tinySize = 5;
 	smallSize = 8;
-	bigSize = 16;
-	giantSize = 20;
+	bigSize = 14;
+	giantSize = 22;
 	numberSize = 48;
 
 	// Bitmap font sizes
-	smallBitmapSize = 16;
-	giantBitmapSize = 48;
+	smallBitmapSize = 14;
+	giantBitmapSize = 22;
 
 	// Make bitmap fonts use TrueType sizes
 	//smallBitmapSize = smallSize;

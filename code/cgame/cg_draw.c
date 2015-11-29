@@ -586,7 +586,7 @@ static float CG_DrawWeaponStatus(float y) {
 			x -= w;
 			size = CG_DrawStringLineHeight(UI_GIANTFONT);
 
-			CG_DrawStringExt(x, y - size + 4, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1); // Tobias: FIXME
+			CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1);
 			// clip
 //			value = ps->ammoclip[cent->currentState.weapon];
 
@@ -935,7 +935,7 @@ static float CG_DrawPlayerStatus(float y) {
 	w = CG_DrawStrlen(s, UI_GIANTFONT);
 	size = CG_DrawStringLineHeight(UI_GIANTFONT);
 
-	CG_DrawStringExt(x, y - size + 4, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1); // Tobias: FIXME
+	CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1);
 
 	x += w;
 	// armor

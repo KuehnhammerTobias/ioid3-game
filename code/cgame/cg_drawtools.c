@@ -683,7 +683,7 @@ int CG_DrawStringLineHeight( int style ) {
 
 		case UI_GIANTFONT:
 			font = &cgs.media.bigFont;
-			gap = 6;
+			gap = 2;
 			break;
 
 		case UI_NUMBERFONT:

@@ -52,11 +52,11 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define SMALLCHAR_WIDTH		8
 #define SMALLCHAR_HEIGHT	cgs.media.smallFont.pointSize // default: 16 (bitmap), 8 (true type)
 
-#define BIGCHAR_WIDTH		16
-#define BIGCHAR_HEIGHT		cgs.media.textFont.pointSize // default: 16
+#define BIGCHAR_WIDTH		14
+#define BIGCHAR_HEIGHT		cgs.media.textFont.pointSize // default: 14
 
-#define	GIANTCHAR_WIDTH		32
-#define	GIANTCHAR_HEIGHT	cgs.media.bigFont.pointSize // default: 48 (bitmap), 20 (true type)
+#define	GIANTCHAR_WIDTH		22
+#define	GIANTCHAR_HEIGHT	cgs.media.bigFont.pointSize // default: 48 (bitmap), 22 (true type)
 
 #define	POWERUP_BLINKS		5
 
