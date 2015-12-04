@@ -162,7 +162,6 @@ vmCvar_t	cg_bobroll;
 vmCvar_t	cg_swingSpeed;
 vmCvar_t	cg_shadows;
 vmCvar_t	cg_gibs;
-vmCvar_t	cg_drawTimer;
 vmCvar_t	cg_drawClock;
 vmCvar_t	cg_drawFPS;
 vmCvar_t	cg_drawSnapshot;
@@ -259,7 +258,6 @@ vmCvar_t	cg_coronas;
 vmCvar_t	cg_fovAspectAdjust;
 vmCvar_t	cg_fadeExplosions;
 vmCvar_t	cg_skybox;
-vmCvar_t	cg_drawScores;
 vmCvar_t	cg_oldBubbles;
 vmCvar_t	cg_smoothBodySink;
 vmCvar_t	cg_antiLag;
@@ -336,8 +334,7 @@ static cvarTable_t cgameCvarTable[] = {
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawTimer, "cg_drawTimer", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawClock, "cg_drawClock", "2", CVAR_ARCHIVE, RANGE_INT( 0, 2 ) },
+	{ &cg_drawClock, "cg_drawClock", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE, RANGE_BOOL },
@@ -452,7 +449,6 @@ static cvarTable_t cgameCvarTable[] = {
 	{ &cg_fovAspectAdjust, "cg_fovAspectAdjust", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_fadeExplosions, "cg_fadeExplosions", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_skybox, "cg_skybox", "1", CVAR_ARCHIVE, RANGE_INT( 0, 2 ) },
-	{ &cg_drawScores, "cg_drawScores", "1", 0, RANGE_BOOL },
 	{ &cg_oldBubbles, "cg_oldBubbles", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_smoothBodySink, "cg_smoothBodySink", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_antiLag, "cg_antiLag", "2", CVAR_USERINFO_ALL | CVAR_ARCHIVE, RANGE_INT( 0, 2 ) },

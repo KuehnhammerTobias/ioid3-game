@@ -179,12 +179,12 @@ static void CG_DrawNamedPlayerIcon(float x, float y, float size, int playerNum) 
 	}
 	// draw window frame
 	CG_DrawRect(x, y, size, size, 0.33f, colorWhite);
-
+	// draw the name
 	info = CG_ConfigString(CS_PLAYERS + playerNum);
 	name = Info_ValueForKey(info, "n");
-	y += 2;
-	// draw the name
-	CG_DrawStringExt(x + size / 2, y + size, name, UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.33f);
+	y += size + 2;
+
+	CG_DrawStringExt(x + size / 2, y, name, UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.33f);
 }
 
 /*
@@ -636,18 +636,13 @@ static float CG_DrawLocalInfo(float y) {
 	x = 639;
 	// server hostname
 	info = CG_ConfigString(CS_SERVERINFO);
+
 	Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 	Q_CleanStr(buf);
 
-	if (!cg_drawClock.integer) {
-		return y;
-	}
-
 	trap_RealTime(&qtime);
 
-	if (cg_drawClock.integer == 2) {
-		s = va("Servername: %s, %02d.%02d.%02d, %s, %02d:%02d", buf, qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], qtime.tm_hour, qtime.tm_min);
-	} else {
+	if (!cg_drawClock.integer) {
 		char *pm = "am";
 		int h = qtime.tm_hour;
 
@@ -661,6 +656,8 @@ static float CG_DrawLocalInfo(float y) {
 		}
 
 		s = va("Servername: %s, %02d.%02d.%02d, %s, %d:%02d%s", buf, qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], h, qtime.tm_min, pm);
+	} else {
+		s = va("Servername: %s, %02d.%02d.%02d, %s, %02d:%02d", buf, qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], qtime.tm_hour, qtime.tm_min);
 	}
 
 	w = CG_DrawStrlen(s, UI_TINYFONT);
@@ -1058,7 +1055,7 @@ static float CG_DrawAttacker(float y) {
 	}
 
 	size = CG_DrawStringLineHeight(UI_NUMBERFONT);
-	CG_DrawNamedPlayerIcon(639 - size, y, size, playerNum);
+	CG_DrawNamedPlayerIcon(639 - size, y + 1, size, playerNum);
 	return y;
 }
 
@@ -1232,7 +1229,7 @@ static float CG_DrawFPS(float y) {
 	if (cg.viewport != 0) {
 		return y;
 	}
-	// don't use serverTime, because that will be drifting to correct for internet lag changes, timescales, timedemos, etc
+	// don't use serverTime, because that will be drifting to correct for internet lag changes, timescales, timedemos, etc.
 	t = trap_Milliseconds();
 	frameTime = t - previous;
 	previous = t;
@@ -1274,143 +1271,113 @@ static float CG_DrawSnapshot(float y) {
 
 /*
 =================
-CG_DrawTeamScores
+CG_DrawGameStatus
 =================
 */
-static float CG_DrawTeamScores(float y) {
+static float CG_DrawGameStatus(float y) {
 	const char *s;
-	int s1, s2, x, v, wn, wb, wr;
+	int s1, s2, x, wb, wr, hours, mins, seconds, msec;
 	float size;
-	vec4_t color;
 	gitem_t *item;
 
-	if (!cg_drawScores.integer) {
+	if (!cg_drawStatus.integer) {
 		return y;
 	}
-
-	s1 = cgs.scores1;
-	s2 = cgs.scores2;
 	// draw from the right side to left
-	x = 639;
-	y += 3;
-	size = CG_DrawStringLineHeight(UI_SMALLFONT) + 4;
-	// color neutral
-	color[0] = 1.0f;
-	color[1] = 1.0f;
-	color[2] = 1.0f;
-	color[3] = 0.5f;
-	// draw the timelimit or capturelimit
-	if (cgs.gametype >= GT_CTF) {
-		v = cgs.capturelimit;
-	} else {
-		v = cgs.fraglimit;
-	}
+	x = SCREEN_WIDTH;
 
-	s = va("%i", v);
-	wn = CG_DrawStrlen(s, UI_SMALLFONT) + 8;
-	x -= wn;
-	// draw neutral background
-	CG_FillRect(x, y - 3, wn, size, color);
-	// draw the limits
-	CG_DrawStringExt(x + wn / 2, y, s, UI_CENTER|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+	if (cgs.gametype >= GT_TEAM) {
+		s1 = cgs.scores1;
+		s2 = cgs.scores2;
+		size = CG_DrawStringLineHeight(UI_BIGFONT);
+		// display red flag status // Tobias FIXME: replace with new icons
+		x -= size;
 
-	if (cgs.gametype == GT_1FCTF) {
-		// display neutral flag status
-		item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
+		if (cgs.gametype == GT_CTF) {
+			item = BG_FindItemForPowerup(PW_REDFLAG);
 
-		if (item) {
-			x -= size;
-			wn += size;
-
-			if (cgs.flagStatus >= 0 && cgs.flagStatus <= 4) {
-				vec4_t color = {1, 1, 1, 1};
-				int index = 0;
-
-				if (cgs.flagStatus == FLAG_TAKEN_RED) {
-					color[1] = color[2] = 0;
-					index = 1;
-				} else if (cgs.flagStatus == FLAG_TAKEN_BLUE) {
-					color[0] = color[1] = 0;
-					index = 1;
-				} else if (cgs.flagStatus == FLAG_DROPPED) {
-					index = 2;
+			if (item) {
+				if (cgs.redflag >= 0 && cgs.redflag <= 2) {
+					CG_DrawPic(x, y, size, size, cgs.media.redFlagShader[cgs.redflag]);
 				}
-
-				trap_R_SetColor(color);
-				CG_DrawPic(x, y - 3, size, size, cgs.media.flagShaders[index]);
-				trap_R_SetColor(NULL);
+			}
+		} else {
+			if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_RED) {
+				CG_DrawPic(x, y, size, size, trap_R_RegisterShader("ui/assets/redchip.tga"));
+			} else {
+				CG_DrawPic(x, y, size, size, trap_R_RegisterShader("ui/assets/red_box.tga"));
 			}
 		}
-	}
-	// color red team
-	color[0] = 1.0f;
-	color[1] = 0.0f;
-	color[2] = 0.0f;
-	color[3] = 0.5f;
+		// draw the red team scores
+		s = va("%i", s1);
+		wr = CG_DrawStrlen(s, UI_BIGFONT) + 8;
+		x -= wr;
 
-	s = va("%i", s1);
-	wr = CG_DrawStrlen(s, UI_SMALLFONT) + 8;
-	x -= wr;
-	// draw red team background
-	CG_FillRect(x, y - 3, wr, size, color);
-	// draw the red team scores
-	CG_DrawStringExt(x + wr / 2, y, s, UI_CENTER|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+		CG_DrawStringExt(x + wr / 2, y, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL, 0, 0, 0.55f);
+		// display blue flag status // Tobias FIXME: replace with new icons
+		x -= size;
 
-	if (cgs.gametype == GT_CTF) {
-		// display red flag status
-		item = BG_FindItemForPowerup(PW_REDFLAG);
+		if (cgs.gametype == GT_CTF) {
+			item = BG_FindItemForPowerup(PW_BLUEFLAG);
 
-		if (item) {
+			if (item) {
+				if (cgs.blueflag >= 0 && cgs.blueflag <= 2) {
+					CG_DrawPic(x, y, size, size, cgs.media.blueFlagShader[cgs.blueflag]);
+				}
+			}
+		} else {
+			if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+				CG_DrawPic(x, y, size, size, trap_R_RegisterShader("ui/assets/bluechip.tga"));
+			} else {
+				CG_DrawPic(x, y, size, size, trap_R_RegisterShader("ui/assets/blue_box.tga"));
+			}
+		}
+		// draw the blue team scores
+		s = va("%i", s2);
+		wb = CG_DrawStrlen(s, UI_BIGFONT) + 8;
+		x -= wb;
+
+		CG_DrawStringExt(x + wb / 2, y, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL, 0, 0, 0.55f);
+		// display neutral flag status
+		if (cgs.gametype == GT_1FCTF) {
 			x -= size;
-			wr += size;
 
-			if (cgs.redflag >= 0 && cgs.redflag <= 2) {
-				CG_DrawPic(x, y - 3, size, size, cgs.media.redFlagShader[cgs.redflag]);
+			item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
+
+			if (item) {
+				if (cgs.flagStatus >= 0 && cgs.flagStatus <= 4) {
+					vec4_t color = {1, 1, 1, 1};
+					int index = 0;
+
+					if (cgs.flagStatus == FLAG_TAKEN_RED) {
+						color[1] = color[2] = 0;
+						index = 1;
+					} else if (cgs.flagStatus == FLAG_TAKEN_BLUE) {
+						color[0] = color[1] = 0;
+						index = 1;
+					} else if (cgs.flagStatus == FLAG_DROPPED) {
+						index = 2;
+					}
+
+					trap_R_SetColor(color);
+					CG_DrawPic(x, y, size, size, cgs.media.flagShaders[index]);
+					trap_R_SetColor(NULL);
+				}
 			}
 		}
+
+		x -= 2;
+
 	}
-	// color blue team
-	color[0] = 0.0f;
-	color[1] = 0.4f;
-	color[2] = 1.0f;
-	color[3] = 0.5f;
 
-	s = va("%i", s2);
-	wb = CG_DrawStrlen(s, UI_SMALLFONT) + 8;
-	x -= wb;
-	// draw blue team background
-	CG_FillRect(x, y - 3, wb, size, color);
-	// draw the blue team scores
-	CG_DrawStringExt(x + wb / 2, y, s, UI_CENTER|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+	x -= 1;
+	y += 1;
+	// draw the timelimit or capturelimit
+	s = va("Timelimit: %i / %s: %i", cgs.timelimit, (cgs.gametype >= GT_CTF) ? "Capturelimit" : "Fraglimit", (cgs.gametype >= GT_CTF) ? cgs.capturelimit : cgs.fraglimit);
+	CG_DrawStringExt(x, y + 1, s, UI_RIGHT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 
-	if (cgs.gametype == GT_CTF) {
-		// display blue flag status
-		item = BG_FindItemForPowerup(PW_BLUEFLAG);
-
-		if (item) {
-			x -= size;
-			wb += size;
-
-			if (cgs.blueflag >= 0 && cgs.blueflag <= 2) {
-				CG_DrawPic(x, y - 3, size, size, cgs.media.blueFlagShader[cgs.blueflag]);
-			}
-		}
-	}
-	// draw window frame
-	CG_DrawRect(x, y - 3, wn + wr + wb, size, 0.33f, colorWhite);
-
-	return y + CG_DrawStringLineHeight(UI_SMALLFONT) + 2;
-}
-
-/*
-=================
-CG_DrawTimer
-=================
-*/
-static float CG_DrawTimer(float y) {
-	char *s;
-	int hours, mins, seconds, msec;
-
+	y += CG_DrawStringLineHeight(UI_TINYFONT);
+	// draw the elapsed time
 	msec = cg.time - cgs.levelStartTime;
 	seconds	= (msec / 1000) % 60;
 	mins = (msec / (1000 * 60)) % 60;
@@ -1422,7 +1389,8 @@ static float CG_DrawTimer(float y) {
 		s = va("Time elapsed: %i:%s%i", mins, seconds < 10 ? "0" : "", seconds);
 	}
 
-	CG_DrawStringExt(639, y, s, UI_RIGHT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+	CG_DrawStringExt(x, y, s, UI_RIGHT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+
 	return y + CG_DrawStringLineHeight(UI_SMALLFONT);
 }
 
@@ -1434,17 +1402,11 @@ CG_DrawUpperRight
 static void CG_DrawUpperRight(stereoFrame_t stereoFrame) {
 	float y;
 
-	y = 1;
+	y = 0;
 
 	CG_SetScreenPlacement(PLACE_RIGHT, PLACE_TOP);
 
-	if (cg_drawTimer.integer) {
-		y = CG_DrawTimer(y);
-	}
-
-	if (cgs.gametype >= GT_TEAM) {
-		y = CG_DrawTeamScores(y);
-	}
+	y = CG_DrawGameStatus(y);
 
 	if (cg_drawSnapshot.integer) {
 		y = CG_DrawSnapshot(y);
@@ -1514,19 +1476,17 @@ Draw console notify area.
 =====================
 */
 static float CG_DrawNotify(float y) {
-	int playerNum;
 	float size, x;
 
 	x = 1;
-	playerNum = cg.cur_lc->currentVoicePlayerNum;
 	// voice head is being shown
 	if (cg.cur_lc->voiceTime && cg.cur_lc->voiceTime >= cg.time && cg.cur_lc->playerNum != cg.cur_lc->currentVoicePlayerNum) {
 		// scale icon based on text scale.
 		size = CG_DrawStringLineHeight(UI_NUMBERFONT);
 
-		CG_DrawNamedPlayerIcon(x, y, size, playerNum);
+		CG_DrawNamedPlayerIcon(x, y, size, cg.cur_lc->currentVoicePlayerNum);
 
-		x = size + 4;
+		x = size + 2;
 	}
 
 	CG_DrawSmallWrappedText(x, y + 1, cg.cur_lc->consoleText);

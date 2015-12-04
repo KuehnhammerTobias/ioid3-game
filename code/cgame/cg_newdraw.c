@@ -1298,11 +1298,11 @@ const char *CG_GetGameStatusText(void) {
 	}
 	return s;
 }
-	
+/*	
 static void CG_DrawGameStatus(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, CG_GetGameStatusText(), 0, 0, textStyle);
 }
-
+*/
 const char *CG_GameTypeString(void) {
 	return cgs.gametypeName;
 }
@@ -1687,7 +1687,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
     CG_DrawGameType(&rect, scale, color, shader, textStyle);
     break;
   case CG_GAME_STATUS:
-    CG_DrawGameStatus(&rect, scale, color, shader, textStyle);
+//    CG_DrawGameStatus(&rect, scale, color, shader, textStyle);
 		break;
   case CG_KILLER:
     CG_DrawKiller(&rect, scale, color, shader, textStyle);
