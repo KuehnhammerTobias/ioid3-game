@@ -694,25 +694,106 @@ static void CG_DrawLowerRight(void) {
 
 /*
 ================
-CG_DrawPowerups
+CG_DrawItemBar
 ================
 */
-static float CG_DrawPowerups(float y) {
-	int sorted[MAX_POWERUPS], sortedTime[MAX_POWERUPS], i, j, k, active, t, x;
+static float CG_DrawItemBar(float y) {
+	int value, sorted[MAX_POWERUPS], sortedTime[MAX_POWERUPS], i, j, k, active, t, x;
 	playerState_t *ps;
-	gitem_t	*item;
+	gitem_t *item;
+	qhandle_t handle;
 	vec3_t origin, angles;
-	char num[16];
-	float size;
+	char num[24];
+	float size, iconsize, height;
 
 	ps = cg.cur_ps;
 
 	if (ps->stats[STAT_HEALTH] <= 0) {
 		return y;
 	}
-	// sort the list by time remaining
-	active = 0;
 
+	x = 1;
+	size = CG_DrawStringLineHeight(UI_TINYFONT);
+	iconsize = CG_DrawStringLineHeight(UI_NUMBERFONT);
+	height = size + iconsize;
+	// flags
+	if (cg.cur_lc->predictedPlayerState.powerups[PW_REDFLAG]) {
+		y -= height;
+		CG_DrawFlagModel(x, y, iconsize, iconsize, TEAM_RED);
+		CG_DrawStringExt(x + iconsize / 2, y + iconsize, "Red Flag", UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	}
+
+	if (cg.cur_lc->predictedPlayerState.powerups[PW_BLUEFLAG]) {
+		y -= height;
+		CG_DrawFlagModel(x, y, iconsize, iconsize, TEAM_BLUE);
+		CG_DrawStringExt(x + iconsize / 2, y + iconsize, "Blue Flag", UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	}
+
+	if (cg.cur_lc->predictedPlayerState.powerups[PW_NEUTRALFLAG]) {
+		y -= height;
+		CG_DrawFlagModel(x, y, iconsize, iconsize, TEAM_FREE);
+		CG_DrawStringExt(x + iconsize / 2, y + iconsize, "Neutral Flag", UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	}
+	// skulls
+	value = cg.cur_ps->tokens;
+
+	if (value) {
+		y -= height;
+
+		VectorClear(angles);
+		origin[0] = 90;
+		origin[1] = 0;
+		origin[2] = 0;
+		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+		if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE) {
+			handle = cgs.media.redCubeModel;
+		} else {
+			handle = cgs.media.blueCubeModel;
+		}
+
+		CG_Draw3DModel(x, y, iconsize, iconsize, handle, NULL, origin, angles, NULL);
+
+		if (value > 99) {
+			value = 99;
+		}
+
+		Com_sprintf(num, sizeof(num), "%i Skull%s", value, (value != 1) ? "s" : "");
+		CG_DrawStringExt(x + iconsize / 2, y + iconsize, num, UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	}
+	// persistant items
+	value = cg.cur_ps->stats[STAT_PERSISTANT_POWERUP];
+
+	if (value) {
+		y -= height;
+
+		VectorClear(angles);
+		origin[0] = 90;
+		origin[1] = 0;
+		origin[2] = -10;
+		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+		CG_Draw3DModel(x, y, iconsize, iconsize, cg_items[value].models[0], NULL, origin, angles, NULL);
+		CG_DrawStringExt(x + iconsize / 2, y + iconsize, BG_ItemForItemNum(value)->pickup_name, UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	}
+	// holdable items
+	value = cg.cur_ps->stats[STAT_HOLDABLE_ITEM];
+
+	if (value) {
+		y -= height;
+
+		VectorClear(angles);
+		origin[0] = 90;
+		origin[1] = 0;
+		origin[2] = -10;
+		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
+
+		CG_Draw3DModel(x, y, iconsize, iconsize, cg_items[value].models[0], NULL, origin, angles, NULL);
+		CG_DrawStringExt(x + iconsize / 2, y + iconsize, BG_ItemForItemNum(value)->pickup_name, UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	}
+	// powerup items
+	active = 0;
+	// sort the list by time remaining
 	for (i = 0; i < MAX_POWERUPS; i++) {
 		if (!ps->powerups[i]) {
 			continue;
@@ -744,16 +825,11 @@ static float CG_DrawPowerups(float y) {
 		active++;
 	}
 	// draw the icons, names and timers
-	x = 1;
-	size = CG_DrawStringLineHeight(UI_TINYFONT);
-
 	for (i = 0; i < active; i++) {
 		item = BG_FindItemForPowerup(sorted[i]);
 
 		if (item) {
-			Com_sprintf(num, sizeof(num), "%s %i", item->pickup_name, sortedTime[i] / 1000); // Tobias FIXME: Please check if this is the best way to print the names?
-			y -= ICON_SIZE - size;
-			CG_DrawStringExt(x, y, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+			y -= height;
 
 			VectorClear(angles);
 			origin[0] = 90;
@@ -761,147 +837,14 @@ static float CG_DrawPowerups(float y) {
 			origin[2] = -10;
 			angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
 
-			CG_Draw3DModel(x, y, ICON_SIZE, ICON_SIZE, cg_items[BG_ItemNumForItem(item)].models[0], NULL, origin, angles, NULL);
+			CG_Draw3DModel(x, y, iconsize, iconsize, cg_items[BG_ItemNumForItem(item)].models[0], NULL, origin, angles, NULL);
+
+			Com_sprintf(num, sizeof(num), "%s %i sec.", item->pickup_name, sortedTime[i] / 1000);
+			CG_DrawStringExt(x + iconsize / 2, y + iconsize, num, UI_CENTER|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 		}
 	}
 
 	return y;
-}
-
-/*
-===================
-CG_DrawHoldableItem
-===================
-*/
-static float CG_DrawHoldableItem(float y) {
-	int x, value;
-	vec3_t origin, angles;
-	float size;
-
-	x = 1;
-	value = cg.cur_ps->stats[STAT_HOLDABLE_ITEM];
-	size = CG_DrawStringLineHeight(UI_TINYFONT);
-
-	if (!value) {
-		return y;
-	}
-
-	if (value) {
-		y -= ICON_SIZE - size;
-		CG_DrawStringExt(x, y, BG_ItemForItemNum(value)->pickup_name, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
-
-		VectorClear(angles);
-		origin[0] = 90;
-		origin[1] = 0;
-		origin[2] = -10;
-		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
-
-		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles, NULL);
-	}
-
-	return y - size - ICON_SIZE - 1;
-}
-
-/*
-===================
-CG_DrawPersistantPowerup
-===================
-*/
-static float CG_DrawPersistantPowerup(float y) {
-	int x, value;
-	vec3_t origin, angles;
-	float size;
-
-	x = 1;
-	value = cg.cur_ps->stats[STAT_PERSISTANT_POWERUP];
-	size = CG_DrawStringLineHeight(UI_TINYFONT);
-
-	if (!value) {
-		return y;
-	}
-
-	if (value) {
-		y -= ICON_SIZE - size;
-		CG_DrawStringExt(x, y, BG_ItemForItemNum(value)->pickup_name, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
-
-		VectorClear(angles);
-		origin[0] = 90;
-		origin[1] = 0;
-		origin[2] = -10;
-		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
-
-		CG_Draw3DModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_items[value].models[0], NULL, origin, angles, NULL);
-	}
-
-	return y - size - ICON_SIZE - 1;
-}
-
-/*
-===================
-CG_DrawObjective
-===================
-*/
-static float CG_DrawObjective(float y) {
-	int x, value;
-	qhandle_t handle;
-	char num[16];
-	float size;
-	vec3_t origin, angles;
-
-	x = 1;
-	size = CG_DrawStringLineHeight(UI_TINYFONT);
-
-	switch (cgs.gametype) {
-		case GT_CTF:
-		case GT_1FCTF:
-			if (cg.cur_lc->predictedPlayerState.powerups[PW_REDFLAG]) {
-				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_RED);
-				CG_DrawStringExt(x, y - size, "Red Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
-			} else if (cg.cur_lc->predictedPlayerState.powerups[PW_BLUEFLAG]) {
-				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_BLUE);
-				CG_DrawStringExt(x, y - size, "Blue Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
-			} else if (cg.cur_lc->predictedPlayerState.powerups[PW_NEUTRALFLAG]) {
-				CG_DrawFlagModel(x, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, TEAM_FREE);
-				CG_DrawStringExt(x, y - size, "Neutral Flag", UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
-			} else {
-				return y;
-			}
-
-			break;
-		case GT_HARVESTER:
-			value = cg.cur_ps->tokens;
-
-			if (!value) {
-				return y;
-			}
-
-			if (value > 99) {
-				value = 99;
-			}
-
-			Com_sprintf(num, sizeof(num), "%i %s", value, value == 1 ? "Skull" : "Skulls");
-			CG_DrawStringExt(x, y - size, num, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
-
-			VectorClear(angles);
-			origin[0] = 90;
-			origin[1] = 0;
-			origin[2] = -10;
-			angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
-
-			if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE) {
-				handle = cgs.media.redCubeModel;
-			} else {
-				handle = cgs.media.blueCubeModel;
-			}
-
-			CG_Draw3DModel(x, y - ICON_SIZE, 35, 35, handle, NULL, origin, angles, NULL);
-
-			break;
-		default:
-			break;
-	}
-
-	return y - size - ICON_SIZE - 1;
 }
 
 /*
@@ -929,7 +872,7 @@ static float CG_DrawPlayerStatus(float y) {
 	// health
 	value = ps->stats[STAT_HEALTH];
 	s = va("%i", value);
-	w = CG_DrawStrlen(s, UI_GIANTFONT);
+	w = CG_DrawStrlen(s, UI_GIANTFONT) + 3;
 	size = CG_DrawStringLineHeight(UI_GIANTFONT);
 
 	CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1);
@@ -937,11 +880,11 @@ static float CG_DrawPlayerStatus(float y) {
 	x += w;
 	// armor
 	value = ps->stats[STAT_ARMOR];
-	s = va("/%i", value);
-	w = CG_DrawStrlen(s, UI_BIGFONT);
+	s = va("/ %i", value);
+	w = CG_DrawStrlen(s, UI_BIGFONT) + 3;
 	size = CG_DrawStringLineHeight(UI_BIGFONT);
 
-	CG_DrawStringExt(x + 2, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_BIGFONT, NULL, 0, 0, 1);
+	CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_BIGFONT, NULL, 0, 0, 1);
 
 	x += w;
 	// rank/task
@@ -949,10 +892,10 @@ static float CG_DrawPlayerStatus(float y) {
 
 	if (cgs.gametype == GT_FFA) {
 		s = va("Rank: %s place with %i.", CG_PlaceString(cg.cur_ps->persistant[PERS_RANK] + 1), cg.cur_ps->persistant[PERS_SCORE]);
-		CG_DrawStringExt(x + 6, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+		CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
 	}
 
-	return y - CG_DrawStringLineHeight(UI_GIANTFONT) - 2;
+	return y - CG_DrawStringLineHeight(UI_GIANTFONT);
 }
 
 /*
@@ -964,15 +907,12 @@ static float CG_DrawPlayerInfo(float y) {
 	float size;
 	const char *name, *team;
 	char *s;
-	int x;
-
-	x = 1;
 
 	name = cgs.playerinfo[cg.cur_ps->playerNum].name;
 
 	if (cgs.gametype == GT_FFA) {
 		// name/score/score 1st place/score 2nd place
-		s = va("%s. Score: %i. Score 1st place: %i. Score 2nd place: %i.", name, cg.cur_ps->persistant[PERS_SCORE], cgs.scores1 != SCORE_NOT_PRESENT ? cgs.scores1 : 0, cgs.scores2 != SCORE_NOT_PRESENT ? cgs.scores2 : 0);
+		s = va("%s. Score: %i. Score 1st place: %i. Score 2nd place: %i.", name, cg.cur_ps->persistant[PERS_SCORE], (cgs.scores1 != SCORE_NOT_PRESENT) ? cgs.scores1 : 0, (cgs.scores2 != SCORE_NOT_PRESENT) ? cgs.scores2 : 0);
 	} else {
 		if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_RED) {
 			team = "Team: Red";
@@ -986,8 +926,7 @@ static float CG_DrawPlayerInfo(float y) {
 	}
 
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
-
-	CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	CG_DrawStringExt(1, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 	return y - size - 1;
 }
 
@@ -999,16 +938,13 @@ CG_DrawLowerLeft
 static void CG_DrawLowerLeft(void) {
 	float y;
 
-	y = 480;
+	y = SCREEN_HEIGHT;
 
 	CG_SetScreenPlacement(PLACE_LEFT, PLACE_BOTTOM);
 
 	y = CG_DrawPlayerInfo(y);
 	y = CG_DrawPlayerStatus(y);
-	y = CG_DrawObjective(y);
-	y = CG_DrawPersistantPowerup(y);
-	y = CG_DrawHoldableItem(y);
-	CG_DrawPowerups(y);
+	CG_DrawItemBar(y);
 }
 
 /*
@@ -1486,7 +1422,7 @@ static float CG_DrawNotify(float y) {
 
 		CG_DrawNamedPlayerIcon(x, y, size, cg.cur_lc->currentVoicePlayerNum);
 
-		x = size + 2;
+		x = size + 3;
 	}
 
 	CG_DrawSmallWrappedText(x, y + 1, cg.cur_lc->consoleText);
