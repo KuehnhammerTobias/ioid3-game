@@ -574,7 +574,7 @@ static float CG_DrawWeaponStatus(float y) {
 
 	ps = cg.cur_ps;
 	cent = &cg_entities[ps->playerNum];
-	x = SCREEN_WIDTH - 1;
+	x = 639;
 
 	if (cent->currentState.weapon) {
 		value = ps->ammo[cent->currentState.weapon];
@@ -582,13 +582,13 @@ static float CG_DrawWeaponStatus(float y) {
 		if (value > -1) {
 			// ammo
 			s = va("%i", value);
-			w = CG_DrawStrlen(s, UI_GIANTFONT) + 1;
-			x -= w;
 			size = CG_DrawStringLineHeight(UI_GIANTFONT);
 
-			CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1);
+			CG_DrawStringExt(x, y - size, s, UI_RIGHT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1);
 			// clip
 //			value = ps->ammoclip[cent->currentState.weapon];
+			w = CG_DrawStrlen(s, UI_GIANTFONT) + 3;
+			x -= w;
 
 			if (value > 0) {
 				s = va("1 x");
@@ -596,26 +596,25 @@ static float CG_DrawWeaponStatus(float y) {
 				s = va("0 x");
 			}
 
-			w = CG_DrawStrlen(s, UI_BIGFONT) + 1;
-			x -= w;
 			size = CG_DrawStringLineHeight(UI_BIGFONT);
 
-			CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_BIGFONT, NULL, 0, 0, 1);
+			CG_DrawStringExt(x, y - size, s, UI_RIGHT|UI_DROPSHADOW|UI_BIGFONT, NULL, 0, 0, 1);
+
+			w = CG_DrawStrlen(s, UI_BIGFONT) + 3;
+			x -= w;
 		}
 		// name
 		name = cg_weapons[cg.cur_lc->predictedPlayerState.weapon].item->pickup_name;
 
 		if (name) {
-			w = CG_DrawStrlen(name, UI_SMALLFONT) + 1;
-			x -= w;
 			size = CG_DrawStringLineHeight(UI_SMALLFONT);
 
-			CG_DrawStringExt(x, y - size, name, UI_LEFT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
+			CG_DrawStringExt(x, y - size, name, UI_RIGHT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
 		}
 		// draw the icons
 		y -= CG_DrawStringLineHeight(UI_GIANTFONT);
 
-		CG_DrawPic(SCREEN_WIDTH - 1 - ICON_SIZE, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_weapons[cent->currentState.weapon].weaponIcon);
+		CG_DrawPic(639 - ICON_SIZE, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_weapons[cent->currentState.weapon].weaponIcon);
 	}
 
 	return y;
@@ -629,11 +628,9 @@ CG_DrawLocalInfo
 static float CG_DrawLocalInfo(float y) {
 	const char *info;
 	char *s, buf[1024];
-	int x, w;
 	float size;
 	qtime_t qtime;
 
-	x = 639;
 	// server hostname
 	info = CG_ConfigString(CS_SERVERINFO);
 
@@ -655,16 +652,14 @@ static float CG_DrawLocalInfo(float y) {
 			pm = "pm";
 		}
 
-		s = va("Servername: %s, %02d.%02d.%02d, %s, %d:%02d%s", buf, qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], h, qtime.tm_min, pm);
+		s = va("Servername: %s, %02d.%02d.%02d, %s, %d:%02d%3s", buf, qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], h, qtime.tm_min, pm);
 	} else {
 		s = va("Servername: %s, %02d.%02d.%02d, %s, %02d:%02d", buf, qtime.tm_mday, 1 + qtime.tm_mon, 1900 + qtime.tm_year, DayAbbrev[qtime.tm_wday], qtime.tm_hour, qtime.tm_min);
 	}
 
-	w = CG_DrawStrlen(s, UI_TINYFONT);
-	x -= w;
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
 
-	CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
+	CG_DrawStringExt(639, y - size, s, UI_RIGHT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 	return y - size - 1;
 }
 
@@ -676,7 +671,7 @@ CG_DrawLowerRight
 static void CG_DrawLowerRight(void) {
 	float y;
 
-	y = 480;
+	y = SCREEN_HEIGHT;
 
 	CG_SetScreenPlacement(PLACE_RIGHT, PLACE_BOTTOM);
 
@@ -872,20 +867,20 @@ static float CG_DrawPlayerStatus(float y) {
 	// health
 	value = ps->stats[STAT_HEALTH];
 	s = va("%i", value);
-	w = CG_DrawStrlen(s, UI_GIANTFONT) + 3;
 	size = CG_DrawStringLineHeight(UI_GIANTFONT);
 
 	CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_GIANTFONT, NULL, 0, 0, 1);
 
+	w = CG_DrawStrlen(s, UI_GIANTFONT) + 3;
 	x += w;
 	// armor
 	value = ps->stats[STAT_ARMOR];
 	s = va("/ %i", value);
-	w = CG_DrawStrlen(s, UI_BIGFONT) + 3;
 	size = CG_DrawStringLineHeight(UI_BIGFONT);
 
 	CG_DrawStringExt(x, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_BIGFONT, NULL, 0, 0, 1);
 
+	w = CG_DrawStrlen(s, UI_BIGFONT) + 3;
 	x += w;
 	// rank/task
 	size = CG_DrawStringLineHeight(UI_SMALLFONT);
@@ -926,6 +921,7 @@ static float CG_DrawPlayerInfo(float y) {
 	}
 
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
+
 	CG_DrawStringExt(1, y - size, s, UI_LEFT|UI_DROPSHADOW|UI_TINYFONT, NULL, 0, 0, 0.55f);
 	return y - size - 1;
 }
@@ -1303,7 +1299,6 @@ static float CG_DrawGameStatus(float y) {
 		}
 
 		x -= 2;
-
 	}
 
 	x -= 1;
