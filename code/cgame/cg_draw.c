@@ -196,10 +196,6 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, cgSkin_
 	refdef_t refdef;
 	refEntity_t ent;
 
-	if (!cg_drawIcons.integer) {
-		return;
-	}
-
 	CG_AdjustFrom640(&x, &y, &w, &h);
 
 	memset(&refdef, 0, sizeof(refdef));
@@ -258,7 +254,7 @@ void CG_DrawHead(float x, float y, float w, float h, int playerNum, vec3_t headA
 	origin[2] = -0.5 * (mins[2] + maxs[2]);
 	origin[1] = 0.5 * (mins[1] + maxs[1]);
 	// calculate distance so the head nearly fills the box, assume heads are taller than wide
-	len = 0.7 * (maxs[2] - mins[2]);		
+	len = 0.7 * (maxs[2] - mins[2]);
 	origin[0] = len / 0.268; // len / tan(fov / 2)
 	// allow per-model tweaking
 	VectorAdd(origin, pi->headOffset, origin);
@@ -292,7 +288,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team) {
 	origin[2] = -0.5 * (mins[2] + maxs[2]);
 	origin[1] = 0.5 * (mins[1] + maxs[1]);
 	// calculate distance so the flag nearly fills the box
-	len = 0.5 * (maxs[2] - mins[2]);		
+	len = 0.5 * (maxs[2] - mins[2]);
 	origin[0] = len / 0.268; // len / tan(fov / 2)
 	angles[YAW] = 60 * sin(cg.time / 2000.0);
 
@@ -329,7 +325,7 @@ static void CG_DrawWarmup(void) {
 	CG_SetScreenPlacement(PLACE_CENTER, PLACE_TOP);
 
 	if (sec < 0) {
-		s = "Waiting for players";		
+		s = "Waiting for players";
 		CG_DrawString(SCREEN_WIDTH / 2, 24, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
 		cg.warmupCount = 0;
 		return;
@@ -577,6 +573,12 @@ static float CG_DrawWeaponStatus(float y) {
 	x = 639;
 
 	if (cent->currentState.weapon) {
+		// draw any 3D icons first, so the changes back to 2D are minimized
+		if (cg_drawIcons.integer) {
+			size = CG_DrawStringLineHeight(UI_GIANTFONT);
+			CG_DrawPic(639 - ICON_SIZE, y - ICON_SIZE - size, ICON_SIZE, ICON_SIZE, cg_weapons[cent->currentState.weapon].weaponIcon);
+		}
+
 		value = ps->ammo[cent->currentState.weapon];
 
 		if (value > -1) {
@@ -611,10 +613,6 @@ static float CG_DrawWeaponStatus(float y) {
 
 			CG_DrawStringExt(x, y - size, name, UI_RIGHT|UI_DROPSHADOW|UI_SMALLFONT, NULL, 0, 0, 0.55f);
 		}
-		// draw the icons
-		y -= CG_DrawStringLineHeight(UI_GIANTFONT);
-
-		CG_DrawPic(639 - ICON_SIZE, y - ICON_SIZE, ICON_SIZE, ICON_SIZE, cg_weapons[cent->currentState.weapon].weaponIcon);
 	}
 
 	return y;

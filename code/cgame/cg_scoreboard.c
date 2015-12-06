@@ -128,13 +128,11 @@ static void CG_DrawPlayerScore( int y, score_t *score, float *color, float fade,
 		}
 	} else {
 		if ( pi->botSkill > 0 && pi->botSkill <= 5 ) {
-			if ( cg_drawIcons.integer ) {
-				if( largeFormat ) {
-					CG_DrawPic( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
-				}
-				else {
-					CG_DrawPic( iconx, y, 16, 16, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
-				}
+			if( largeFormat ) {
+				CG_DrawPic( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
+			}
+			else {
+				CG_DrawPic( iconx, y, 16, 16, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
 			}
 		} else if ( pi->handicap < 100 ) {
 			Com_sprintf( string, sizeof( string ), "%i", pi->handicap );
