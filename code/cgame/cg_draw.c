@@ -231,6 +231,94 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, cgSkin_
 
 /*
 ================
+CG_Draw3DWeaponModel
+
+Used for both the status bar and the weapon bar
+================
+*/
+void CG_Draw3DWeaponModel(float x, float y, float w, float h, weaponInfo_t *weapon, qhandle_t weaponModel, qhandle_t barrelModel, const byte *rgba) {
+	float len;
+	vec3_t origin, angles, mins, maxs;
+	refdef_t refdef;
+	refEntity_t ent;
+
+	if (!weaponModel) {
+		return;
+	}
+
+	CG_AdjustFrom640(&x, &y, &w, &h);
+
+	memset(&refdef, 0, sizeof(refdef));
+	memset(&ent, 0, sizeof(ent));
+
+	refdef.rdflags = RDF_NOWORLDMODEL;
+
+	AxisClear(refdef.viewaxis);
+
+	refdef.fov_x = 30;
+	refdef.fov_y = 30;
+	refdef.x = x;
+	refdef.y = y;
+	refdef.width = w;
+	refdef.height = h;
+	refdef.time = cg.time;
+
+	trap_R_ClearScene();
+	// offset the origin y and z to center the weapon
+	trap_R_ModelBounds(weaponModel, mins, maxs, 0, 0, 0);
+
+	origin[2] = -0.5 * (mins[2] + maxs[2]);
+	origin[1] = 0.5 * (mins[1] + maxs[1]);
+	// calculate distance so the weapon nearly fills the box
+	len = (maxs[2] - mins[2]);
+	origin[0] = len / 0.268; // len / tan(fov / 2)
+
+	VectorClear(angles);
+	// allow per-model tweaking
+	switch (weapon->item->giTag) {
+		case WP_GAUNTLET:
+			angles[YAW] = 90;
+		break;
+		default:
+			angles[YAW] = 270;
+		break;
+	}
+
+	AnglesToAxis(angles, ent.axis);
+	VectorCopy(origin, ent.origin);
+
+	ent.hModel = weaponModel;
+	ent.renderfx = RF_NOSHADOW; // no stencil shadows
+
+	if (rgba) {
+		Byte4Copy(rgba, ent.shaderRGBA);
+	}
+
+	CG_AddRefEntityWithMinLight(&ent);
+
+	if (barrelModel) {
+		refEntity_t barrel;
+
+		memset(&barrel, 0, sizeof(barrel));
+
+		barrel.hModel = barrelModel;
+		barrel.shadowPlane = ent.shadowPlane;
+		barrel.renderfx = ent.renderfx;
+
+		VectorCopy(ent.lightingOrigin, barrel.lightingOrigin);
+
+		CG_PositionRotatedEntityOnTag(&barrel, &ent, weaponModel, "tag_barrel");
+
+		AxisCopy(ent.axis, barrel.axis);
+
+		CG_AddRefEntityWithMinLight(&barrel);
+	}
+
+	trap_R_RenderScene(&refdef);
+}
+
+/*
+================
 CG_DrawHead
 
 Used for both the status bar and the scoreboard
@@ -555,6 +643,7 @@ CG_DrawWeaponStatus
 static float CG_DrawWeaponStatus(float y) {
 	centity_t *cent;
 	playerState_t *ps;
+	weaponInfo_t *weapon;
 	int x, value, w;
 	float size;
 	char *s, *name;
@@ -570,13 +659,14 @@ static float CG_DrawWeaponStatus(float y) {
 
 	ps = cg.cur_ps;
 	cent = &cg_entities[ps->playerNum];
+	weapon = &cg_weapons[cent->currentState.weapon];
 	x = 639;
 
 	if (cent->currentState.weapon) {
 		// draw any 3D icons first, so the changes back to 2D are minimized
 		if (cg_drawIcons.integer) {
 			size = CG_DrawStringLineHeight(UI_GIANTFONT);
-			CG_DrawPic(639 - ICON_SIZE, y - ICON_SIZE - size, ICON_SIZE, ICON_SIZE, cg_weapons[cent->currentState.weapon].weaponIcon);
+			CG_Draw3DWeaponModel(x - ICON_SIZE, y - ICON_SIZE - size, ICON_SIZE, ICON_SIZE, weapon, cg_weapons[cent->currentState.weapon].weaponModel, cg_weapons[cent->currentState.weapon].barrelModel, NULL);
 		}
 
 		value = ps->ammo[cent->currentState.weapon];

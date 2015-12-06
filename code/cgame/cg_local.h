@@ -1581,6 +1581,7 @@ void CG_GetTeamColor(vec4_t *color);
 const char *CG_GetGameStatusText( void );
 const char *CG_GetKillerText( void );
 void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model, cgSkin_t *skin, vec3_t origin, vec3_t angles, const byte *rgba);
+void CG_Draw3DWeaponModel(float x, float y, float w, float h, weaponInfo_t *weapon, qhandle_t weaponModel, qhandle_t barrelModel, const byte *rgba );
 void CG_CheckOrderPending( int localPlayerNum );
 const char *CG_GameTypeString( void );
 qboolean CG_YourTeamHasFlag( void );

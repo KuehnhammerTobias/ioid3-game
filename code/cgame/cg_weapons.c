@@ -1443,6 +1443,7 @@ void CG_DrawWeaponSelect( void ) {
 	int		bits;
 	int		count;
 	int		x, y;
+	weaponInfo_t *weapon;
 	char	*name;
 	float	*color;
 
@@ -1477,8 +1478,9 @@ void CG_DrawWeaponSelect( void ) {
 
 		CG_RegisterWeapon( i );
 
+		weapon = &cg_weapons[i];
 		// draw weapon icon
-		CG_DrawPic( x, y, 32, 32, cg_weapons[i].weaponIcon );
+		CG_Draw3DWeaponModel(x, y, 32, 32, weapon, cg_weapons[i].weaponModel, cg_weapons[i].barrelModel, NULL);
 
 		// draw selection marker
 		if ( i == cg.cur_lc->weaponSelect ) {
