@@ -270,22 +270,73 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, weaponInfo_t *weap
 	origin[2] = -0.5 * (mins[2] + maxs[2]);
 	origin[1] = 0.5 * (mins[1] + maxs[1]);
 	// calculate distance so the weapon nearly fills the box
-	len = (maxs[2] - mins[2]);
+	len = 2 * (maxs[2] - mins[2]);
 	origin[0] = len / 0.268; // len / tan(fov / 2)
 
 	VectorClear(angles);
+
+	angles[PITCH] = 0;
+	angles[YAW] = 270;
+	angles[ROLL] = 0;
 	// allow per-model tweaking
 	switch (weapon->item->giTag) {
 		case WP_GAUNTLET:
-			angles[YAW] = 90;
+			origin[0] -= 50;
+			origin[1] -= 7;
+
+			angles[PITCH] -= 10;
+			angles[YAW] -= 400;
+			angles[ROLL] -= 10;
+		break;
+		case WP_MACHINEGUN:
+			origin[0] -= 20;
+			origin[1] += 10;
+		break;
+		case WP_SHOTGUN:
+			origin[0] -= 10;
+			origin[1] += 5;
+		break;
+		case WP_GRENADE_LAUNCHER:
+			origin[0] -= 20;
+		break;
+		case WP_ROCKET_LAUNCHER:
+			origin[0] -= 10;
+			origin[1] += 10;
+		break;
+		case WP_LIGHTNING:
+			origin[0] -= 40;
+			origin[1] += 7;
+		break;
+		case WP_RAILGUN:
+			origin[0] -= 20;
+		break;
+		case WP_PLASMAGUN:
+			origin[0] -= 35;
+			origin[1] += 3;
+		break;
+		case WP_BFG:
+			origin[0] -= 50;
+			origin[1] += 7;
+			origin[2] += 2;
+		break;
+		case WP_NAILGUN:
+			origin[0] -= 35;
+			origin[1] += 2;
+		break;
+		case WP_PROX_LAUNCHER:
+			origin[0] -= 35;
+			origin[1] += 5;
+		break;
+		case WP_CHAINGUN:
+			origin[0] -= 40;
+			origin[1] += 7;
 		break;
 		default:
-			angles[YAW] = 270;
 		break;
 	}
 
-	AnglesToAxis(angles, ent.axis);
 	VectorCopy(origin, ent.origin);
+	AnglesToAxis(angles, ent.axis);
 
 	ent.hModel = weaponModel;
 	ent.renderfx = RF_NOSHADOW; // no stencil shadows
@@ -305,11 +356,14 @@ void CG_Draw3DWeaponModel(float x, float y, float w, float h, weaponInfo_t *weap
 		barrel.shadowPlane = ent.shadowPlane;
 		barrel.renderfx = ent.renderfx;
 
+		angles[YAW] = 0;
+		angles[PITCH] = 0;
+		angles[ROLL] = 0;
+
 		VectorCopy(ent.lightingOrigin, barrel.lightingOrigin);
+		AnglesToAxis(angles, barrel.axis);
 
 		CG_PositionRotatedEntityOnTag(&barrel, &ent, weaponModel, "tag_barrel");
-
-		AxisCopy(ent.axis, barrel.axis);
 
 		CG_AddRefEntityWithMinLight(&barrel);
 	}
@@ -645,7 +699,7 @@ static float CG_DrawWeaponStatus(float y) {
 	playerState_t *ps;
 	weaponInfo_t *weapon;
 	int x, value, w;
-	float size;
+	float size, iconsize;
 	char *s, *name;
 
 	// don't display if dead
@@ -663,13 +717,20 @@ static float CG_DrawWeaponStatus(float y) {
 	x = 639;
 
 	if (cent->currentState.weapon) {
+		value = ps->ammo[cent->currentState.weapon];
 		// draw any 3D icons first, so the changes back to 2D are minimized
 		if (cg_drawIcons.integer) {
-			size = CG_DrawStringLineHeight(UI_GIANTFONT);
-			CG_Draw3DWeaponModel(x - ICON_SIZE, y - ICON_SIZE - size, ICON_SIZE, ICON_SIZE, weapon, cg_weapons[cent->currentState.weapon].weaponModel, cg_weapons[cent->currentState.weapon].barrelModel, NULL);
-		}
+			int y2 = 0;
 
-		value = ps->ammo[cent->currentState.weapon];
+			size = CG_DrawStringLineHeight(UI_SMALLFONT);
+			iconsize = size * 8;
+
+			if (value < 0) {
+				y2 = size;
+			}
+
+			CG_Draw3DWeaponModel(x - iconsize, y - iconsize + y2, iconsize, iconsize, weapon, cg_weapons[cent->currentState.weapon].weaponModel, cg_weapons[cent->currentState.weapon].barrelModel, NULL);
+		}
 
 		if (value > -1) {
 			// ammo
