@@ -700,6 +700,7 @@ static float CG_DrawWeaponStatus(float y) {
 	weaponInfo_t *weapon;
 	int x, value, w;
 	float size, iconsize;
+	vec3_t angles, origin;
 	char *s, *name;
 
 	// don't display if dead
@@ -720,18 +721,35 @@ static float CG_DrawWeaponStatus(float y) {
 		value = ps->ammo[cent->currentState.weapon];
 		// draw any 3D icons first, so the changes back to 2D are minimized
 		if (cg_drawIcons.integer) {
-			int y2 = 0;
+			// draw the weapon model if it is a weapon without ammo
+			if (!cg_weapons[cent->currentState.weapon].ammoModel || (cg_drawIcons.integer == 1 || cg_drawIcons.integer == 3)) {
+				int y2 = 0;
 
-			size = CG_DrawStringLineHeight(UI_SMALLFONT);
-			iconsize = size * 8;
+				size = CG_DrawStringLineHeight(UI_SMALLFONT);
+				iconsize = size * 8;
 
-			if (value < 0) {
-				y2 = size;
+				if (value < 0) {
+					y2 = size;
+				}
+
+				CG_Draw3DWeaponModel(x - iconsize, y - iconsize + y2, iconsize, iconsize, weapon, cg_weapons[cent->currentState.weapon].weaponModel, cg_weapons[cent->currentState.weapon].barrelModel, NULL);
 			}
+			// ammo model
+			if (cg_weapons[cent->currentState.weapon].ammoModel && cg_drawIcons.integer > 1) {
+				origin[0] = 80;
+				origin[1] = -2;
+				origin[2] = -5;
+				angles[YAW] = 125;
 
-			CG_Draw3DWeaponModel(x - iconsize, y - iconsize + y2, iconsize, iconsize, weapon, cg_weapons[cent->currentState.weapon].weaponModel, cg_weapons[cent->currentState.weapon].barrelModel, NULL);
+				iconsize = CG_DrawStringLineHeight(UI_NUMBERFONT) * 0.7f;
+				x -= iconsize;
+
+				CG_Draw3DModel(x, y - iconsize, iconsize, iconsize, cg_weapons[cent->currentState.weapon].ammoModel, NULL, origin, angles, NULL);
+
+				x += 2;
+			}
 		}
-
+		// ammo/clip values
 		if (value > -1) {
 			// ammo
 			s = va("%i", value);
@@ -997,6 +1015,7 @@ CG_DrawPlayerStatus
 =================
 */
 static float CG_DrawPlayerStatus(float y) {
+	vec3_t headAngles;
 	playerState_t *ps;
 	int x, value, w;
 	float size;
@@ -1013,6 +1032,17 @@ static float CG_DrawPlayerStatus(float y) {
 
 	ps = cg.cur_ps;
 	x = 1;
+	// draw any 3D icons first, so the changes back to 2D are minimized
+	if (cg_drawIcons.integer > 1) {
+		VectorClear(headAngles);
+		headAngles[YAW] = 180;
+
+		size = CG_DrawStringLineHeight(UI_NUMBERFONT) * 0.7;
+
+		CG_DrawHead(x - 2, y - size, size, size, cg.cur_ps->playerNum, headAngles);
+
+		x += size - 2;
+	}
 	// health
 	value = ps->stats[STAT_HEALTH];
 	s = va("%i", value);
@@ -1136,6 +1166,7 @@ static float CG_DrawAttacker(float y) {
 	}
 
 	size = CG_DrawStringLineHeight(UI_NUMBERFONT);
+
 	CG_DrawNamedPlayerIcon(639 - size, y + 1, size, playerNum);
 	return y;
 }
@@ -1498,7 +1529,7 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame) {
 
 	if (cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer) {
 		y = CG_DrawTeamOverlay(y);
-	} 
+	}
 
 	if (cg_drawAttacker.integer) {
 		CG_DrawAttacker(y);

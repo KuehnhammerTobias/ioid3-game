@@ -337,7 +337,7 @@ static cvarTable_t cgameCvarTable[] = {
 	{ &cg_drawClock, "cg_drawClock", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_drawIcons, "cg_drawIcons", "3", CVAR_ARCHIVE, RANGE_INT( 0, 3 ) },
 	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_hitFeedback, "cg_hitFeedback", "0", CVAR_ARCHIVE, RANGE_BOOL },

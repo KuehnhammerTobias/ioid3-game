@@ -366,7 +366,7 @@ static void CG_DrawPlayerAmmoValue(rectDef_t *rect, float scale, vec4_t color, q
 }
 
 
-
+/*
 static void CG_DrawPlayerHead(rectDef_t *rect, qboolean draw2D) {
 	vec3_t		angles;
 	float		size, stretch;
@@ -415,7 +415,7 @@ static void CG_DrawPlayerHead(rectDef_t *rect, qboolean draw2D) {
 
 	CG_DrawHead( x, rect->y, rect->w, rect->h, cg.cur_ps->playerNum, angles );
 }
-
+*/
 static void CG_DrawSelectedPlayerHealth( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	playerInfo_t *pi;
 	int value;
@@ -1603,7 +1603,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
     CG_DrawSelectedPlayerPowerup(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
     break;
   case CG_PLAYER_HEAD:
-    CG_DrawPlayerHead(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
+//    CG_DrawPlayerHead(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
     break;
   case CG_PLAYER_ITEM:
     CG_DrawPlayerItem(&rect, scale, ownerDrawFlags & CG_SHOW_2DONLY);
