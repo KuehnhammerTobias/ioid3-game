@@ -333,7 +333,7 @@ static cvarTable_t cgameCvarTable[] = {
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE, RANGE_ALL  },
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_drawStatus, "cg_drawStatus", "2", CVAR_ARCHIVE, RANGE_INT( 0, 2 ) },
 	{ &cg_drawClock, "cg_drawClock", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE, RANGE_BOOL },

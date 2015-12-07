@@ -707,7 +707,7 @@ static float CG_DrawWeaponStatus(float y) {
 	if (cg.cur_lc->predictedPlayerState.stats[STAT_HEALTH] <= 0) {
 		return y;
 	}
-
+	// don't display if spectating
 	if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_SPECTATOR) {
 		return y;
 	}
@@ -798,6 +798,9 @@ static float CG_DrawLocalInfo(float y) {
 	float size;
 	qtime_t qtime;
 
+	if (cg_drawStatus.integer != 2) {
+		return y;
+	}
 	// server hostname
 	info = CG_ConfigString(CS_SERVERINFO);
 
@@ -843,7 +846,10 @@ static void CG_DrawLowerRight(void) {
 	CG_SetScreenPlacement(PLACE_RIGHT, PLACE_BOTTOM);
 
 	y = CG_DrawLocalInfo(y);
-	CG_DrawWeaponStatus(y);
+
+	if (!cg.cur_lc->showScores) {
+		CG_DrawWeaponStatus(y);
+	}
 }
 
 /*
@@ -868,12 +874,16 @@ static float CG_DrawItemBar(float y) {
 	char num[24];
 	float size, iconsize, height;
 
-	ps = cg.cur_ps;
-
-	if (ps->stats[STAT_HEALTH] <= 0) {
+	// don't display if dead
+	if (cg.cur_lc->predictedPlayerState.stats[STAT_HEALTH] <= 0) {
+		return y;
+	}
+	// don't display if spectating
+	if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_SPECTATOR) {
 		return y;
 	}
 
+	ps = cg.cur_ps;
 	x = 1;
 	size = CG_DrawStringLineHeight(UI_TINYFONT);
 	iconsize = CG_DrawStringLineHeight(UI_NUMBERFONT);
@@ -1025,7 +1035,7 @@ static float CG_DrawPlayerStatus(float y) {
 	if (cg.cur_lc->predictedPlayerState.stats[STAT_HEALTH] <= 0) {
 		return y;
 	}
-
+	// don't display if spectating
 	if (cg.cur_ps->persistant[PERS_TEAM] == TEAM_SPECTATOR) {
 		return y;
 	}
@@ -1082,6 +1092,10 @@ static float CG_DrawPlayerInfo(float y) {
 	const char *name, *team;
 	char *s;
 
+	if (cg_drawStatus.integer != 2) {
+		return y;
+	}
+
 	name = cgs.playerinfo[cg.cur_ps->playerNum].name;
 
 	if (cgs.gametype == GT_FFA) {
@@ -1118,8 +1132,11 @@ static void CG_DrawLowerLeft(void) {
 	CG_SetScreenPlacement(PLACE_LEFT, PLACE_BOTTOM);
 
 	y = CG_DrawPlayerInfo(y);
-	y = CG_DrawPlayerStatus(y);
-	CG_DrawItemBar(y);
+
+	if (!cg.cur_lc->showScores) {
+		y = CG_DrawPlayerStatus(y);
+		CG_DrawItemBar(y);
+	}
 }
 
 /*
@@ -1392,9 +1409,6 @@ static float CG_DrawGameStatus(float y) {
 	float size;
 	gitem_t *item;
 
-	if (!cg_drawStatus.integer) {
-		return y;
-	}
 	// draw from the right side to left
 	x = SCREEN_WIDTH;
 
@@ -2703,17 +2717,20 @@ static void CG_Draw2D(stereoFrame_t stereoFrame) {
 
 	CG_DrawLagometer();
 	CG_DrawVoipMeter();
+
+	if (cg_drawStatus.integer) {
 #ifdef MISSIONPACK
-	if (!cg_paused.integer) {
-		CG_DrawUpperLeft();
-		CG_DrawUpperRight(stereoFrame);
-	}
-#else
-	CG_DrawUpperLeft();
-	CG_DrawUpperRight(stereoFrame);
+		if (!cg_paused.integer) {
 #endif
-	CG_DrawLowerLeft();
-	CG_DrawLowerRight();
+			CG_DrawUpperLeft();
+			CG_DrawUpperRight(stereoFrame);
+#ifdef MISSIONPACK
+		}
+#endif
+		CG_DrawLowerLeft();
+		CG_DrawLowerRight();
+	}
+
 	CG_DrawShaderInfo();
 	CG_DrawFollow();
 	CG_DrawWarmup();
