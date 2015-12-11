@@ -2537,11 +2537,15 @@ CG_CenterPrint
 Called for important messages that should stay in the center of the viewport for a few moments
 ==============
 */
-void CG_CenterPrint(int localPlayerNum, const char *str, int y, float charScale) {
+void CG_CenterPrint(int localPlayerNum, const char *str, int y, float charScale, int priority) {
 	localPlayer_t *player;
 	char *s;
 
 	player = &cg.localPlayers[localPlayerNum];
+	// don't draw if this print message is less important
+	if (player->centerPrintTime && priority < player->centerPrintPriority) {
+		return;
+	}
 
 	if (cg.numViewports != 1) {
 		charScale *= cg_splitviewTextScale.value;
@@ -2551,6 +2555,7 @@ void CG_CenterPrint(int localPlayerNum, const char *str, int y, float charScale)
 
 	Q_strncpyz(player->centerPrint, str, sizeof(player->centerPrint));
 
+	player->centerPrintPriority = priority;
 	player->centerPrintTime = cg.time;
 	player->centerPrintY = y;
 	player->centerPrintCharScale = charScale;
@@ -2584,6 +2589,7 @@ static void CG_DrawCenterString(void) {
 	color = CG_FadeColor(cg.cur_lc->centerPrintTime, 1000 * cg_centertime.value);
 
 	if (!color) {
+		cg.cur_lc->centerPrintPriority = 0;
 		return;
 	}
 
