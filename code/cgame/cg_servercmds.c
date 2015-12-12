@@ -526,7 +526,7 @@ static void CG_MapRestart( void ) {
 #endif
 
 	for (i = 0; i < CG_MaxSplitView(); i++) {
-		CG_CenterPrint(i, "FIGHT!", SCREEN_HEIGHT/2, 2.0, 99999 );
+		CG_CenterPrint(i, "FIGHT!", SCREEN_HEIGHT/2, qtrue, 99999 );
 		trap_Cvar_SetValue( Com_LocalPlayerCvarName(i, "cg_thirdPerson"), 0 );
 	}
 }
@@ -1139,7 +1139,7 @@ static void CG_ServerCommand( void ) {
 
 		for ( i = 0; i < CG_MaxSplitView(); i++ ) {
 			if ( localPlayerBits == -1 || ( localPlayerBits & ( 1 << i ) ) ) {
-				CG_CenterPrint( i, CG_Argv( start + 1 ), SCREEN_HEIGHT * 0.30, 0.5, 3 );
+				CG_CenterPrint( i, CG_Argv( start + 1 ), SCREEN_HEIGHT * 0.30, qfalse, 3 );
 			}
 		}
 		return;

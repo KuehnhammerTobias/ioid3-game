@@ -2537,7 +2537,7 @@ CG_CenterPrint
 Called for important messages that should stay in the center of the viewport for a few moments
 ==============
 */
-void CG_CenterPrint(int localPlayerNum, const char *str, int y, float charScale, int priority) {
+void CG_CenterPrint(int localPlayerNum, const char *str, int y, qboolean giantSize, int priority) {
 	localPlayer_t *player;
 	char *s;
 
@@ -2547,18 +2547,12 @@ void CG_CenterPrint(int localPlayerNum, const char *str, int y, float charScale,
 		return;
 	}
 
-	if (cg.numViewports != 1) {
-		charScale *= cg_splitviewTextScale.value;
-	} else {
-		charScale *= cg_hudTextScale.value;
-	}
-
 	Q_strncpyz(player->centerPrint, str, sizeof(player->centerPrint));
 
 	player->centerPrintPriority = priority;
 	player->centerPrintTime = cg.time;
 	player->centerPrintY = y;
-	player->centerPrintCharScale = charScale;
+	player->centerPrintGiantSize = giantSize;
 	// count the number of lines for centering
 	player->centerPrintLines = 1;
 	s = player->centerPrint;
@@ -2580,7 +2574,8 @@ CG_DrawCenterString
 static void CG_DrawCenterString(void) {
 	char *start;
 	int l, y, charHeight;
-	float *color, scale;
+	float *color;
+	qboolean giantSize;	
 
 	if (!cg.cur_lc->centerPrintTime) {
 		return;
@@ -2596,13 +2591,12 @@ static void CG_DrawCenterString(void) {
 	CG_SetScreenPlacement(PLACE_CENTER, PLACE_CENTER);
 
 	start = cg.cur_lc->centerPrint;
-	scale = cg.cur_lc->centerPrintCharScale;
-	charHeight = GIANTCHAR_HEIGHT;
+	giantSize = cg.cur_lc->centerPrintGiantSize;
 
-	if (scale <= 0) {
-		scale = charHeight / 48.0f;
+	if (!giantSize) {
+		charHeight = BIGCHAR_HEIGHT;
 	} else {
-		charHeight = 48 * scale;
+		charHeight = GIANTCHAR_HEIGHT;
 	}
 
 	y = cg.cur_lc->centerPrintY - cg.cur_lc->centerPrintLines * charHeight / 2;
@@ -2620,7 +2614,11 @@ static void CG_DrawCenterString(void) {
 
 		linebuffer[l] = 0;
 
-		CG_DrawStringExt(SCREEN_WIDTH / 2, y, linebuffer, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT|UI_NOSCALE, color, scale, 0, 0);
+		if (!giantSize) {
+			CG_DrawStringExt(SCREEN_WIDTH / 2, y, linebuffer, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT|UI_NOSCALE, color, 0, 0, 0);
+		} else {
+			CG_DrawStringExt(SCREEN_WIDTH / 2, y, linebuffer, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT|UI_NOSCALE, color, 0, 0, 0);
+		}
 
 		y += charHeight + 6;
 
