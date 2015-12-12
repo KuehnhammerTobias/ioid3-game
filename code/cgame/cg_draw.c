@@ -2599,7 +2599,7 @@ static void CG_DrawCenterString(void) {
 		charHeight = GIANTCHAR_HEIGHT;
 	}
 
-	y = cg.cur_lc->centerPrintY - cg.cur_lc->centerPrintLines * charHeight / 2;
+	y = cg.cur_lc->centerPrintY * CG_DrawStringLineHeight(UI_NUMBERFONT);
 
 	while (1) {
 		char linebuffer[1024];

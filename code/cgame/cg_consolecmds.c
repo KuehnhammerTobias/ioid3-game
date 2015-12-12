@@ -358,14 +358,14 @@ static void CG_spWin_f( void) {
 	CG_CameraOrbit( 2, 35 );
 	CG_AddBufferedSound(cgs.media.winnerSound);
 	//trap_S_StartLocalSound(cgs.media.winnerSound, CHAN_ANNOUNCER);
-	CG_CenterPrint(0, "YOU WIN!", SCREEN_HEIGHT/2, qtrue, 99999);
+	CG_CenterPrint(0, "YOU WIN!", 2, qtrue, 99999);
 }
 
 static void CG_spLose_f( void) {
 	CG_CameraOrbit( 2, 35 );
 	CG_AddBufferedSound(cgs.media.loserSound);
 	//trap_S_StartLocalSound(cgs.media.loserSound, CHAN_ANNOUNCER);
-	CG_CenterPrint(0, "YOU LOSE...", SCREEN_HEIGHT/2, qtrue, 99999);
+	CG_CenterPrint(0, "YOU LOSE...", 2, qtrue, 99999);
 }
 
 #endif
