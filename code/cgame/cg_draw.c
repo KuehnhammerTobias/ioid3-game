@@ -454,9 +454,8 @@ CG_DrawWarmup
 */
 static void CG_DrawWarmup(void) {
 	int sec, i;
-	float scale;
 	playerInfo_t *ci1, *ci2;
-	const char *s;
+	const char *s = "";
 
 	sec = cg.warmup;
 
@@ -468,7 +467,7 @@ static void CG_DrawWarmup(void) {
 
 	if (sec < 0) {
 		s = "Waiting for players";
-		CG_DrawString(SCREEN_WIDTH / 2, 24, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT, NULL);
+		CG_CenterPrint(0, s, 2, qtrue, 99999);
 		cg.warmupCount = 0;
 		return;
 	}
@@ -489,12 +488,10 @@ static void CG_DrawWarmup(void) {
 		}
 
 		if (ci1 && ci2) {
-			s = va("%s vs %s", ci1->name, ci2->name);
-			CG_DrawStringExt(SCREEN_WIDTH / 2, 25, s, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT, NULL, 32 / 48.0f, 0, 0);
+			s = va("%s vs. %s", ci1->name, ci2->name);
 		}
 	} else {
 		s = cgs.gametypeName;
-		CG_DrawStringExt(SCREEN_WIDTH / 2, 25, s, UI_CENTER|UI_DROPSHADOW|UI_GIANTFONT, NULL, 32 / 48.0f, 0, 0);
 	}
 
 	sec = (sec - cg.time) / 1000;
@@ -504,7 +501,7 @@ static void CG_DrawWarmup(void) {
 		sec = 0;
 	}
 
-	s = va("Starts in: %i", sec + 1);
+	s = va("%s\nStarts in: %i", s, sec + 1);
 
 	if (sec != cg.warmupCount) {
 		cg.warmupCount = sec;
@@ -524,22 +521,9 @@ static void CG_DrawWarmup(void) {
 		}
 	}
 
-	switch (cg.warmupCount) {
-	case 0:
-		scale = 28 / 48.0f;
-		break;
-	case 1:
-		scale = 24 / 48.0f;
-		break;
-	case 2:
-		scale = 20 / 48.0f;
-		break;
-	default:
-		scale = 16 / 48.0f;
-		break;
+	for (i = 0; i < CG_MaxSplitView(); i++) {
+		CG_CenterPrint(i, s, 2, qtrue, 99999);
 	}
-
-	CG_DrawStringExt(SCREEN_WIDTH / 2, 70, s, UI_CENTER|UI_DROPSHADOW|UI_BIGFONT|UI_NOSCALE, NULL, scale, 0, 0);
 }
 
 /*
