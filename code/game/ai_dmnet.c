@@ -319,7 +319,7 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal) {
 			BotResetAvoidGoals(bs->gs);
 			BotResetAvoidReach(bs->ms);
 			//check blocked teammates
-			BotCheckBlockedTeammates(bs); 
+			BotCheckBlockedTeammates(bs);
 		}
 		//get the goal at the top of the stack
 		return BotGetTopGoal(bs->gs, goal);
@@ -367,7 +367,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			if (VectorLengthSquared(dir) < Square(100)) {
 				BotResetAvoidReach(bs->ms);
 				//check blocked teammates
-				BotCheckBlockedTeammates(bs); 
+				BotCheckBlockedTeammates(bs);
 				return qfalse;
 			}
 		}
@@ -409,7 +409,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		//get entity information of the companion
 		BotEntityInfo(bs->teammate, &entinfo);
 		VectorSubtract(entinfo.origin, bs->origin, dir);
-		BotCountTeamMates(bs, &teammates, 256);
+		teammates = BotCountTeamMates(bs, 256);
 
 		if (VectorLengthSquared(dir) < Square(bs->formation_dist + (teammates * bs->formation_dist - bs->formation_dist))) {
 			//check if the bot wants to crouch, don't crouch if crouched less than 5 seconds ago
@@ -476,7 +476,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 
 			BotResetAvoidReach(bs->ms);
 			//check blocked teammates
-			BotCheckBlockedTeammates(bs); 
+			BotCheckBlockedTeammates(bs);
 			return qfalse;
 		}
 		//if the entity information is valid (entity in PVS)
@@ -631,7 +631,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 		}
 		//if really near the camp spot
 		VectorSubtract(goal->origin, bs->origin, dir);
-		BotCountTeamMates(bs, &teammates, 256);
+		teammates = BotCountTeamMates(bs, 256);
 
 		if (VectorLengthSquared(dir) < Square(60 + (teammates * 60 - 60))) {
 			//if not arrived yet
@@ -681,7 +681,7 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			//
 			BotResetAvoidReach(bs->ms);
 			//check blocked teammates
-			BotCheckBlockedTeammates(bs); 
+			BotCheckBlockedTeammates(bs);
 			return qfalse;
 		}
 		return qtrue;
@@ -824,7 +824,8 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 			BotAlternateRoute(bs, goal);
 			return qtrue;
 		}
-	} else if (gametype == GT_1FCTF) {
+	}
+	else if (gametype == GT_1FCTF) {
 		if (bs->ltgtype == LTG_GETFLAG) {
 			//check for bot typing status message
 			if (bs->teammessage_time && bs->teammessage_time < FloatTime()) {

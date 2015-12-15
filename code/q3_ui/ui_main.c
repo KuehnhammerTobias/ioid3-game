@@ -52,7 +52,7 @@ void	UI_Init( qboolean inGameLoad, int maxSplitView ) {
 	if ( !CG_InitTrueTypeFont( "fonts/font1_prop_glo", PROP_HEIGHT, 0, &uis.fontPropGlow ) ) {
 		UI_InitPropFont( &uis.fontPropGlow, qtrue );
 	}
-	if ( !CG_InitTrueTypeFont( "fonts/font2_prop", 36/*PROPB_HEIGHT*/, 0, &uis.fontPropB ) ) {
+	if ( !CG_InitTrueTypeFont( "fonts/font2_prop", PROPB_HEIGHT, 0, &uis.fontPropB ) ) {
 		UI_InitBannerFont( &uis.fontPropB );
 	}
 #endif
@@ -342,6 +342,10 @@ qboolean UI_WantsBindKeys( void ) {
 	return qfalse;
 }
 
+void UI_WindowResized( void ) {
+	UI_GetResolutions();
+}
+
 void	UI_DrawConnectScreen( qboolean overlay ) {
 	if ( !overlay ) {
 		CG_ClearViewport();
@@ -398,16 +402,21 @@ void UI_GetResolutions( void ) {
 	unsigned int i = 0;
 	unsigned int builtin;
 	int currentMode;
+	int customWidth;
+	int customHeight;
 
 	currentMode = trap_Cvar_VariableIntegerValue( "r_mode" );
+
+	customWidth = trap_Cvar_VariableIntegerValue( "r_customWidth" );
+	customHeight = trap_Cvar_VariableIntegerValue( "r_customHeight" );
 
 	// set to invalid pair, filled in when mode is found in list
 	uis.currentResPair = -1;
 
 	// Add display resolution video mode
 	Com_sprintf( displayRes, sizeof (displayRes), "Auto (%dx%d)", cgs.glconfig.displayWidth, cgs.glconfig.displayHeight );
-	cp_resolution[i].type = CVT_INT;
-	cp_resolution[i].value = "-2";
+	cp_resolution[i].type = CVT_CMD;
+	cp_resolution[i].value = "r_mode -2;";
 	cp_resolution[i].string = displayRes;
 	if ( currentMode == -2 ) {
 		uis.currentResPair = i;
@@ -435,9 +444,9 @@ void UI_GetResolutions( void ) {
 			}
 
 			if ( builtinResolutions[ builtin ] ) {
-				Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "%d", builtin );
+				Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode %d;", builtin );
 
-				cp_resolution[i].type = CVT_INT;
+				cp_resolution[i].type = CVT_CMD;
 				cp_resolution[i].value = cmdBuf[i];
 
 				if ( currentMode == builtin ) {
@@ -459,39 +468,38 @@ void UI_GetResolutions( void ) {
 
 			i++;
 		}
-		cp_resolution[i].type = CVT_NONE;
-		cp_resolution[i].value = NULL;
-		cp_resolution[i].string = NULL;
 	} else {
 		// use built in modes
 		for ( builtin = 0; builtinResolutions[builtin]; builtin++ ) {
 			cp_resolution[i].string = builtinResolutions[i];
 
-			Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "%d", builtin );
+			Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode %d;", builtin );
 
-			cp_resolution[i].type = CVT_INT;
+			cp_resolution[i].type = CVT_CMD;
 			cp_resolution[i].value = cmdBuf[i];
 
 			if ( currentMode == builtin ) {
 				uis.currentResPair = i;
 			}
+
+			i++;
 		}
-
-		cp_resolution[i].type = CVT_NONE;
-		cp_resolution[i].value = NULL;
-		cp_resolution[i].string = NULL;
 	}
 
-	// if current mode is not listed, add 'custom' option
+	// Add custom mode option
+	Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode -1; r_customwidth %d; r_customheight %d;", customWidth, customHeight );
+	Com_sprintf( customRes, sizeof (customRes), "Custom (%dx%d)", customWidth, customHeight );
+	cp_resolution[i].type = CVT_CMD;
+	cp_resolution[i].value = cmdBuf[i];
+	cp_resolution[i].string = customRes;
 	if ( uis.currentResPair < 0 ) {
-		Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode -1; r_customwidth %d; r_customheight %d;", cgs.glconfig.vidWidth, cgs.glconfig.vidHeight );
-		Com_sprintf( customRes, sizeof (customRes), "Custom (%dx%d)", cgs.glconfig.vidWidth, cgs.glconfig.vidHeight );
-		cp_resolution[i].type = CVT_CMD;
-		cp_resolution[i].value = cmdBuf[i];
-		cp_resolution[i].string = customRes;
 		uis.currentResPair = i;
-		i++;
 	}
+	i++;
+
+	cp_resolution[i].type = CVT_NONE;
+	cp_resolution[i].value = NULL;
+	cp_resolution[i].string = NULL;
 
 	//Com_Printf("DEBUG: Num modes: %d, current mode pair %d (%s)\n", i, uis.currentResPair, cp_resolution[uis.currentResPair].string );
 }
