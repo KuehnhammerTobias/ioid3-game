@@ -1208,7 +1208,7 @@ int BotSwimInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 {
 	vec3_t hordir, cmdmove, velocity, tmpdir, origin;
-	int presencetype, maxframes, cmdframes;
+	int presencetype, maxframes, cmdframes, stopevent;
 	int moveflags = 0;
 	aas_clientmove_t move;
 	float dist;
@@ -1236,12 +1236,6 @@ int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 		hordir[1] = dir[1];
 		hordir[2] = 0;
 		VectorNormalize(hordir);
-		//if the bot is not supposed to jump
-		if (!(type & MOVE_JUMP))
-		{
-			//if there is a gap, try to jump over it
-			if (BotGapDistance(ms->origin, hordir, ms->entitynum) > 0) type |= MOVE_JUMP;
-		} //end if
 		//get the presence type for the movement
 		if ((type & MOVE_CROUCH) && !(type & MOVE_JUMP)) presencetype = PRESENCE_CROUCH;
 		else presencetype = PRESENCE_NORMAL;
@@ -1255,6 +1249,8 @@ int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 			cmdmove[2] = 400;
 			maxframes = PREDICTIONTIME_JUMP / 0.1;
 			cmdframes = 1;
+			stopevent = SE_HITGROUND|SE_HITGROUNDDAMAGE|
+						SE_ENTERWATER|SE_ENTERSLIME|SE_ENTERLAVA;
 		} //end if
 		else
 		{
@@ -1264,6 +1260,8 @@ int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 			}
 			maxframes = 2;
 			cmdframes = 2;
+			stopevent = SE_HITGROUNDDAMAGE|SE_GAP|
+						SE_ENTERWATER|SE_ENTERSLIME|SE_ENTERLAVA;
 		} //end else
 		//trap_AAS_ClearShownDebugLines();
 		//
@@ -1271,7 +1269,7 @@ int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 		origin[2] += 0.5;
 		predictSuccess = trap_AAS_PredictPlayerMovement(&move, ms->entitynum, origin, presencetype, qtrue,
 									velocity, cmdmove, cmdframes, maxframes, 0.1f,
-									SE_HITGROUND|SE_HITGROUNDDAMAGE|SE_GAP|SE_ENTERWATER|SE_ENTERSLIME|SE_ENTERLAVA, 0, qfalse, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
+									stopevent, 0, qfalse, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
 		//check if prediction failed
 		if (!predictSuccess) {
 			//BotAI_Print(PRT_MESSAGE, "player %d: prediction was stuck in loop\n", ms->playernum);
