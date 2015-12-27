@@ -1284,7 +1284,7 @@ static void PM_CheckDuck (void)
 
 	if (pm->ps->pm_type == PM_DEAD)
 	{
-		pm->ps->maxs[2] = -8;
+		pm->ps->maxs[2] = -6;
 		pm->ps->viewheight = DEAD_VIEWHEIGHT;
 		return;
 	}
@@ -1298,7 +1298,7 @@ static void PM_CheckDuck (void)
 		if (pm->ps->pm_flags & PMF_DUCKED)
 		{
 			// try to stand up
-			pm->ps->maxs[2] = 46;
+			pm->ps->maxs[2] = 48;
 			pm->trace (&trace, pm->ps->origin, pm->ps->mins, pm->ps->maxs, pm->ps->origin, pm->ps->playerNum, pm->tracemask );
 			if (!trace.allsolid)
 				pm->ps->pm_flags &= ~PMF_DUCKED;
@@ -1307,12 +1307,12 @@ static void PM_CheckDuck (void)
 
 	if (pm->ps->pm_flags & PMF_DUCKED)
 	{
-		pm->ps->maxs[2] = 16;
+		pm->ps->maxs[2] = 32;
 		pm->ps->viewheight = CROUCH_VIEWHEIGHT;
 	}
 	else
 	{
-		pm->ps->maxs[2] = 46;
+		pm->ps->maxs[2] = 48;
 		pm->ps->viewheight = DEFAULT_VIEWHEIGHT;
 	}
 }

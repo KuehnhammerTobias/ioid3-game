@@ -33,7 +33,7 @@ Suite 120, Rockville, Maryland 20850 USA.
 // g_client.c -- client functions that don't happen every frame
 
 static vec3_t	playerMins = {-15, -15, -24};
-static vec3_t	playerMaxs = {15, 15, 46};
+static vec3_t	playerMaxs = {15, 15, 48};
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32) initial
 potential spawning position for deathmatch games.
