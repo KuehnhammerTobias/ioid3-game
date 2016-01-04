@@ -1704,42 +1704,29 @@ bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t 
 	hordir[2] = 0;
 	dist = VectorNormalize(hordir);
 	//if pretty close to the start focus on the reachability end
-	if (dist < 48)
+	if (dist < 60)
 	{
 		hordir[0] = reach->end[0] - ms->origin[0];
 		hordir[1] = reach->end[1] - ms->origin[1];
 		hordir[2] = 0;
 		VectorNormalize(hordir);
 		//
-		if (reachhordist < 20)
+		if (reachhordist < 32)
 		{
-			speed = 100;
+			speed = 160 - (120 - 2 * dist);
 		} //end if
-		else if (!trap_AAS_HorizontalVelocityForJump(0, reach->start, reach->end, &speed))
+		else
 		{
 			speed = 400;
 		} //end if
 	} //end if
 	else
 	{
-		if (reachhordist < 20)
-		{
-			if (dist > 64) dist = 64;
-
-			if (!BotCheckRunToGoal(ms, goal)) {
-				speed = 200 - (128 - 2 * dist);
-			} else {
-				speed = 400 - (256 - 4 * dist);
-			}
-		} //end if
-		else
-		{
-			if (!BotCheckRunToGoal(ms, goal)) {
-				speed = 200;
-			} else {
-				speed = 400;
-			}
-		} //end else
+		if (!BotCheckRunToGoal(ms, goal)) {
+			speed = 200;
+		} else {
+			speed = 400;
+		}
 	} //end else
 	//
 	BotCheckBlocked(ms, hordir, qtrue, &result);
