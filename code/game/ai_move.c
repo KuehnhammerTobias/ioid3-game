@@ -1034,7 +1034,7 @@ float BotGapDistance(vec3_t origin, vec3_t hordir, int entnum)
 
 	startz = origin[2];
 	//do gap checking
-	for (dist = 8; dist <= 100; dist += 8)
+	for (dist = 8; dist <= 384; dist += 8)
 	{
 		VectorMA(origin, dist, hordir, start);
 		start[2] = startz + 24;
@@ -1687,7 +1687,7 @@ bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability
 bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach, bot_goal_t *goal)
 {
 	vec3_t hordir, dir;
-	float dist, speed, reachhordist;
+	float reachhordist, dist, currentspeed, speed;
 	bot_moveresult_t_cleared( result );
 
 	//check if the bot is blocked by anything
@@ -1704,7 +1704,7 @@ bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t 
 	hordir[2] = 0;
 	dist = VectorNormalize(hordir);
 	//if pretty close to the start focus on the reachability end
-	if (dist < 60)
+	if (dist < 100)
 	{
 		hordir[0] = reach->end[0] - ms->origin[0];
 		hordir[1] = reach->end[1] - ms->origin[1];
@@ -1713,11 +1713,26 @@ bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t 
 		//
 		if (reachhordist < 32)
 		{
-			speed = 160 - (120 - 2 * dist);
+			// check for gaps behind the landing area, if there is no gap, don't decrease movespeed.
+			if (!BotGapDistance(reach->end, hordir, ms->entitynum)) {
+				// get the current speed, speed could be reduced as a result of a previous gap check caused by other travel types.
+				currentspeed = DotProduct(ms->velocity, dir);
+				// keep a minimum speed.
+				if (currentspeed < 200) {
+					currentspeed = 200;
+				}
+				// since we know it is 'safe' to walk further, keep the current speed (can range from 200 (= walk) up to 400)
+				speed = currentspeed;
+				//BotAI_Print(PRT_MESSAGE, S_COLOR_GREEN "NO GAP / KEEP CURRENTSPEED: %f\n" S_COLOR_WHITE, currentspeed);
+			} else {
+				speed = 400 - (380 - 3 * dist);
+				//BotAI_Print(PRT_MESSAGE, S_COLOR_RED "DANGEROUS GAP / SLOW DOWN CURRENTSPEED: %f\n" S_COLOR_WHITE, currentspeed);
+			}
 		} //end if
 		else
 		{
 			speed = 400;
+			//BotAI_Print(PRT_MESSAGE, S_COLOR_MAGENTA "GAP JUMP / NEED FULL SPEED!\n" S_COLOR_WHITE);
 		} //end if
 	} //end if
 	else
