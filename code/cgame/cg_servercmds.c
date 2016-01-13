@@ -1174,7 +1174,7 @@ static void CG_ServerCommand( void ) {
 	}
 
 	if ( !strcmp( cmd, "chat" ) ) {
-		if ( !cg_teamChatsOnly.integer ) {
+		if ( !cg_teamChatsOnly.integer || cgs.gametype < GT_TEAM) {
 			trap_S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
 
 			Q_strncpyz( text, CG_Argv(start+1), MAX_SAY_TEXT );
