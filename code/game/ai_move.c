@@ -1100,6 +1100,7 @@ int BotCheckBarrierCrouch(bot_movestate_t *ms, vec3_t dir, float speed)
 int BotCheckBarrierJump(bot_movestate_t *ms, vec3_t dir, float speed, qboolean doMovement)
 {
 	vec3_t start, hordir, end;
+	float currentspeed;
 	aas_trace_t trace;
 
 	VectorCopy(ms->origin, end);
@@ -1115,7 +1116,10 @@ int BotCheckBarrierJump(bot_movestate_t *ms, vec3_t dir, float speed, qboolean d
 	hordir[1] = dir[1];
 	hordir[2] = 0;
 	VectorNormalize(hordir);
-	VectorMA(ms->origin, ms->thinktime * speed * 0.5, hordir, end);
+	// get the current speed
+	currentspeed = DotProduct(ms->velocity, hordir);
+
+	VectorMA(ms->origin, (phys_maxbarrier + currentspeed) * 0.28f, hordir, end);
 	VectorCopy(trace.endpos, start);
 	end[2] = trace.endpos[2];
 	//trace from previous trace end pos horizontally in the move direction
@@ -1534,7 +1538,7 @@ bot_moveresult_t BotTravel_Crouch(bot_movestate_t *ms, aas_reachability_t *reach
 //===========================================================================
 bot_moveresult_t BotTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *reach)
 {
-	float dist, speed;
+	float dist, currentspeed;
 	vec3_t hordir;
 	bot_moveresult_t_cleared( result );
 
@@ -1545,17 +1549,15 @@ bot_moveresult_t BotTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *
 	dist = VectorNormalize(hordir);
 	//
 	BotCheckBlocked(ms, hordir, qtrue, &result);
+	// get the current speed
+	currentspeed = DotProduct(ms->velocity, hordir);
 	//if pretty close to the barrier
-	if (dist < 9)
+	if (dist < (phys_maxbarrier + currentspeed) * 0.28f)
 	{
 		EA_Jump(ms->playernum);
 	} //end if
-	else
-	{
-		if (dist > 60) dist = 60;
-		speed = 360 - (360 - 6 * dist);
-		EA_Move(ms->playernum, hordir, speed);
-	} //end else
+	// always use max speed
+	EA_Move(ms->playernum, hordir, 400);
 	VectorCopy(hordir, result.movedir);
 	//
 	return result;
