@@ -1955,10 +1955,10 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 //*
 bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 {
-	vec3_t hordir, dir1, dir2, start, end, runstart;
+	vec3_t hordir, dir1, dir2, dir3, start, end, runstart;
 //	vec3_t runstart, dir1, dir2, hordir;
 	int gapdist;
-	float dist1, dist2, speed;
+	float dist1, dist2, dist3, speed;
 	bot_moveresult_t_cleared( result );
 
 	//
@@ -1977,7 +1977,7 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 	{
 		VectorMA(start, gapdist+10, hordir, end);
 		end[2] += 1;
-		if (trap_AAS_PointAreaNum(end) != ms->reachareanum) break;
+		if (trap_AAS_PointAreaNum(end) != ms->reachareanum) break; // Tobias FIXME: I still think this causes aborting the jump in q3dm12 and q3dm6 (mid-air, after the jump was already made !!!)
 	} //end for
 	if (gapdist < 80) VectorMA(reach->start, gapdist, hordir, runstart);
 	//
@@ -1987,8 +1987,12 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 	VectorSubtract(ms->origin, runstart, dir2);
 	dir2[2] = 0;
 	dist2 = VectorNormalize(dir2);
+	VectorSubtract(runstart, reach->start, dir3);
+	dir3[2] = 0;
+	dist3 = VectorNormalize(dir3);
+
 	//if just before the reachability start
-	if (DotProduct(dir1, dir2) < -0.8 || dist2 < 5)
+	if ((dist1 + 10 >= dist2 + dist3) || DotProduct(dir1, dir2) < -0.8 || dist2 < 5)
 	{
 //		BotAI_Print(PRT_MESSAGE, "between jump start and run start point\n");
 		hordir[0] = reach->end[0] - ms->origin[0];
