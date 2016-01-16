@@ -2236,10 +2236,11 @@ BotAggression
 ==================
 */
 qboolean BotAggression(bot_state_t *bs) {
-	float aggression;
+	float aggression, selfpreservation;
 	aas_entityinfo_t entinfo;
 
 	aggression = Characteristic_BFloat(bs->character, CHARACTERISTIC_AGGRESSION, 0, 1);
+	selfpreservation = Characteristic_BFloat(bs->character, CHARACTERISTIC_SELFPRESERVATION, 0, 1);
 	// if the enemy is located way higher than the bot.
 	if (bs->inventory[ENEMY_HEIGHT] > 200) {
 		return qfalse;
@@ -2327,11 +2328,11 @@ qboolean BotAggression(bot_state_t *bs) {
 		return qtrue;
 	}
 	//if the bot is very low on health.
-	if (bs->inventory[INVENTORY_HEALTH] < 60) {
+	if (bs->inventory[INVENTORY_HEALTH] < 100 * selfpreservation) {
 		return qfalse;
 	}
 	//if the bot is low on health.
-	if (bs->inventory[INVENTORY_HEALTH] < 80) {
+	if (bs->inventory[INVENTORY_HEALTH] < 100 * selfpreservation + 20) {
 		//if the bot has insufficient armor.
 		if (bs->inventory[INVENTORY_ARMOR] < 40) {
 			return qfalse;
