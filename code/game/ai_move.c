@@ -927,7 +927,7 @@ int BotVisible(int ent, vec3_t eye, vec3_t target)
 {
 	trace_t trace;
 
-	trap_Trace(&trace, eye, NULL, NULL, target, ent, CONTENTS_SOLID|CONTENTS_PLAYERCLIP);
+	trap_Trace(&trace, eye, NULL, NULL, target, ent, CONTENTS_SOLID);
 	if (trace.fraction >= 1) return qtrue;
 	return qfalse;
 } //end of the function BotVisible
