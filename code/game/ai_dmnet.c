@@ -1469,7 +1469,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	// if the bot has no activate goal
 	if (!bs->activatestack) {
 		BotClearActivateGoalStack(bs);
-		AIEnter_Seek_NBG(bs, "activate entity: no goal");
+		AIEnter_Seek_LTG(bs, "activate entity: no goal");
 		return qfalse;
 	}
 	//
@@ -1511,7 +1511,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 				bs->activatestack->time = FloatTime() + 10;
 				return qfalse;
 			}
-			AIEnter_Seek_NBG(bs, "activate entity: time out");
+			AIEnter_Seek_LTG(bs, "activate entity: time out");
 			return qfalse;
 		}
 		memset(&moveresult, 0, sizeof(bot_moveresult_t));
@@ -1537,7 +1537,7 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 				bs->activatestack->time = FloatTime() + 10;
 				return qfalse;
 			}
-			AIEnter_Seek_NBG(bs, "activate entity: activated");
+			AIEnter_Seek_LTG(bs, "activate entity: activated");
 			return qfalse;
 		}
 		//predict obstacles
