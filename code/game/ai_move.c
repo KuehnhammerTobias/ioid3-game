@@ -1076,13 +1076,13 @@ int BotCheckBarrierCrouch(bot_movestate_t *ms, vec3_t dir, float speed)
 	VectorNormalize(hordir);
 	VectorMA(ms->origin, ms->thinktime * speed * 0.5, hordir, end);
 	//trace horizontally in the move direction
-	trap_AAS_TracePlayerBBox(&trace, ms->origin, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP);
+	trap_AAS_TracePlayerBBox(&trace, ms->origin, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP|CONTENTS_BODY|CONTENTS_CORPSE);
 	//this shouldn't happen... but we check anyway
 	if (trace.startsolid) return qfalse;
 	//if no obstacle at all
 	if (trace.fraction >= 1.0) return qfalse;
 	//trace horizontally in the move direction again
-	trap_AAS_TracePlayerBBox(&trace, ms->origin, end, PRESENCE_CROUCH, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP);
+	trap_AAS_TracePlayerBBox(&trace, ms->origin, end, PRESENCE_CROUCH, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP|CONTENTS_BODY|CONTENTS_CORPSE);
 	//again this shouldn't happen
 	if (trace.startsolid) return qfalse;
 	//if something is hit
@@ -1106,7 +1106,7 @@ int BotCheckBarrierJump(bot_movestate_t *ms, vec3_t dir, float speed, qboolean d
 	VectorCopy(ms->origin, end);
 	end[2] += phys_maxbarrier;
 	//trace right up
-	trap_AAS_TracePlayerBBox(&trace, ms->origin, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP);
+	trap_AAS_TracePlayerBBox(&trace, ms->origin, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP|CONTENTS_BODY|CONTENTS_CORPSE);
 	//this shouldn't happen... but we check anyway
 	if (trace.startsolid) return qfalse;
 	//if very low ceiling it isn't possible to jump up to a barrier
@@ -1123,15 +1123,16 @@ int BotCheckBarrierJump(bot_movestate_t *ms, vec3_t dir, float speed, qboolean d
 	VectorCopy(trace.endpos, start);
 	end[2] = trace.endpos[2];
 	//trace from previous trace end pos horizontally in the move direction
-	trap_AAS_TracePlayerBBox(&trace, start, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP);
+	trap_AAS_TracePlayerBBox(&trace, start, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP|CONTENTS_BODY|CONTENTS_CORPSE);
 	//again this shouldn't happen
 	if (trace.startsolid) return qfalse;
-	//
+	// if somthing is hit, the jump will be blocked
+	if (trace.fraction < 1.0) return qfalse;
 	VectorCopy(trace.endpos, start);
 	VectorCopy(trace.endpos, end);
 	end[2] = ms->origin[2];
 	//trace down from the previous trace end pos
-	trap_AAS_TracePlayerBBox(&trace, start, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP);
+	trap_AAS_TracePlayerBBox(&trace, start, end, PRESENCE_NORMAL, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP|CONTENTS_BODY|CONTENTS_CORPSE);
 	//if solid
 	if (trace.startsolid) return qfalse;
 	//if no obstacle at all
