@@ -1227,7 +1227,7 @@ int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 		//remove barrier jump flag
 		ms->moveflags &= ~MFL_BARRIERJUMP;
 		//if there is a barrier the bot can jump on
-		if (BotCheckBarrierJump(ms, dir, speed, qfalse)) {
+		if (BotCheckBarrierJump(ms, dir, speed, qtrue)) {
 			type = MOVE_JUMP;
 			moveflags = MFL_BARRIERJUMP;
 		}
