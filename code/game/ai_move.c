@@ -1025,18 +1025,18 @@ qboolean MoverBottomCenter(aas_reachability_t *reach, vec3_t bottomcenter)
 // Returns:				-
 // Changes Globals:		-
 //===========================================================================
-float BotGapDistance(vec3_t origin, vec3_t hordir, int entnum)
+float BotGapDistance(vec3_t origin, vec3_t hordir, int checkdist, int entnum)
 {
-	int dist;
+	int gapdist;
 	float startz;
 	vec3_t start, end;
 	aas_trace_t trace;
 
 	startz = origin[2];
 	//do gap checking
-	for (dist = 8; dist <= 384; dist += 8)
+	for (gapdist = 10; gapdist < checkdist; gapdist += 10)
 	{
-		VectorMA(origin, dist, hordir, start);
+		VectorMA(origin, gapdist, hordir, start);
 		start[2] = startz + 24;
 		VectorCopy(start, end);
 		end[2] -= 48 + phys_maxbarrier;
@@ -1051,8 +1051,8 @@ float BotGapDistance(vec3_t origin, vec3_t hordir, int entnum)
 				end[2] -= 20;
 				if (trap_AAS_PointContents(end) & CONTENTS_WATER) break;
 				//if a gap is found slow down
-				//BotAI_Print(PRT_MESSAGE, "gap at %i\n", dist);
-				return dist;
+				//BotAI_Print(PRT_MESSAGE, "gap at %i\n", gapdist);
+				return gapdist;
 			} //end if
 			startz = trace.endpos[2];
 		} //end if
@@ -1213,10 +1213,8 @@ int BotSwimInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 {
 	vec3_t hordir, cmdmove, velocity, tmpdir, origin;
-	int presencetype, maxframes, cmdframes, stopevent;
-	int moveflags = 0;
+	int presencetype, maxframes, cmdframes, stopevent, gapdist, moveflags = 0;
 	aas_clientmove_t move;
-	float dist;
 	qboolean predictSuccess;
 
 	if (trap_AAS_OnGround(ms->origin, ms->presencetype, ms->entitynum, CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BOTCLIP)) {
@@ -1306,14 +1304,14 @@ int BotWalkInDirection(bot_movestate_t *ms, vec3_t dir, float speed, int type)
 		{
 			//check for nearby gap
 			VectorNormalize2(move.velocity, tmpdir);
-			dist = BotGapDistance(move.endpos, tmpdir, ms->entitynum);
-			if (dist > 0) {
+			gapdist = BotGapDistance(move.endpos, tmpdir, 100, ms->entitynum);
+			if (gapdist > 0) {
 				//BotAI_Print(PRT_MESSAGE, "player %d: predicted frame %d of %d, hit ground near gap (move direction)\n", ms->playernum, move.frames, maxframes);
 				return qfalse;
 			}
 			//
-			dist = BotGapDistance(move.endpos, hordir, ms->entitynum);
-			if (dist > 0) {
+			gapdist = BotGapDistance(move.endpos, hordir, 100, ms->entitynum);
+			if (gapdist > 0) {
 				//BotAI_Print(PRT_MESSAGE, "player %d: predicted frame %d of %d, hit ground near gap (desired direction)\n", ms->playernum, move.frames, maxframes);
 				return qfalse;
 			}
@@ -1458,6 +1456,7 @@ int BotMoveInDirection(int movestate, vec3_t dir, float speed, int type)
 bot_moveresult_t BotTravel_Walk(bot_movestate_t *ms, aas_reachability_t *reach, bot_goal_t *goal)
 {
 	float dist, speed;
+	int gapdist;
 	vec3_t hordir;
 	bot_moveresult_t_cleared( result );
 
@@ -1484,16 +1483,16 @@ bot_moveresult_t BotTravel_Walk(bot_movestate_t *ms, aas_reachability_t *reach, 
 		if (dist < 20) EA_Crouch(ms->playernum);
 	} //end if
 	//
-	dist = BotGapDistance(ms->origin, hordir, ms->entitynum);
+	gapdist = BotGapDistance(ms->origin, hordir, 100, ms->entitynum);
 	//
 	if (!BotCheckRunToGoal(ms, goal))
 	{
-		if (dist > 0) speed = 200 - (180 - 1 * dist);
+		if (gapdist > 0) speed = 200 - (180 - gapdist);
 		else speed = 200;
 	} //end if
 	else
 	{
-		if (dist > 0) speed = 400 - (360 - 2 * dist);
+		if (gapdist > 0) speed = 400 - (360 - 2 * gapdist);
 		else speed = 400;
 	} //end else
 	//elemantary action move in direction
@@ -1687,71 +1686,64 @@ bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach, bot_goal_t *goal)
-{
+bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach, bot_goal_t *goal) {
 	vec3_t hordir, dir;
 	float reachhordist, dist, currentspeed, speed;
-	bot_moveresult_t_cleared( result );
+	int gapdist;
+	bot_moveresult_t_cleared(result);
 
-	//check if the bot is blocked by anything
+	// check if the bot is blocked by anything
 	VectorSubtract(reach->start, ms->origin, dir);
 	VectorNormalize(dir);
 	BotCheckBlocked(ms, dir, qtrue, &result);
-	//if the reachability start and end are practially above each other
+	// if the reachability start and end are practially above each other
 	VectorSubtract(reach->end, reach->start, dir);
 	dir[2] = 0;
 	reachhordist = VectorLength(dir);
-	//walk straight to the reachability start
+	// walk straight to the reachability start
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
 	hordir[2] = 0;
 	dist = VectorNormalize(hordir);
-	//if pretty close to the start focus on the reachability end
-	if (dist < 100)
-	{
+	// if pretty close to the start focus on the reachability end
+	if (dist < 64) {
 		hordir[0] = reach->end[0] - ms->origin[0];
 		hordir[1] = reach->end[1] - ms->origin[1];
 		hordir[2] = 0;
 		VectorNormalize(hordir);
-		//
-		if (reachhordist < 32)
-		{
-			// check for gaps behind the landing area, if there is no gap, don't decrease movespeed.
-			if (!BotGapDistance(reach->end, hordir, ms->entitynum)) {
-				// get the current speed, speed could be reduced as a result of a previous gap check caused by other travel types.
-				currentspeed = DotProduct(ms->velocity, dir);
-				// keep a minimum speed.
-				if (currentspeed < 200) {
-					currentspeed = 200;
-				}
-				// since we know it is 'safe' to walk further, keep the current speed (can range from 200 (= walk) up to 400)
-				speed = currentspeed;
-				//BotAI_Print(PRT_MESSAGE, S_COLOR_GREEN "NO GAP / KEEP CURRENTSPEED: %f\n" S_COLOR_WHITE, currentspeed);
+
+		if (reachhordist < 32) {
+			// check for nearby gap
+			gapdist = BotGapDistance(reach->end, hordir, 380, ms->entitynum);
+
+			if (gapdist > 0) {
+				speed = 400 - (380 - gapdist);
 			} else {
-				speed = 400 - (380 - 3 * dist);
-				//BotAI_Print(PRT_MESSAGE, S_COLOR_RED "DANGEROUS GAP / SLOW DOWN CURRENTSPEED: %f\n" S_COLOR_WHITE, currentspeed);
+				// get the current speed, speed could be reduced as a result of a previous gap check caused by other travel types.
+				currentspeed = DotProduct(ms->velocity, hordir);
+				// keep a minimum speed, but don't increase speed unnecessarily.
+				if (!BotCheckRunToGoal(ms, goal) || currentspeed < 150) {
+					speed = 200;
+				} else {
+					speed = 400;
+				}
 			}
-		} //end if
-		else
-		{
+		} else {
 			speed = 400;
-			//BotAI_Print(PRT_MESSAGE, S_COLOR_MAGENTA "GAP JUMP / NEED FULL SPEED!\n" S_COLOR_WHITE);
-		} //end if
-	} //end if
-	else
-	{
+		}
+	} else {
 		if (!BotCheckRunToGoal(ms, goal)) {
 			speed = 200;
 		} else {
 			speed = 400;
 		}
-	} //end else
-	//
+	}
+
 	BotCheckBlocked(ms, hordir, qtrue, &result);
-	//elemantary action
+	// elemantary action
 	EA_Move(ms->playernum, hordir, speed);
 	VectorCopy(hordir, result.movedir);
-	//
+
 	return result;
 } //end of the function BotTravel_WalkOffLedge
 //===========================================================================
