@@ -1686,64 +1686,57 @@ bot_moveresult_t BotFinishTravel_WaterJump(bot_movestate_t *ms, aas_reachability
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
-bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach, bot_goal_t *goal) {
-	vec3_t hordir, dir;
-	float reachhordist, dist, currentspeed, speed;
+bot_moveresult_t BotTravel_WalkOffLedge(bot_movestate_t *ms, aas_reachability_t *reach, bot_goal_t *goal)
+{
+	vec3_t hordir;
+	float dist, speed;
 	int gapdist;
-	bot_moveresult_t_cleared(result);
+	bot_moveresult_t_cleared( result );
 
-	// check if the bot is blocked by anything
-	VectorSubtract(reach->start, ms->origin, dir);
-	VectorNormalize(dir);
-	BotCheckBlocked(ms, dir, qtrue, &result);
-	// if the reachability start and end are practially above each other
-	VectorSubtract(reach->end, reach->start, dir);
-	dir[2] = 0;
-	reachhordist = VectorLength(dir);
-	// walk straight to the reachability start
+	//walk straight to the reachability start
 	hordir[0] = reach->start[0] - ms->origin[0];
 	hordir[1] = reach->start[1] - ms->origin[1];
 	hordir[2] = 0;
 	dist = VectorNormalize(hordir);
-	// if pretty close to the start focus on the reachability end
-	if (dist < 64) {
+	//check if the bot is blocked by anything
+	BotCheckBlocked(ms, hordir, qtrue, &result);
+	//if pretty close to the start focus on the reachability end
+	if (dist < 64)
+	{
 		hordir[0] = reach->end[0] - ms->origin[0];
 		hordir[1] = reach->end[1] - ms->origin[1];
 		hordir[2] = 0;
 		VectorNormalize(hordir);
+		// check for nearby gap
+		gapdist = BotGapDistance(reach->end, hordir, 400, ms->entitynum);
 
-		if (reachhordist < 32) {
-			// check for nearby gap
-			gapdist = BotGapDistance(reach->end, hordir, 380, ms->entitynum);
-
-			if (gapdist > 0) {
-				speed = 400 - (380 - gapdist);
+		if (gapdist > 0)
+		{
+			if (!BotCheckRunToGoal(ms, goal)) {
+				speed = 200 - (100 - 0.25 * gapdist);
 			} else {
-				// get the current speed, speed could be reduced as a result of a previous gap check caused by other travel types.
-				currentspeed = DotProduct(ms->velocity, hordir);
-				// keep a minimum speed, but don't increase speed unnecessarily.
-				if (!BotCheckRunToGoal(ms, goal) || currentspeed < 150) {
-					speed = 200;
-				} else {
-					speed = 400;
-				}
+				speed = 400 - (300 - 0.75 * gapdist);
 			}
-		} else {
+		} //end if
+		else
+		{
 			speed = 400;
-		}
-	} else {
+		} //end if
+	} //end if
+	else
+	{
 		if (!BotCheckRunToGoal(ms, goal)) {
 			speed = 200;
 		} else {
 			speed = 400;
 		}
-	}
-
+	} //end else
+	//
 	BotCheckBlocked(ms, hordir, qtrue, &result);
-	// elemantary action
+	//elemantary action
 	EA_Move(ms->playernum, hordir, speed);
 	VectorCopy(hordir, result.movedir);
-
+	//
 	return result;
 } //end of the function BotTravel_WalkOffLedge
 //===========================================================================
