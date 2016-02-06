@@ -624,6 +624,7 @@ Only in CTF games
 /* sounds */ ""
 	},
 
+#ifdef MISSIONPACK
 /*QUAKED holdable_kamikaze (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -638,7 +639,7 @@ Only in CTF games
 		HI_KAMIKAZE,
 /* sounds */ "sound/items/kamikazerespawn.wav"
 	},
-#ifdef MISSIONPACK
+
 /*QUAKED holdable_portal (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -668,7 +669,7 @@ Only in CTF games
 		HI_INVULNERABILITY,
 /* sounds */ ""
 	},
-#endif
+
 /*QUAKED ammo_nails (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -713,6 +714,7 @@ Only in CTF games
 		WP_CHAINGUN,
 /* sounds */ ""
 	},
+
 	//
 	// PERSISTANT POWERUP ITEMS
 	//
@@ -775,6 +777,7 @@ Only in CTF games
 		PW_AMMOREGEN,
 /* sounds */ ""
 	},
+
 	/*QUAKED team_CTF_neutralflag (0 0 1) (-16 -16 -16) (16 16 16)
 Only in One Flag CTF games
 */
@@ -816,7 +819,6 @@ Only in One Flag CTF games
 		0,
 /* sounds */ ""
 	},
-
 /*QUAKED weapon_nailgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
 	{
@@ -866,6 +868,8 @@ Only in One Flag CTF games
 		WP_CHAINGUN,
 /* sounds */ "sound/weapons/vulcan/wvulwind.wav"
 	},
+#endif
+
 	// end of list marker
 	{NULL}
 };
@@ -1021,9 +1025,11 @@ const char *bg_netGametypeNames[GT_MAX_GAME_TYPE] = {
 	"SP",
 	"TeamDM",
 	"CTF",
+#ifdef MISSIONPACK
 	"1FCTF",
 	"Overload",
 	"Harvester"
+#endif
 };
 
 const char *bg_displayGametypeNames[GT_MAX_GAME_TYPE] = {
@@ -1032,9 +1038,11 @@ const char *bg_displayGametypeNames[GT_MAX_GAME_TYPE] = {
 	"Single Player",
 	"Team Deathmatch",
 	"Capture the Flag",
+#ifdef MISSIONPACK
 	"One Flag CTF",
 	"Overload",
 	"Harvester"
+#endif
 };
 
 /*
@@ -1045,7 +1053,11 @@ BG_CheckSpawnEntity
 qboolean BG_CheckSpawnEntity( const bgEntitySpawnInfo_t *info ) {
 	int			i, gametype;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "tournament", "single", "team", "ctf" , "oneflag", "obelisk", "harvester"};
+	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "tournament", "single", "team", "ctf"
+#ifdef MISSIONPACK
+		, "oneflag", "obelisk", "harvester"
+#endif
+		};
 
 	gametype = info->gametype;
 
@@ -1259,9 +1271,13 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		return qtrue;
 
 	case IT_ARMOR:
+#ifdef MISSIONPACK
 		if( BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			upperBound = ps->stats[STAT_MAX_HEALTH];
-		} else {
+		}
+		else
+#endif
+		{
 			upperBound = ps->stats[STAT_MAX_HEALTH] * 2;
 		}
 
@@ -1273,23 +1289,29 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 
 	case IT_HEALTH:
 		// don't pick up if already at max
+#ifdef MISSIONPACK
 		if( BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			if (ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] / 2) {
 				return qfalse;
 			}
-		} else if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
+		}
+		else
+#endif
+		if ( ps->stats[STAT_HEALTH] >= ps->stats[STAT_MAX_HEALTH] ) {
 			return qfalse;
 		}
 		return qtrue;
 
 	case IT_POWERUP:
+#ifdef MISSIONPACK
 		// scout overrides haste
 		if (item->giTag == PW_HASTE && BG_ItemForItemNum( ps->stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_SCOUT ) {
 			return qfalse;
 		}
-
+#endif
 		return qtrue;
 
+#ifdef MISSIONPACK
 	case IT_PERSISTANT_POWERUP:
 		// can only hold one item at a time
 		if ( ps->stats[STAT_PERSISTANT_POWERUP] ) {
@@ -1302,8 +1324,10 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		}
 
 		return qtrue;
+#endif
 
 	case IT_TEAM: // team items, such as flags
+#ifdef MISSIONPACK		
 		if( gametype == GT_1FCTF ) {
 			// neutral flag can always be picked up
 			if( item->giTag == PW_NEUTRALFLAG ) {
@@ -1319,7 +1343,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 				}
 			}
 		}
-
+#endif
 		if( gametype == GT_CTF ) {
 			// ent->modelindex2 is non-zero on items if they are dropped
 			// we need to know this because we can pick up our dropped flag (and return it)
@@ -1337,10 +1361,11 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 			}
 		}
 
+#ifdef MISSIONPACK
 		if( gametype == GT_HARVESTER ) {
 			return qtrue;
 		}
-
+#endif
 		return qfalse;
 
 	case IT_HOLDABLE:
@@ -1532,6 +1557,7 @@ char *eventnames[] = {
 
 	"EV_SCOREPLUM",			// score plum
 
+//#ifdef MISSIONPACK
 	"EV_PROXIMITY_MINE_STICK",
 	"EV_PROXIMITY_MINE_TRIGGER",
 	"EV_KAMIKAZE",			// kamikaze explodes
@@ -1540,6 +1566,7 @@ char *eventnames[] = {
 	"EV_INVUL_IMPACT",		// invulnerability sphere impact
 	"EV_JUICED",				// invulnerability juiced effect
 	"EV_LIGHTNINGBOLT",		// lightning bolt bounced of invulnerability sphere
+//#endif
 
 	"EV_DEBUG_LINE",
 	"EV_STOPLOOPINGSOUND",

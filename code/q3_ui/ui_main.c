@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2014 Zack Middleton
+Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
 
 This file is part of Spearmint Source Code.
 
@@ -27,480 +27,218 @@ terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc.,
 Suite 120, Rockville, Maryland 20850 USA.
 ===========================================================================
 */
+//
+/*
+=======================================================================
+
+USER INTERFACE MAIN
+
+=======================================================================
+*/
+
 
 #include "ui_local.h"
 
-uiStatic_t uis;
-currentMenu_t currentMenu;
-cvarValuePair_t cp_resolution[MAX_RESOLUTIONS];
-
-void	UI_Init( qboolean inGameLoad, int maxSplitView ) {
-	int i;
-
-	(void)inGameLoad;
-	(void)maxSplitView;
-
-	Com_Memset( &uis, 0, sizeof ( uis ) );
-
-	UI_LoadAssets();
-	UI_GetResolutions();
-
-#ifdef Q3UIFONTS
-	if ( !CG_InitTrueTypeFont( "fonts/font1_prop", PROP_HEIGHT, 0, &uis.fontProp ) ) {
-		UI_InitPropFont( &uis.fontProp, qfalse );
-	}
-	if ( !CG_InitTrueTypeFont( "fonts/font1_prop_glo", PROP_HEIGHT, 0, &uis.fontPropGlow ) ) {
-		UI_InitPropFont( &uis.fontPropGlow, qtrue );
-	}
-	if ( !CG_InitTrueTypeFont( "fonts/font2_prop", PROPB_HEIGHT, 0, &uis.fontPropB ) ) {
-		UI_InitBannerFont( &uis.fontPropB );
-	}
-#endif
-
-	uis.itemActionSound = trap_S_RegisterSound( ITEM_ACTION_SOUND, qfalse );
-	uis.itemFocusSound = trap_S_RegisterSound( ITEM_FOCUS_SOUND, qfalse );
-	uis.itemWarnSound = trap_S_RegisterSound( ITEM_WARN_SOUND, qfalse );
-	uis.menuPopSound = trap_S_RegisterSound( MENU_POP_SOUND, qfalse );
-
-	uis.cursorShader = trap_R_RegisterShaderNoMip( CURSOR_SHADER );
-	for ( i = 0; i < MAX_SPLITVIEW; i++ ) {
-		uis.cursors[i].shader = uis.cursorShader;
-	}
-
-	// show player 1's cursor by default
-	uis.cursors[0].show = qtrue;
-
-	Com_Memset( &currentMenu, 0, sizeof ( currentMenu ) );
-}
-
-void	UI_Shutdown( void ) {
-
-}
-
-void	UI_SetActiveMenu( uiMenuCommand_t menu ) {
-	if ( menu == UIMENU_NONE ) {
-		Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_UI );
-		UI_SetMenu( &currentMenu, M_NONE );
-	}
-	else if ( menu == UIMENU_MAIN || menu == UIMENU_INGAME ) {
-		trap_Mouse_SetState( 0, MOUSE_CGAME );
-		Key_SetCatcher( KEYCATCH_UI );
-		trap_Cvar_SetValue( "cl_paused", 1 );
-
-		 if ( menu == UIMENU_MAIN ) {
-			char errorMessage[2];
-
-			trap_Cvar_VariableStringBuffer( "com_errorMessage", errorMessage, sizeof ( errorMessage ) );
-
-			if ( errorMessage[0] != '\0' ) {
-				UI_SetMenu( &currentMenu, M_ERROR );
-			} else {
-				UI_SetMenu( &currentMenu, M_MAIN );
-			}
-		} else if ( menu == UIMENU_INGAME ) {
-			UI_SetMenu( &currentMenu, M_INGAME );
-		}
-	} else if ( menu == UIMENU_POSTGAME ) {
-		// postgame doesn't pause
-		trap_Mouse_SetState( 0, MOUSE_CGAME );
-		Key_SetCatcher( KEYCATCH_UI );
-
-		UI_SetMenu( &currentMenu, M_POSTGAME );
-	}
-}
-
-void	UI_KeyEvent( int key, qboolean down ) {
-
-	if ( key & K_CHAR_FLAG )
-		return;
-
-	if ( !currentMenu.menu )
-		return;
-
-	if ( currentMenu.mouseClickDown == key && !down ) {
-		currentMenu.mouseClickDown = 0;
-		UI_MenuMouseAction( &currentMenu, currentMenu.mouseItem, uis.cursors[0].x, uis.cursors[0].y, MACTION_RELEASE );
-		UI_MenuCursorPoint( &currentMenu, uis.cursors[0].x, uis.cursors[0].y );
-		return;
-	}
-
-	if ( !down )
-		return;
-
-	switch ( key ) {
-		case K_F11:
-			// Q3A/TA toggle debug drawing mode
-			break;
-
-		case K_F12:
-			trap_Cmd_ExecuteText( EXEC_APPEND, "screenshot\n" );
-			break;
-
-		case K_JOY_BACK:
-		case K_2JOY_BACK:
-		case K_3JOY_BACK:
-		case K_4JOY_BACK:
-		case K_MOUSE4: // this is typically 'back'
-		case K_ESCAPE:
-			if ( !( ui_menus[currentMenu.menu].menuFlags & MF_NOESCAPE ) ) {
-				UI_PopMenu( &currentMenu );
-			}
-			break;
-
-		case K_JOY_DPAD_UP:
-		case K_JOY_LEFTSTICK_UP:
-		case K_2JOY_DPAD_UP:
-		case K_2JOY_LEFTSTICK_UP:
-		case K_3JOY_DPAD_UP:
-		case K_3JOY_LEFTSTICK_UP:
-		case K_4JOY_DPAD_UP:
-		case K_4JOY_LEFTSTICK_UP:
-		case K_KP_UPARROW:
-		case K_UPARROW:
-			UI_MenuAdjustCursor( &currentMenu, -1 );
-			break;
-
-		case K_TAB:
-		case K_JOY_DPAD_DOWN:
-		case K_JOY_LEFTSTICK_DOWN:
-		case K_2JOY_DPAD_DOWN:
-		case K_2JOY_LEFTSTICK_DOWN:
-		case K_3JOY_DPAD_DOWN:
-		case K_3JOY_LEFTSTICK_DOWN:
-		case K_4JOY_DPAD_DOWN:
-		case K_4JOY_LEFTSTICK_DOWN:
-		case K_KP_DOWNARROW:
-		case K_DOWNARROW:
-			UI_MenuAdjustCursor( &currentMenu, 1 );
-			break;
-
-		case K_JOY_DPAD_LEFT:
-		case K_JOY_LEFTSTICK_LEFT:
-		case K_2JOY_DPAD_LEFT:
-		case K_2JOY_LEFTSTICK_LEFT:
-		case K_3JOY_DPAD_LEFT:
-		case K_3JOY_LEFTSTICK_LEFT:
-		case K_4JOY_DPAD_LEFT:
-		case K_4JOY_LEFTSTICK_LEFT:
-		case K_KP_LEFTARROW:
-		case K_LEFTARROW:
-			UI_MenuAdjustCursor( &currentMenu, 2 );
-			break;
-
-		case K_JOY_DPAD_RIGHT:
-		case K_JOY_LEFTSTICK_RIGHT:
-		case K_2JOY_DPAD_RIGHT:
-		case K_2JOY_LEFTSTICK_RIGHT:
-		case K_3JOY_DPAD_RIGHT:
-		case K_3JOY_LEFTSTICK_RIGHT:
-		case K_4JOY_DPAD_RIGHT:
-		case K_4JOY_LEFTSTICK_RIGHT:
-		case K_KP_RIGHTARROW:
-		case K_RIGHTARROW:
-			UI_MenuAdjustCursor( &currentMenu, 4 );
-			break;
-
-		case K_JOY_A:
-		case K_2JOY_A:
-		case K_3JOY_A:
-		case K_4JOY_A:
-		case K_AUX1:
-		case K_AUX2:
-		case K_AUX3:
-		case K_AUX4:
-		case K_AUX5:
-		case K_AUX6:
-		case K_AUX7:
-		case K_AUX8:
-		case K_AUX9:
-		case K_AUX10:
-		case K_AUX11:
-		case K_AUX12:
-		case K_AUX13:
-		case K_AUX14:
-		case K_AUX15:
-		case K_AUX16:
-		case K_KP_ENTER:
-		case K_ENTER:
-			UI_MenuAction( &currentMenu, currentMenu.selectedItem, 1 );
-			break;
-
-		case K_MOUSE1: // left click
-		case K_MOUSE3: // middle click
-			// ignore if in the middle of a mouse item operation
-			if ( currentMenu.mouseClickDown ) {
-				break;
-			}
-
-			UI_MenuCursorPoint( &currentMenu, uis.cursors[0].x, uis.cursors[0].y );
-			if ( currentMenu.mouseItem != -1 ) {
-				if ( UI_MenuMouseAction( &currentMenu, currentMenu.mouseItem, uis.cursors[0].x, uis.cursors[0].y, MACTION_PRESS ) ) {
-					currentMenu.mouseClickDown = key;
-				} else {
-					UI_MenuAction( &currentMenu, currentMenu.mouseItem, 1 );
-				}
-			}
-			break;
-
-		case K_MOUSE2: // right click
-			// ignore if in the middle of a mouse item operation
-			if ( currentMenu.mouseClickDown ) {
-				break;
-			}
-
-			UI_MenuCursorPoint( &currentMenu, uis.cursors[0].x, uis.cursors[0].y );
-			if ( currentMenu.mouseItem != -1 ) {
-				UI_MenuAction( &currentMenu, currentMenu.mouseItem, -1 );
-			}
-			break;
-
-		default:
-			break;
-	}
-}
-
-void	UI_MouseEvent( int localClientNum, int dx, int dy ) {
-	float ax, ay, aw, ah;
-	float xbias, ybias;
-
-	ax = 0;
-	ay = 0;
-	aw = 1;
-	ah = 1;
-	CG_SetScreenPlacement( PLACE_CENTER, PLACE_CENTER );
-	CG_AdjustFrom640( &ax, &ay, &aw, &ah );
-
-	xbias = ax/aw;
-	ybias = ay/ah;
-
-	// update mouse screen position
-	uis.cursors[localClientNum].x = Com_Clamp( -xbias, SCREEN_WIDTH+xbias, uis.cursors[localClientNum].x + dx );
-	uis.cursors[localClientNum].y = Com_Clamp( -ybias, SCREEN_HEIGHT+ybias, uis.cursors[localClientNum].y + dy );
-
-	uis.cursors[localClientNum].show = qtrue;
-
-	if ( currentMenu.mouseClickDown ) {
-		UI_MenuMouseAction( &currentMenu, currentMenu.mouseItem, uis.cursors[localClientNum].x, uis.cursors[localClientNum].y, MACTION_DRAG );
-	} else {
-		UI_MenuCursorPoint( &currentMenu, uis.cursors[localClientNum].x, uis.cursors[localClientNum].y );
-	}
-}
-
-void	UI_GetCursorPos( int localClientNum, int *x, int *y ) {
-	if ( x ) *x = uis.cursors[localClientNum].x;
-	if ( y ) *y = uis.cursors[localClientNum].y;
-}
-
-void	UI_SetCursorPos( int localClientNum, int x, int y ) {
-	if ( uis.cursors[localClientNum].x == x && uis.cursors[localClientNum].y == y ) {
-		// ignore duplicate events
-		return;
-	}
-
-	uis.cursors[localClientNum].x = x;
-	uis.cursors[localClientNum].y = y;
-
-	UI_MouseEvent( localClientNum, 0, 0 );
-}
-
-qboolean UI_IsFullscreen( void ) {
-	return ( Key_GetCatcher() & KEYCATCH_UI ) && !cg.connected;
-}
-
-void	UI_Refresh( int time ) {
-	int i;
-
-	if ( !( Key_GetCatcher() & KEYCATCH_UI ) ) {
-		return;
-	}
-
-	#ifdef MAIN_MUSIC
-	if ( !cg.connected && !uis.startedMusic ) {
-		trap_S_StopBackgroundTrack();
-		trap_S_StartBackgroundTrack( MAIN_MUSIC, MAIN_MUSIC, 1.0f, 1.0f );
-		uis.startedMusic = qtrue;
-	}
-	#endif
-
-	if ( UI_IsFullscreen() ) {
-		CG_ClearViewport();
-	}
-
-	UI_DrawCurrentMenu( &currentMenu );
-
-	// Draw cursors
-	for ( i = 0; i < MAX_SPLITVIEW; i++ ) {
-		if ( !uis.cursors[i].show ) {
-			continue;
-		}
-
-		CG_DrawPic( uis.cursors[i].x-16, uis.cursors[i].y-16, 32, 32, uis.cursors[i].shader );
-	}
-}
 
 qboolean UI_WantsBindKeys( void ) {
-	return qfalse;
+	return Controls_WantsBindKeys();
 }
 
 void UI_WindowResized( void ) {
-	UI_GetResolutions();
+
 }
 
-void	UI_DrawConnectScreen( qboolean overlay ) {
-	if ( !overlay ) {
-		CG_ClearViewport();
-		UI_DrawConnectBackground();
-	}
 
-	// ZTM: TODO: draw status
-}
+/*
+================
+cvars
+================
+*/
 
-#ifndef Q3UIFONTS
-// used by cg_info.c
-void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color ) {
-	CG_DrawString( x, y, str, style, color );
-}
+typedef struct {
+	vmCvar_t	*vmCvar;
+	char		*cvarName;
+	char		*defaultString;
+	int			cvarFlags;
+} cvarTable_t;
+
+vmCvar_t	ui_ffa_fraglimit;
+vmCvar_t	ui_ffa_timelimit;
+
+vmCvar_t	ui_tourney_fraglimit;
+vmCvar_t	ui_tourney_timelimit;
+
+vmCvar_t	ui_team_fraglimit;
+vmCvar_t	ui_team_timelimit;
+vmCvar_t	ui_team_friendly;
+
+vmCvar_t	ui_ctf_capturelimit;
+vmCvar_t	ui_ctf_timelimit;
+vmCvar_t	ui_ctf_friendly;
+
+#ifdef MISSIONPACK
+vmCvar_t	ui_1flag_capturelimit;
+vmCvar_t	ui_1flag_timelimit;
+vmCvar_t	ui_1flag_friendly;
+
+vmCvar_t	ui_obelisk_capturelimit;
+vmCvar_t	ui_obelisk_timelimit;
+vmCvar_t	ui_obelisk_friendly;
+
+vmCvar_t	ui_harvester_capturelimit;
+vmCvar_t	ui_harvester_timelimit;
+vmCvar_t	ui_harvester_friendly;
 #endif
 
-#if defined MISSIONPACK && defined MISSIONPACK_HUD
-// missionpack hud requires this
-void UI_Load( void ) {
+vmCvar_t	ui_publicServer;
 
-}
+vmCvar_t	ui_arenasFile;
+vmCvar_t	ui_botsFile;
+vmCvar_t	ui_spScores1;
+vmCvar_t	ui_spScores2;
+vmCvar_t	ui_spScores3;
+vmCvar_t	ui_spScores4;
+vmCvar_t	ui_spScores5;
+vmCvar_t	ui_spAwards;
+vmCvar_t	ui_spVideos;
+vmCvar_t	ui_spSkill;
+
+vmCvar_t	ui_spSelection;
+
+vmCvar_t	ui_browserMaster;
+vmCvar_t	ui_browserGameType;
+vmCvar_t	ui_browserSortKey;
+vmCvar_t	ui_browserShowFull;
+vmCvar_t	ui_browserShowEmpty;
+vmCvar_t	ui_browserShowBots;
+
+vmCvar_t	ui_brassTime;
+vmCvar_t	ui_drawCrosshair;
+vmCvar_t	ui_drawCrosshairNames;
+vmCvar_t	ui_marks;
+
+vmCvar_t	ui_server1;
+vmCvar_t	ui_server2;
+vmCvar_t	ui_server3;
+vmCvar_t	ui_server4;
+vmCvar_t	ui_server5;
+vmCvar_t	ui_server6;
+vmCvar_t	ui_server7;
+vmCvar_t	ui_server8;
+vmCvar_t	ui_server9;
+vmCvar_t	ui_server10;
+vmCvar_t	ui_server11;
+vmCvar_t	ui_server12;
+vmCvar_t	ui_server13;
+vmCvar_t	ui_server14;
+vmCvar_t	ui_server15;
+vmCvar_t	ui_server16;
+
+vmCvar_t	ui_ioq3;
+
+static cvarTable_t		cvarTable[] = {
+	{ &ui_ffa_fraglimit, "ui_ffa_fraglimit", "0", CVAR_ARCHIVE },
+	{ &ui_ffa_timelimit, "ui_ffa_timelimit", "15", CVAR_ARCHIVE },
+
+	{ &ui_tourney_fraglimit, "ui_tourney_fraglimit", "0", CVAR_ARCHIVE },
+	{ &ui_tourney_timelimit, "ui_tourney_timelimit", "15", CVAR_ARCHIVE },
+
+	{ &ui_team_fraglimit, "ui_team_fraglimit", "0", CVAR_ARCHIVE },
+	{ &ui_team_timelimit, "ui_team_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_team_friendly, "ui_team_friendly",  "1", CVAR_ARCHIVE },
+
+	{ &ui_ctf_capturelimit, "ui_ctf_capturelimit", "8", CVAR_ARCHIVE },
+	{ &ui_ctf_timelimit, "ui_ctf_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_ctf_friendly, "ui_ctf_friendly",  "1", CVAR_ARCHIVE },
+
+#ifdef MISSIONPACK
+	{ &ui_1flag_capturelimit, "ui_1flag_capturelimit", "8", CVAR_ARCHIVE },
+	{ &ui_1flag_timelimit, "ui_1flag_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_1flag_friendly, "ui_1flag_friendly",  "1", CVAR_ARCHIVE },
+
+	{ &ui_obelisk_capturelimit, "ui_obelisk_capturelimit", "8", CVAR_ARCHIVE },
+	{ &ui_obelisk_timelimit, "ui_obelisk_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_obelisk_friendly, "ui_obelisk_friendly",  "1", CVAR_ARCHIVE },
+
+	{ &ui_harvester_capturelimit, "ui_harvester_capturelimit", "8", CVAR_ARCHIVE },
+	{ &ui_harvester_timelimit, "ui_harvester_timelimit", "15", CVAR_ARCHIVE },
+	{ &ui_harvester_friendly, "ui_harvester_friendly",  "1", CVAR_ARCHIVE },
 #endif
+
+	{ &ui_publicServer, "ui_publicServer", "1", CVAR_ARCHIVE },
+
+	{ &ui_arenasFile, "g_arenasFile", "", CVAR_INIT|CVAR_ROM },
+	{ &ui_botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM },
+	{ &ui_spScores1, "g_spScores1", "", CVAR_ARCHIVE },
+	{ &ui_spScores2, "g_spScores2", "", CVAR_ARCHIVE },
+	{ &ui_spScores3, "g_spScores3", "", CVAR_ARCHIVE },
+	{ &ui_spScores4, "g_spScores4", "", CVAR_ARCHIVE },
+	{ &ui_spScores5, "g_spScores5", "", CVAR_ARCHIVE },
+	{ &ui_spAwards, "g_spAwards", "", CVAR_ARCHIVE },
+	{ &ui_spVideos, "g_spVideos", "", CVAR_ARCHIVE },
+	{ &ui_spSkill, "g_spSkill", "2", CVAR_ARCHIVE | CVAR_LATCH },
+
+	{ &ui_spSelection, "ui_spSelection", "", CVAR_ROM },
+
+	{ &ui_browserMaster, "ui_browserMaster", "0", CVAR_ARCHIVE },
+	{ &ui_browserGameType, "ui_browserGameType", "0", CVAR_ARCHIVE },
+	{ &ui_browserSortKey, "ui_browserSortKey", "4", CVAR_ARCHIVE },
+	{ &ui_browserShowFull, "ui_browserShowFull", "1", CVAR_ARCHIVE },
+	{ &ui_browserShowEmpty, "ui_browserShowEmpty", "1", CVAR_ARCHIVE },
+	{ &ui_browserShowBots, "ui_browserShowBots", "1", CVAR_ARCHIVE },
+
+	{ &ui_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE },
+	{ &ui_drawCrosshair, "cg_drawCrosshair", "4", CVAR_ARCHIVE },
+	{ &ui_drawCrosshairNames, "cg_drawCrosshairNames", "0", CVAR_ARCHIVE },
+	{ &ui_marks, "cg_marks", "1", CVAR_ARCHIVE },
+
+	{ &ui_server1, "server1", "", CVAR_ARCHIVE },
+	{ &ui_server2, "server2", "", CVAR_ARCHIVE },
+	{ &ui_server3, "server3", "", CVAR_ARCHIVE },
+	{ &ui_server4, "server4", "", CVAR_ARCHIVE },
+	{ &ui_server5, "server5", "", CVAR_ARCHIVE },
+	{ &ui_server6, "server6", "", CVAR_ARCHIVE },
+	{ &ui_server7, "server7", "", CVAR_ARCHIVE },
+	{ &ui_server8, "server8", "", CVAR_ARCHIVE },
+	{ &ui_server9, "server9", "", CVAR_ARCHIVE },
+	{ &ui_server10, "server10", "", CVAR_ARCHIVE },
+	{ &ui_server11, "server11", "", CVAR_ARCHIVE },
+	{ &ui_server12, "server12", "", CVAR_ARCHIVE },
+	{ &ui_server13, "server13", "", CVAR_ARCHIVE },
+	{ &ui_server14, "server14", "", CVAR_ARCHIVE },
+	{ &ui_server15, "server15", "", CVAR_ARCHIVE },
+	{ &ui_server16, "server16", "", CVAR_ARCHIVE },
+
+	{ &ui_ioq3, "ui_ioq3", "1", CVAR_ROM }
+};
+
+static int cvarTableSize = ARRAY_LEN( cvarTable );
+
 
 /*
 =================
-UI_GetResolutions
-
-Based on ioq3 GraphicsOptions_GetResolutions
-
-Build list of available resolutions and save current resolution index
+UI_RegisterCvars
 =================
 */
-void UI_GetResolutions( void ) {
-	static char resbuf[ MAX_STRING_CHARS ];
-	static char cmdBuf[ MAX_RESOLUTIONS ][ 64 ];
-	static const char *builtinResolutions[ ] =
-	{
-		"320x240",
-		"400x300",
-		"512x384",
-		"640x480",
-		"800x600",
-		"960x720",
-		"1024x768",
-		"1152x864",
-		"1280x1024",
-		"1600x1200",
-		"2048x1536",
-		"856x480",
-		NULL
-	};
-	static char displayRes[64];
-	static char customRes[64];
-	unsigned int i = 0;
-	unsigned int builtin;
-	int currentMode;
-	int customWidth;
-	int customHeight;
+void UI_RegisterCvars( void ) {
+	int			i;
+	cvarTable_t	*cv;
 
-	currentMode = trap_Cvar_VariableIntegerValue( "r_mode" );
-
-	customWidth = trap_Cvar_VariableIntegerValue( "r_customWidth" );
-	customHeight = trap_Cvar_VariableIntegerValue( "r_customHeight" );
-
-	// set to invalid pair, filled in when mode is found in list
-	uis.currentResPair = -1;
-
-	// Add display resolution video mode
-	Com_sprintf( displayRes, sizeof (displayRes), "Auto (%dx%d)", cgs.glconfig.displayWidth, cgs.glconfig.displayHeight );
-	cp_resolution[i].type = CVT_CMD;
-	cp_resolution[i].value = "r_mode -2;";
-	cp_resolution[i].string = displayRes;
-	if ( currentMode == -2 ) {
-		uis.currentResPair = i;
+	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+		trap_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
 	}
-	i++;
-
-	// ZTM: FIXME?: This cvar was added in ioq3, mint-arena can assume it will always be present?
-	Q_strncpyz(resbuf, CG_Cvar_VariableString("r_availableModes"), sizeof(resbuf));
-	if (*resbuf)
-	{
-		char *s = resbuf;
-
-		while ( s && i < MAX_RESOLUTIONS-1 ) {
-			cp_resolution[i].string = s;
-
-			s = strchr(s, ' ');
-			if( s )
-				*s++ = '\0';
-
-			// find built in mode
-			for( builtin = 0; builtinResolutions[ builtin ]; builtin++ )
-			{
-				if( !Q_stricmp( builtinResolutions[ builtin ], cp_resolution[i].string ) )
-					break;
-			}
-
-			if ( builtinResolutions[ builtin ] ) {
-				Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode %d;", builtin );
-
-				cp_resolution[i].type = CVT_CMD;
-				cp_resolution[i].value = cmdBuf[i];
-
-				if ( currentMode == builtin ) {
-					uis.currentResPair = i;
-				}
-			} else {
-				int width = atoi( cp_resolution[i].string );
-				int height = atoi( strchr(cp_resolution[i].string, 'x')+1 );
-
-				Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode -1; r_customwidth %d; r_customheight %d;", width, height );
-
-				cp_resolution[i].type = CVT_CMD;
-				cp_resolution[i].value = cmdBuf[i];
-
-				if ( currentMode != -2 && width == cgs.glconfig.vidWidth && height == cgs.glconfig.vidHeight ) {
-					uis.currentResPair = i;
-				}
-			}
-
-			i++;
-		}
-	} else {
-		// use built in modes
-		for ( builtin = 0; builtinResolutions[builtin]; builtin++ ) {
-			cp_resolution[i].string = builtinResolutions[i];
-
-			Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode %d;", builtin );
-
-			cp_resolution[i].type = CVT_CMD;
-			cp_resolution[i].value = cmdBuf[i];
-
-			if ( currentMode == builtin ) {
-				uis.currentResPair = i;
-			}
-
-			i++;
-		}
-	}
-
-	// Add custom mode option
-	Com_sprintf( cmdBuf[i], sizeof (cmdBuf[i]), "r_mode -1; r_customwidth %d; r_customheight %d;", customWidth, customHeight );
-	Com_sprintf( customRes, sizeof (customRes), "Custom (%dx%d)", customWidth, customHeight );
-	cp_resolution[i].type = CVT_CMD;
-	cp_resolution[i].value = cmdBuf[i];
-	cp_resolution[i].string = customRes;
-	if ( uis.currentResPair < 0 ) {
-		uis.currentResPair = i;
-	}
-	i++;
-
-	cp_resolution[i].type = CVT_NONE;
-	cp_resolution[i].value = NULL;
-	cp_resolution[i].string = NULL;
-
-	//Com_Printf("DEBUG: Num modes: %d, current mode pair %d (%s)\n", i, uis.currentResPair, cp_resolution[uis.currentResPair].string );
 }
 
+/*
+=================
+UI_UpdateCvars
+=================
+*/
+void UI_UpdateCvars( void ) {
+	int			i;
+	cvarTable_t	*cv;
+
+	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
+		trap_Cvar_Update( cv->vmCvar );
+	}
+}

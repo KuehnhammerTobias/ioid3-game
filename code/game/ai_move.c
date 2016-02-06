@@ -1119,7 +1119,7 @@ int BotCheckBarrierJump(bot_movestate_t *ms, vec3_t dir, float speed, qboolean d
 	// get the current speed
 	currentspeed = DotProduct(ms->velocity, hordir);
 
-	VectorMA(ms->origin, (phys_maxbarrier + currentspeed) * 0.28f, hordir, end);
+	VectorMA(ms->origin, (phys_maxbarrier + currentspeed) * 0.27f, hordir, end);
 	VectorCopy(trace.endpos, start);
 	end[2] = trace.endpos[2];
 	//trace from previous trace end pos horizontally in the move direction
@@ -1552,7 +1552,7 @@ bot_moveresult_t BotTravel_BarrierJump(bot_movestate_t *ms, aas_reachability_t *
 	// get the current speed
 	currentspeed = DotProduct(ms->velocity, hordir);
 	//if pretty close to the barrier
-	if (dist < (phys_maxbarrier + currentspeed) * 0.28f)
+	if (dist < (phys_maxbarrier + currentspeed) * 0.27f)
 	{
 		EA_Jump(ms->playernum);
 	} //end if
@@ -1976,7 +1976,6 @@ bot_moveresult_t BotTravel_Jump(bot_movestate_t *ms, aas_reachability_t *reach)
 	VectorSubtract(runstart, reach->start, dir3);
 	dir3[2] = 0;
 	dist3 = VectorNormalize(dir3);
-
 	//if just before the reachability start
 	if ((dist1 + 10 >= dist2 + dist3) || DotProduct(dir1, dir2) < -0.8 || dist2 < 5)
 	{

@@ -1,6 +1,6 @@
 /*
 ===========================================================================
-Copyright (C) 2014 Zack Middleton
+Copyright (C) 1999-2010 id Software LLC, a ZeniMax Media company.
 
 This file is part of Spearmint Source Code.
 
@@ -27,508 +27,656 @@ terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc.,
 Suite 120, Rockville, Maryland 20850 USA.
 ===========================================================================
 */
+//
+#ifndef __UI_LOCAL_H__
+#define __UI_LOCAL_H__
 
 #include "../cgame/cg_local.h"
 #include "../ui/ui_public.h"
 
-/*
+typedef void (*voidfunc_f)(void);
 
-	Assets
+extern vmCvar_t	ui_ffa_fraglimit;
+extern vmCvar_t	ui_ffa_timelimit;
 
-*/
+extern vmCvar_t	ui_tourney_fraglimit;
+extern vmCvar_t	ui_tourney_timelimit;
+
+extern vmCvar_t	ui_team_fraglimit;
+extern vmCvar_t	ui_team_timelimit;
+extern vmCvar_t	ui_team_friendly;
+
+extern vmCvar_t	ui_ctf_capturelimit;
+extern vmCvar_t	ui_ctf_timelimit;
+extern vmCvar_t	ui_ctf_friendly;
 
 #ifdef MISSIONPACK
+extern vmCvar_t	ui_1flag_capturelimit;
+extern vmCvar_t	ui_1flag_timelimit;
+extern vmCvar_t	ui_1flag_friendly;
 
-#define CURSOR_SHADER "ui/assets/3_cursor3"
+extern vmCvar_t	ui_obelisk_capturelimit;
+extern vmCvar_t	ui_obelisk_timelimit;
+extern vmCvar_t	ui_obelisk_friendly;
 
-// ZTM: I'm pretty sure these aren't used...
-//#define CURSOR_SIZE_SHADER "ui/assets/sizecursor"
-//#define CURSOR_SELECT_SHADER "ui/assets/selectcursor"
-
-#define MAIN_MUSIC		"music/sonic1.wav"
-#define ITEM_ACTION_SOUND	"sound/misc/kcaction.wav" // from TA .menu item action scripts
-#define ITEM_FOCUS_SOUND	"sound/misc/menu2.wav" // from TA main.menu itemFocusSound
-#define ITEM_WARN_SOUND	"sound/misc/menu4.wav" // FIXME: what sound for TA? does it use this behavior?
-#define MENU_POP_SOUND	"sound/misc/tim_pump.wav" // from TA main.menu onOpen script
-
-#define MENU_COPYRIGHT "Quake III: Team Arena Copyright 2000 Id Software, Inc. All rights reserved"
-
-//#define Q3UIFONTS // luls
-
-#else
-
-#define CURSOR_SHADER "menu/art/3_cursor2"
-//#define CURSOR_SIZE_SHADER CURSOR_SHADER
-//#define CURSOR_SELECT_SHADER CURSOR_SHADER
-
-//#define MAIN_MUSIC		"music/sonic2.wav" // NOTE: Q3 doesn't actually have menu music
-#define ITEM_ACTION_SOUND	"sound/misc/menu1.wav" // q3_ui: menu_in_sound
-#define ITEM_FOCUS_SOUND	"sound/misc/menu2.wav" // q3_ui: menu_move_sound
-#define ITEM_WARN_SOUND	"sound/misc/menu4.wav" // q3_ui: menu_buzz_sound
-#define MENU_POP_SOUND	"sound/misc/menu3.wav" // q3_ui: menu_out_sound
-
-#define MENU_COPYRIGHT "Quake III Arena(c) 1999-2000, Id Software, Inc.  All Rights Reserved"
-
-#define Q3UIFONTS // use banner and proportional fonts
-
+extern vmCvar_t	ui_harvester_capturelimit;
+extern vmCvar_t	ui_harvester_timelimit;
+extern vmCvar_t	ui_harvester_friendly;
 #endif
 
-// color bar
-#define ART_FX_BASE			"menu/art/fx_base"
-#define ART_FX_BLUE			"menu/art/fx_blue"
-#define ART_FX_CYAN			"menu/art/fx_cyan"
-#define ART_FX_GREEN		"menu/art/fx_grn"
-#define ART_FX_RED			"menu/art/fx_red"
-#define ART_FX_TEAL			"menu/art/fx_teal"
-#define ART_FX_WHITE		"menu/art/fx_white"
-#define ART_FX_YELLOW		"menu/art/fx_yel"
-#define ART_FX_ORANGE		"menu/art/fx_orange"
-#define ART_FX_LIME			"menu/art/fx_lime"
-#define ART_FX_VIVIDGREEN	"menu/art/fx_vividgreen"
-#define ART_FX_LIGHTBLUE	"menu/art/fx_lightblue"
-#define ART_FX_PURPLE		"menu/art/fx_purple"
-#define ART_FX_PINK			"menu/art/fx_pink"
+extern vmCvar_t	ui_publicServer;
 
-#define NUM_COLOR_EFFECTS 13
+extern vmCvar_t	ui_arenasFile;
+extern vmCvar_t	ui_botsFile;
+extern vmCvar_t	ui_spScores1;
+extern vmCvar_t	ui_spScores2;
+extern vmCvar_t	ui_spScores3;
+extern vmCvar_t	ui_spScores4;
+extern vmCvar_t	ui_spScores5;
+extern vmCvar_t	ui_spAwards;
+extern vmCvar_t	ui_spVideos;
+extern vmCvar_t	ui_spSkill;
 
-/*
-	List of Widgets
-*/
-typedef enum {
-	UIW_GENERIC, // text button
-	UIW_BITMAP, // bitmap button
-	UIW_SLIDER,
-	UIW_COLORBAR,
-	UIW_RADIO,
-	UIW_LISTBOX,
+extern vmCvar_t	ui_spSelection;
 
-	UIW_NUM_WIDGETS
-} uiWidgetType_t;
+extern vmCvar_t	ui_browserMaster;
+extern vmCvar_t	ui_browserGameType;
+extern vmCvar_t	ui_browserSortKey;
+extern vmCvar_t	ui_browserShowFull;
+extern vmCvar_t	ui_browserShowEmpty;
+extern vmCvar_t	ui_browserShowBots;
 
-/*
-	List of menus
-*/
-typedef enum {
-	M_NONE,
+extern vmCvar_t	ui_brassTime;
+extern vmCvar_t	ui_drawCrosshair;
+extern vmCvar_t	ui_drawCrosshairNames;
+extern vmCvar_t	ui_marks;
 
-	M_ERROR, // Display com_errorMessage
+extern vmCvar_t	ui_server1;
+extern vmCvar_t	ui_server2;
+extern vmCvar_t	ui_server3;
+extern vmCvar_t	ui_server4;
+extern vmCvar_t	ui_server5;
+extern vmCvar_t	ui_server6;
+extern vmCvar_t	ui_server7;
+extern vmCvar_t	ui_server8;
+extern vmCvar_t	ui_server9;
+extern vmCvar_t	ui_server10;
+extern vmCvar_t	ui_server11;
+extern vmCvar_t	ui_server12;
+extern vmCvar_t	ui_server13;
+extern vmCvar_t	ui_server14;
+extern vmCvar_t	ui_server15;
+extern vmCvar_t	ui_server16;
 
-	M_MAIN,
-	M_SINGLEPLAYER,
-	M_MULTIPLAYER,
-	M_SETUP,
-	M_DEMOS,
-	M_CINEMATICS,
-	M_MODS,
-	M_EXIT, // exit confim dialog
-
-	M_PLAYER,
-	M_CONTROLS,
-	M_SYSTEM,
-	M_GAME_OPTIONS,
-	M_CREDITS,
-	M_DEFAULTS,
-
-	// only referenced by team arena right now
-	M_RULES,
-	M_START_SERVER,
-
-	M_INGAME,
-	M_POSTGAME,
-
-	M_NUM_MENUS
-
-} menuId_t;
+extern vmCvar_t	ui_ioq3;
 
 
-/*
+//
+// ui_qmenu.c
+//
 
-	Menu Info
+#define RCOLUMN_OFFSET			( BIGCHAR_WIDTH )
+#define LCOLUMN_OFFSET			(-BIGCHAR_WIDTH )
 
-*/
+#define SLIDER_RANGE			10
 
-// Menu Item Flags
-#define		MIF_POPMENU		0x0001	// on action, return to previous menu
-#define		MIF_SWAPMENU	0x0002	// on action, change to new menu without adding calling menu to stack
-#define		MIF_SUBMENU		0x0004	// on action, change to new menu (adds previous menu to stack)
-#define		MIF_CALL		0x0008	// on action, call the item's action function with item number
-//#define		MIF_CALLPLAYER	0x0010	// on action, create a menu to select a player (listing Player 1, Player 2, etc) that will call the item's action function with local player number
+#define MAX_MENUDEPTH			8
+#define MAX_MENUITEMS			64
 
-#define		MIF_BIGTEXT		0x0080	// use a larger font for this item
-#define		MIF_NEXTBUTTON	0x0100	// this itemshould have 'next' button graphic and placement. It should be the last item in list, so arrow keys work correct.
-#define		MIF_HEADER		0x0200	// A Team Arena main menu header
-#define		MIF_PANEL		0x0400	// Begin a 'tab' aka 'panel' of a menu
-#define		MIF_BACKBUTTON	0x0800	// automatically set on back button
-#define		MIF_FILELIST	0x1000	// create cvarPairs using file list information in extData
+#define MTYPE_NULL				0
+#define MTYPE_SLIDER			1	
+#define MTYPE_ACTION			2
+#define MTYPE_SPINCONTROL		3
+#define MTYPE_FIELD				4
+#define MTYPE_RADIOBUTTON		5
+#define MTYPE_BITMAP			6	
+#define MTYPE_TEXT				7
+#define MTYPE_SCROLLLIST		8
+#define MTYPE_PTEXT				9
+#define MTYPE_BTEXT				10
 
-//#define		MIF_CVAR		0x1000
-//#define		MIF_CONTROL		0x2000	// y is PC_* (PlayerControl Index)
+#define QMF_BLINK				((unsigned int) 0x00000001)
+#define QMF_SMALLFONT			((unsigned int) 0x00000002)
+#define QMF_LEFT_JUSTIFY		((unsigned int) 0x00000004)
+#define QMF_CENTER_JUSTIFY		((unsigned int) 0x00000008)
+#define QMF_RIGHT_JUSTIFY		((unsigned int) 0x00000010)
+#define QMF_NUMBERSONLY			((unsigned int) 0x00000020)	// edit field is only numbers
+#define QMF_HIGHLIGHT			((unsigned int) 0x00000040)
+#define QMF_HIGHLIGHT_IF_FOCUS	((unsigned int) 0x00000080)	// steady focus
+#define QMF_PULSEIFFOCUS		((unsigned int) 0x00000100)	// pulse if focus
+#define QMF_HASMOUSEFOCUS		((unsigned int) 0x00000200)
+#define QMF_NOONOFFTEXT			((unsigned int) 0x00000400)
+#define QMF_MOUSEONLY			((unsigned int) 0x00000800)	// only mouse input allowed
+#define QMF_HIDDEN				((unsigned int) 0x00001000)	// skips drawing
+#define QMF_GRAYED				((unsigned int) 0x00002000)	// grays and disables
+#define QMF_INACTIVE			((unsigned int) 0x00004000)	// disables any input
+#define QMF_NODEFAULTINIT		((unsigned int) 0x00008000)	// skip default initialization
+#define QMF_OWNERDRAW			((unsigned int) 0x00010000)
+#define QMF_PULSE				((unsigned int) 0x00020000)
+#define QMF_LOWERCASE			((unsigned int) 0x00040000)	// edit field is all lower case
+#define QMF_UPPERCASE			((unsigned int) 0x00080000)	// edit field is all upper case
+#define QMF_SILENT				((unsigned int) 0x00100000)
 
-#define		MIF_SELECTABLE (MIF_SUBMENU|MIF_CALL|MIF_POPMENU|MIF_SWAPMENU|MIF_PANEL)
+// callback notifications
+#define QM_GOTFOCUS				1
+#define QM_LOSTFOCUS			2
+#define QM_ACTIVATED			3
 
-// cvar value type
-typedef enum {
-	CVT_NONE,		// terminates list of cvar value pairs
-	CVT_INT,
-	CVT_FLOAT,
-	CVT_STRING,
-	CVT_CMD			// command string to execute
-} cvarValueType_e;
+typedef struct _tag_menuframework
+{
+	int	cursor;
+	int cursor_prev;
 
-typedef struct {
-	cvarValueType_e	type;
-	const char *value;		// cvar value
-	const char *string;		// display text
-} cvarValuePair_t;
+	int	nitems;
+	void *items[MAX_MENUITEMS];
 
-typedef struct {
-	float min;
-	float max;
-	float stepSize;
-} cvarRange_t;
+	void (*draw) (void);
+	sfxHandle_t (*key) (int key);
 
-typedef struct {
-	int flags;
-	const char *caption;
-	void (*action)(int item); // used for MIF_CALL
-	menuId_t menuid; // used for MIF_SUBMENU and MIF_SWAPMENU
-	const char *extData; // info string containing extra rarely specified data.
-						 // for any: "widget"
-						 // for everything: "x" and "y" (in pixels)
-						 // for file list: "dir", "ext", "empty"
-						 // for list box: "width" (in pixels), "listboxheight" (in number of text lines)
+	qboolean	wrapAround;
+	qboolean	fullscreen;
+	qboolean	showlogo;
+} menuframework_s;
 
-	const char	*cvarName;
-
-	// if cvarPairs is set, item will loop through values and display text from cvarPairs
-	// otherwise if cvarRange, it's treated as a slider (min, max, stepSize)
-	cvarValuePair_t	*cvarPairs;
-	cvarRange_t		*cvarRange;
-
-} menuitem_t;
-
-// Menu Flags
-#define		MF_MAINMENU		0x1		// special main menu handling
-#define		MF_DIALOG		0x2		// draw dialog box with header (the message text) inside the box and items horizonally before it
-#define		MF_NOESCAPE		0x4		// menu must be closed using menu buttons, not escape key
-#define		MF_NOBACK		0x8		// don't add back button, but still allows escape key to pop menu -- seems like poor UI tbh
-#define		MF_POSTGAME		0x10	// hacks for post game menu... draw items horizonally at the bottom of the screen and no background in-game
-
-typedef struct {
-	int			menuFlags;
-	const char	*header;
-	menuitem_t	*items;
-	int			numItems;
-
-} menudef_t;
-
-
-/*
-
-	The Active Data
-
-*/
-
-typedef struct {
-	float x, y, width, height;
-} region_t;
-
-typedef struct {
-	// copied from menuitem_t (although it's generated for back button)
-	int				flags;
-	const char		*caption;
-	void			(*action)(int item);
-	menuId_t		menuid;
-	const char		*cvarName;
-	cvarRange_t		*cvarRange;
-	cvarValuePair_t *cvarPairs;
-
-	// unique
-	region_t		captionPos;
-	region_t		clickPos;	// bbox for slider or same as caption rect
-	//float			x, y, width, height;
-	//float			cvarValue;	// if cvarRange->numPairs > 0 it's an index, otherwise it's the clamped value for slider
-	vmCvar_t		vmCvar;
-	int				cvarPair;
-	int				numPairs;
-	int				bitmapIndex;
-
-	uiWidgetType_t	widgetType;
-#if 0
-	union {
-		struct {
-			qboolean	colorBar;
-		} slider;
-	} widget;
-#endif
-
-} currentMenuItem_t;
-
-#define MAX_MENU_DEPTH	20
-#define MAX_MENU_ITEMS	64
-typedef struct {
-	struct {
-		menuId_t	menu;
-		int			panel;
-		int			selectedItem;
-
-	} stack[MAX_MENU_DEPTH];
-	int			numStacked;
-
-	menuId_t	menu;
-	int			panel;
-	int			selectedItem;
-	int			mouseItem; // item mouse points to. -1 if none.
-	keyNum_t	mouseClickDown; // for click and drag sliders, mouseItem will be set to item
-
-	// info generated from menudef_t
-	currentMenuItem_t	header;
-	currentMenuItem_t	items[MAX_MENU_ITEMS];
-	int numItems;
-
-	// file list information
-	cvarValuePair_t filePairs[1024];
-	int		numFilePairs;
-	char	fileText[4096];
-	int		fileTextLength;
-
-} currentMenu_t;
-
-/*
-
-	Widgets
-
-*/
-
-typedef struct {
-	//void	(*cache)(); // called once at UI load
-	void	(*init)( currentMenuItem_t *item, const char *extData );
-	void	(*draw)( currentMenuItem_t *item, vec4_t color, int style );
-	void	(*mouseAction)( currentMenuItem_t *item );
-
-} uiWidget_t;
-
-extern uiWidget_t ui_widgets[UIW_NUM_WIDGETS];
-
-qboolean UI_ItemIsSlider( currentMenuItem_t *item );
-qboolean UI_ItemIsRadioButton( currentMenuItem_t *item );
-
-
-/*
-
-	Main UI system
-
-*/
-
-typedef struct {
+typedef struct
+{
+	int type;
+	const char *name;
+	int	id;
 	int x, y;
-	qhandle_t shader;
-	qboolean show;
+	int left;
+	int	top;
+	int	right;
+	int	bottom;
+	menuframework_s *parent;
+	int menuPosition;
+	unsigned int flags;
 
-} cursor_t;
+	void (*callback)( void *self, int event );
+	void (*statusbar)( void *self );
+	void (*ownerdraw)( void *self );
+} menucommon_s;
+
+typedef struct
+{
+	menucommon_s	generic;
+	mfield_t		field;
+} menufield_s;
+
+typedef struct 
+{
+	menucommon_s generic;
+
+	float minvalue;
+	float maxvalue;
+	float curvalue;
+
+	float range;
+} menuslider_s;
+
+typedef struct
+{
+	menucommon_s generic;
+
+	int	oldvalue;
+	int curvalue;
+	int	numitems;
+	int	top;
+		
+	const char **itemnames;
+
+	int width;
+	int height;
+	int	columns;
+	int	seperation;
+} menulist_s;
+
+typedef struct
+{
+	menucommon_s generic;
+} menuaction_s;
+
+typedef struct
+{
+	menucommon_s generic;
+	int curvalue;
+} menuradiobutton_s;
+
+typedef struct
+{
+	menucommon_s	generic;
+	char*			focuspic;	
+	char*			errorpic;
+	qhandle_t		shader;
+	qhandle_t		focusshader;
+	int				width;
+	int				height;
+	float*			focuscolor;
+} menubitmap_s;
+
+typedef struct
+{
+	menucommon_s	generic;
+	char*			string;
+	int				style;
+	float*			color;
+} menutext_s;
+
+extern void			Menu_Cache( void );
+extern void			Menu_Focus( menucommon_s *m );
+extern void			Menu_AddItem( menuframework_s *menu, void *item );
+extern void			Menu_AdjustCursor( menuframework_s *menu, int dir );
+extern void			Menu_Draw( menuframework_s *menu );
+extern void			*Menu_ItemAtCursor( menuframework_s *m );
+extern sfxHandle_t	Menu_ActivateItem( menuframework_s *s, menucommon_s* item );
+extern void			Menu_SetCursor( menuframework_s *s, int cursor );
+extern void			Menu_SetCursorToItem( menuframework_s *m, void* ptr );
+extern sfxHandle_t	Menu_DefaultKey( menuframework_s *s, int key );
+extern void			Bitmap_Init( menubitmap_s *b );
+extern void			Bitmap_Draw( menubitmap_s *b );
+extern void			ScrollList_Draw( menulist_s *l );
+extern sfxHandle_t	ScrollList_Key( menulist_s *l, int key );
+extern sfxHandle_t	menu_in_sound;
+extern sfxHandle_t	menu_move_sound;
+extern sfxHandle_t	menu_out_sound;
+extern sfxHandle_t	menu_buzz_sound;
+extern sfxHandle_t	menu_null_sound;
+extern sfxHandle_t	weaponChangeSound;
+extern vec4_t		menu_text_color;
+extern vec4_t		menu_grayed_color;
+extern vec4_t		menu_dark_color;
+extern vec4_t		menu_highlight_color;
+extern vec4_t		menu_red_color;
+extern vec4_t		menu_black_color;
+extern vec4_t		menu_dim_color;
+extern vec4_t		color_black;
+extern vec4_t		color_white;
+extern vec4_t		color_yellow;
+extern vec4_t		color_blue;
+extern vec4_t		color_orange;
+extern vec4_t		color_red;
+extern vec4_t		color_dim;
+extern vec4_t		name_color;
+extern vec4_t		list_color;
+extern vec4_t		listbar_color;
+extern vec4_t		text_color_disabled; 
+extern vec4_t		text_color_normal;
+extern vec4_t		text_color_highlight;
+extern vec4_t		text_banner_color;
+extern vec4_t		text_big_color;
+extern vec4_t		text_small_title_color;
+
+extern char	*ui_medalNames[];
+extern char	*ui_medalPicNames[];
+extern char	*ui_medalSounds[];
+
+//
+// ui_mfield.c
+//
+extern void			MenuField_Init( menufield_s* m );
+extern void			MenuField_Draw( menufield_s *f );
+extern sfxHandle_t	MenuField_Key( menufield_s* m, int* key );
+
+//
+// ui_menu.c
+//
+extern void MainMenu_Cache( void );
+extern void UI_MainMenu(void);
+extern void UI_RegisterCvars( void );
+extern void UI_UpdateCvars( void );
+
+//
+// ui_credits.c
+//
+extern void UI_CreditMenu( void );
+
+//
+// ui_ingame.c
+//
+extern void InGame_Cache( void );
+extern void UI_InGameMenu(void);
+
+//
+// ui_ingame_selectplayer.c
+//
+extern void InSelectPlayer_Cache( void );
+extern void InSelectPlayerMenu( void (*playerfunc)(int), const char *banner, qboolean disableMissingPlayers );
+
+//
+// ui_confirm.c
+//
+extern void ConfirmMenu_Cache( void );
+extern void UI_ConfirmMenu( const char *question, void (*draw)( void ), void (*action)( qboolean result ) );
+extern void UI_ConfirmMenu_Style( const char *question, int style, void (*draw)( void ), void (*action)( qboolean result ) );
+extern void UI_Message( const char **lines );
+
+//
+// ui_setup.c
+//
+extern void UI_SetupMenu_Cache( void );
+extern void UI_SetupMenu(void);
+
+//
+// ui_team.c
+//
+extern void UI_TeamMainMenu( int localPlayerNum );
+extern void TeamMain_Cache( void );
+
+//
+// ui_connect.c
+//
+extern void UI_DrawConnectScreen( qboolean overlay );
+
+//
+// ui_selectplayer.c
+//
+extern void UI_SelectPlayerMenu( void (*playerfunc)(int), const char *banner );
+extern void UI_SelectPlayer_Cache( void );
+
+//
+// ui_controls2.c
+//
+extern void UI_ControlsMenu( int localPlayerNum );
+extern void Controls_Cache( void );
+extern qboolean Controls_WantsBindKeys( void );
+
+//
+// ui_joystick.c
+//
+void UI_JoystickMenu( int localPlayerNum );
+void UI_Joystick_Cache( void );
+
+//
+// ui_demo2.c
+//
+extern void UI_DemosMenu( void );
+extern void Demos_Cache( void );
+
+//
+// ui_cinematics.c
+//
+extern void UI_CinematicsMenu( void );
+extern void UI_CinematicsMenu_f( void );
+extern void UI_CinematicsMenu_Cache( void );
+
+//
+// ui_mods.c
+//
+extern void UI_ModsMenu( void );
+extern void UI_ModsMenu_Cache( void );
+
+//
+// ui_playermodel.c
+//
+extern void UI_PlayerModelMenu( int localPlayerNum );
+extern void PlayerModel_Cache( void );
+
+//
+// ui_playersettings.c
+//
+extern void UI_PlayerSettingsMenu( int localPlayerNum );
+extern void PlayerSettings_Cache( void );
+
+//
+// ui_preferences.c
+//
+extern void UI_PreferencesMenu( void );
+extern void Preferences_Cache( void );
+
+//
+// ui_specifyserver.c
+//
+extern void UI_SpecifyServerMenu( void );
+extern void SpecifyServer_Cache( void );
+
+//
+// ui_servers2.c
+//
+#define MAX_FAVORITESERVERS 16
+
+extern void UI_ArenaServersMenu( void );
+extern void ArenaServers_Cache( void );
+
+//
+// ui_startserver.c
+//
+extern void UI_StartServerMenu( qboolean multiplayer );
+extern void StartServer_Cache( void );
+extern void ServerOptions_Cache( void );
+extern void UI_BotSelectMenu( char *bot );
+extern void UI_BotSelectMenu_Cache( void );
+
+//
+// ui_serverinfo.c
+//
+extern void UI_ServerInfoMenu( void );
+extern void ServerInfo_Cache( void );
+
+//
+// ui_video.c
+//
+extern void UI_GraphicsOptionsMenu( void );
+extern void GraphicsOptions_Cache( void );
+extern void DriverInfo_Cache( void );
+
+//
+// ui_players.c
+//
 
 typedef struct {
-#ifdef Q3UIFONTS
-	fontInfo_t fontProp;
-	fontInfo_t fontPropGlow;
-	fontInfo_t fontPropB;
-#endif
+	// model info
+	qhandle_t		legsModel;
+	lerpFrame_t		legs;
 
-	qhandle_t cursorShader;
-	cursor_t cursors[MAX_SPLITVIEW];
+	qhandle_t		torsoModel;
+	lerpFrame_t		torso;
 
-	qhandle_t itemActionSound;
-	qhandle_t itemFocusSound;
-	qhandle_t itemWarnSound;
-	qhandle_t menuPopSound;
+	qhandle_t		headModel;
 
-	qboolean startedMusic;
+	cgSkin_t		modelSkin;
 
-	int currentResPair; // current index in cp_resolution
+	animation_t		animations[MAX_ANIMATIONS];
 
+	qhandle_t		weaponModel;
+	qhandle_t		barrelModel;
+	qhandle_t		flashModel;
+	vec3_t			flashDlightColor;
+	int				muzzleFlashTime;
+
+	vec3_t			color1;
+	byte			c1RGBA[4];
+
+	// currently in use drawing parms
+	vec3_t			viewAngles;
+	vec3_t			moveAngles;
+	weapon_t		currentWeapon;
+	int				legsAnim;
+	int				torsoAnim;
+
+	// animation vars
+	weapon_t		weapon;
+	weapon_t		lastWeapon;
+	weapon_t		pendingWeapon;
+	int				weaponTimer;
+	int				pendingLegsAnim;
+	int				torsoAnimationTimer;
+
+	int				pendingTorsoAnim;
+	int				legsAnimationTimer;
+
+	qboolean		chat;
+	qboolean		newModel;
+
+	qboolean		barrelSpinning;
+	float			barrelAngle;
+	int				barrelTime;
+
+	int				realWeapon;
+} uiPlayerInfo_t;
+
+void UI_DrawPlayer( float x, float y, float w, float h, uiPlayerInfo_t *pi, int time );
+void UI_PlayerInfo_SetModel( uiPlayerInfo_t *pi, const char *model, const char *headmodel, char *teamName );
+void UI_PlayerInfo_SetInfo( uiPlayerInfo_t *pi, int legsAnim, int torsoAnim, vec3_t viewAngles, vec3_t moveAngles, weapon_t weaponNum, qboolean chat );
+void UI_PlayerInfo_UpdateColor( uiPlayerInfo_t *pi );
+qboolean UI_RegisterPlayerModelname( uiPlayerInfo_t *pi, const char *modelSkinName, const char *headModelSkinName, const char *teamName );
+
+//
+// ui_atoms.c
+//
+typedef struct {
+	int					frametime;
+	int					realtime;
+	int					cursorx;
+	int					cursory;
+	int					menusp;
+	menuframework_s*	activemenu;
+	menuframework_s*	stack[MAX_MENUDEPTH];
+	qboolean			debug;
+	qhandle_t			whiteShader;
+	qhandle_t			menuBackShader;
+	qhandle_t			menuBackNoLogoShader;
+	fontInfo_t			fontProp;
+	fontInfo_t			fontPropGlow;
+	fontInfo_t			fontPropB;
+	qhandle_t			cursor;
+	qhandle_t			rb_on;
+	qhandle_t			rb_off;
+	qboolean			demoversion;
+	qboolean			firstdraw;
+	int					maxSplitView;
 } uiStatic_t;
 
-typedef struct {
-	qhandle_t menuBackground;
-	qhandle_t menuBackgroundNoLogo;
-	qhandle_t connectBackground;
+extern void			UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
+extern void			UI_InitBannerFont( fontInfo_t *font );
+extern void			UI_InitPropFont( fontInfo_t *font, qboolean glow );
+extern void			UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color );
+extern float		UI_ProportionalSizeScale( int style );
+extern void			UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color );
+extern void			UI_DrawProportionalString_AutoWrapped( int x, int ystart, int xmax, int ystep, const char* str, int style, vec4_t color );
+extern int			UI_ProportionalStringWidth( const char* str );
+extern void			UI_DrawString( int x, int y, const char* str, int style, vec4_t color );
+extern void			UI_DrawChar( int x, int y, int ch, int style, vec4_t color );
+extern qboolean 	UI_CursorInRect (int x, int y, int width, int height);
+extern qboolean		UI_IsFullscreen( void );
+extern void			UI_SetActiveMenu( uiMenuCommand_t menu );
+extern void			UI_PushMenu ( menuframework_s *menu );
+extern void			UI_PopMenu (void);
+extern void			UI_ForceMenuOff (void);
+extern void			UI_Refresh( int time );
+extern int			UI_MaxSplitView(void);
+extern qboolean		m_entersound;
+extern uiStatic_t	uis;
 
-#ifdef MISSIONPACK
-	qhandle_t menuBackgroundB;
-	qhandle_t menuBackgroundC;
-	qhandle_t menuBackgroundD;
-	qhandle_t menuBackgroundE;
-	qhandle_t levelShotDetail;
+//
+// ui_spLevel.c
+//
+void UI_SPLevelMenu_Cache( void );
+void UI_SPLevelMenu( void );
+void UI_SPLevelMenu_f( void );
+void UI_SPLevelMenu_ReInit( void );
 
-	qhandle_t gradientBar;
-	qhandle_t lightningShader;
-#else
-	qhandle_t bannerModel;
+//
+// ui_spArena.c
+//
+void UI_SPArena_Start( const char *arenaInfo );
 
-	qhandle_t frameLeft;
-	qhandle_t frameLeftFilled; // player model select menu
-	qhandle_t frameRight;
-#endif
+//
+// ui_spPostgame.c
+//
+void UI_SPPostgameMenu_Cache( void );
+void UI_SPPostgameMenu_f( void );
 
-	qhandle_t sliderBar;
-	qhandle_t sliderButton;
-	qhandle_t sliderButtonSelected;
+//
+// ui_spSkill.c
+//
+void UI_SPSkillMenu( const char *arenaInfo );
+void UI_SPSkillMenu_Cache( void );
 
-	qhandle_t radioButtonOff;
-	qhandle_t radioButtonOn;
+//
+// ui_addbots.c
+//
+void UI_AddBots_Cache( void );
+void UI_AddBotsMenu( void );
 
-	qhandle_t dialogSmallBackground;
-	qhandle_t dialogLargeBackground;
+//
+// ui_removebots.c
+//
+void UI_RemoveBots_Cache( void );
+void UI_RemoveBotsMenu( void );
 
-	qhandle_t fxBasePic;
-	qhandle_t fxPic[NUM_COLOR_EFFECTS];
+//
+// ui_teamorders.c
+//
+extern void UI_TeamOrdersMenu( void );
+extern void UI_TeamOrdersMenu_f( void );
+extern void UI_TeamOrdersMenu_Cache( void );
 
-} uiAssets_t;
+//
+// ui_loadconfig.c
+//
+void UI_LoadConfig_Cache( void );
+void UI_LoadConfigMenu( void );
 
-typedef struct {
-	const char	*text;
+//
+// ui_saveconfig.c
+//
+void UI_SaveConfigMenu_Cache( void );
+void UI_SaveConfigMenu( void );
 
-	// only used for back and next buttons
-	int			horizontalPad;
-	int			verticialPad;
+//
+// ui_display.c
+//
+void UI_DisplayOptionsMenu_Cache( void );
+void UI_DisplayOptionsMenu( void );
 
-	const char	*offName;
-	int			offWidth;
-	int			offHeight;
+//
+// ui_sound.c
+//
+void UI_SoundOptionsMenu_Cache( void );
+void UI_SoundOptionsMenu( void );
 
-	const char	*onName;
-	int			onWidth;
-	int			onHeight;
+//
+// ui_network.c
+//
+void UI_NetworkOptionsMenu_Cache( void );
+void UI_NetworkOptionsMenu( void );
 
-	// filled in at run time
-	qhandle_t	offShader;
-	qhandle_t	onShader;
-} uiBitmap_t;
-
-extern uiStatic_t uis;
-extern uiAssets_t uiAssets;
-extern uiBitmap_t ui_bitmaps[];
-
-// ui_main.c
-#define MAX_RESOLUTIONS	32
-extern cvarValuePair_t cp_resolution[MAX_RESOLUTIONS];
-void UI_GetResolutions( void );
-
-// ui_menus.c
-extern menudef_t ui_menus[M_NUM_MENUS];
-
-// ui_draw.c
-void UI_LoadAssets( void );
-void UI_BuildCurrentMenu( currentMenu_t *current );
-void UI_DrawCurrentMenu( currentMenu_t *current );
-void UI_DrawConnectBackground( void );
-
-// ui_logic.c
+//
+// ui_gameinfo.c
+//
 typedef enum {
-	MACTION_PRESS,
-	MACTION_DRAG,
-	MACTION_RELEASE,
+	AWARD_ACCURACY,
+	AWARD_IMPRESSIVE,
+	AWARD_EXCELLENT,
+	AWARD_GAUNTLET,
+	AWARD_FRAGS,
+	AWARD_PERFECT
+} awardType_t;
 
-} mouseActionState_t;
+const char *UI_GetArenaInfoByNumber( int num );
+const char *UI_GetArenaInfoByMap( const char *map );
+const char *UI_GetSpecialArenaInfo( const char *tag );
+int UI_GetNumArenas( void );
+int UI_GetNumSPArenas( void );
+int UI_GetNumSPTiers( void );
 
-void UI_SetMenu( currentMenu_t *current, menuId_t menu );
-void UI_PushMenu( currentMenu_t *current, menuId_t menu );
-void UI_PopMenu( currentMenu_t *current );
-void UI_MenuAdjustCursor( currentMenu_t *current, int dir );
-void UI_MenuCursorPoint( currentMenu_t *current, int x, int y );
-void UI_MenuAction( currentMenu_t *current, int itemNum, int dir );
-qboolean UI_MenuMouseAction( currentMenu_t *current, int itemNum, int x, int y, mouseActionState_t state );
-qboolean UI_MenuItemChangeValue( currentMenu_t *current, int itemNum, int dir );
-int UI_NumCvarPairs( cvarValuePair_t *cvarPairs );
-void UI_RegisterMenuCvars( currentMenu_t *current );
-void UI_UpdateMenuCvars( currentMenu_t *current );
-void UI_InitFileList( currentMenu_t *current, currentMenuItem_t *item, const char *extData );
+char *UI_GetBotInfoByNumber( int num );
+char *UI_GetBotInfoByName( const char *name );
+int UI_GetNumBots( void );
 
+void UI_GetBestScore( int level, int *score, int *skill );
+void UI_SetBestScore( int level, int score );
+int UI_TierCompleted( int levelWon );
+qboolean UI_ShowTierVideo( int tier );
+qboolean UI_CanShowTierVideo( int tier );
+int  UI_GetCurrentGame( void );
+void UI_NewGame( void );
+void UI_LogAwardData( int award, int data );
+int UI_GetAwardLevel( int award );
 
-// ui_fonts.c
-#ifdef Q3UIFONTS
-void UI_InitBannerFont( fontInfo_t *font );
-int UI_BannerStringWidth( const char* str );
-void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color );
-void UI_InitPropFont( fontInfo_t *font, qboolean glow );
-int UI_ProportionalStringWidth( const char* str );
-float UI_ProportionalSizeScale( int style );
-void UI_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color );
+void UI_SPUnlock_f( void );
+void UI_SPUnlockMedals_f( void );
+
+void UI_InitGameinfo( void );
+
 #endif
-
-/*
-
-thinking about how to handle TA main menu
-
-make the horizontal menus be MIF_INLINEMENU
-store which item to change to when up/down/left/right are pressed.
-
-==========================
-
-thinking about how to handle TA setup menu
-would probably be nice for Q3 as well (especially in wide screen when we for sure have the space any way...)
-
-[1  ]	2
-[   ]	
-[   ]	
-[   ]	
-		[3  ]  [  ]  [  ]
-
-1 = side bar
-2 = menu content
-3 = menu panel select
-
-3 swaps menu
-1 swaps menu and panel
-
-side bar could be a 'container menu', though might be best to reference from the menudef_t
-other wise keeping track of it in the stack and going to a menu directly is harder.
-
-panel could be an inline horizonal menu referenced from the menu
-
-==========================
-
-thinking about how to handle items have display / edit a console variable
-
-most have a list of possible values, others use slider with min and max, or bool ratio button
-
-typedef struct {
-	float	value;
-	char *name;
-} cvarPossValue_t;
-
-char *cvarName; // hmm, or reference vmCvar_t ???
-float value;
-float			min, max; // slider
-cvarPossValue_t *valueNames;
-int				numValueNames;
-
-get range check values from engine? -- would be nice if engine knew bool.
-
-typedef struct {
-	float value;
-	const char *string;
-
-} cvarValuePair_t;
-
-typedef struct {
-	float min, max;
-	qboolean intergal;
-
-	cvarValuePair_t *pairs;
-	int numPairs;
-} cvarRangeInfo_t;
-
-cvarRangeInfo_t *cvarRange;
-
-cvarRangeInfo_t cv_boolRatio = { 0, 1, qtrue, NULL };
-
-vmCvar_t	*cvar;
-float		value;	// used for draw / logic, but might be clamped etc which don't want to go into affect without it actually being changed in menu?
-cvarRangeInfo_t *cvarRange;
-int			index; // index in 
-
-
-
-*/
-

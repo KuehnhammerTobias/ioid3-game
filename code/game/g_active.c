@@ -109,13 +109,13 @@ void P_WorldEffects( gentity_t *ent ) {
 	int			waterlevel;
 
 	if ( ent->player->noclip ) {
-		ent->player->airOutTime = level.time + 30000; // don't need air
+		ent->player->airOutTime = level.time + 30000;	// don't need air
 		return;
 	}
 
 	waterlevel = ent->waterlevel;
 
-	envirosuit = ent->player->ps.powerups[PW_BATTLESUIT] > level.time;
+	envirosuit = ent->player->ps.powerups[PW_REGEN] > level.time;
 
 	//
 	// check for drowning
@@ -181,10 +181,13 @@ G_SetPlayerSound
 ===============
 */
 void G_SetPlayerSound( gentity_t *ent ) {
-
+#ifdef MISSIONPACK
 	if( ent->s.eFlags & EF_TICKING ) {
 		ent->player->ps.loopSound = G_SoundIndex( "sound/weapons/proxmine/wstbtick.wav");
-	} else if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
+	}
+	else
+#endif
+	if (ent->waterlevel && (ent->watertype&(CONTENTS_LAVA|CONTENTS_SLIME)) ) {
 		ent->player->ps.loopSound = level.snd_fry;
 	} else {
 		ent->player->ps.loopSound = 0;
@@ -402,34 +405,35 @@ Actions that happen once a second
 */
 void PlayerTimerActions( gentity_t *ent, int msec ) {
 	gplayer_t	*player;
-	int			maxHealth, regenFactor;
+	int			maxHealth, addHealth;
 
 	player = ent->player;
 	player->timeResidual += msec;
 
 	while ( player->timeResidual >= 1000 ) {
 		player->timeResidual -= 1000;
-
+		maxHealth = 0;
+		addHealth = 0;
 		// regenerate
+		if ( player->ps.powerups[PW_REGEN] ) {
+			maxHealth = player->ps.stats[STAT_MAX_HEALTH];
+			addHealth += 10;
+		}
+#ifdef MISSIONPACK
 		if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			maxHealth = player->ps.stats[STAT_MAX_HEALTH] / 2;
-			regenFactor = 1;
-		} else if ( player->ps.powerups[PW_REGEN] ) {
-			maxHealth = player->ps.stats[STAT_MAX_HEALTH];
-			regenFactor = 2;
-		} else {
-			maxHealth = 0;
-			regenFactor = 0;
+			addHealth += 5;
 		}
+#endif
 		if( maxHealth ) {
 			if ( ent->health < maxHealth ) {
-				ent->health += 20 * regenFactor;
+				ent->health += addHealth * 2;
 				if ( ent->health > maxHealth * 1.1 ) {
 					ent->health = maxHealth * 1.1;
 				}
 				G_AddEvent( ent, EV_POWERUP_REGEN, 0 );
 			} else if ( ent->health < maxHealth * 2) {
-				ent->health += 10 * regenFactor;
+				ent->health += addHealth;
 				if ( ent->health > maxHealth * 2 ) {
 					ent->health = maxHealth * 2;
 				}
@@ -443,11 +447,11 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 		}
 
 		// count down armor when over max
-		if ( player->ps.stats[STAT_ARMOR] > player->ps.stats[STAT_MAX_HEALTH] ) {
+		if ( player->ps.stats[STAT_ARMOR] > player->ps.stats[STAT_MAX_HEALTH] && player->ps.powerups[PW_REGEN] == 0 ) {
 			player->ps.stats[STAT_ARMOR]--;
 		}
 	}
-
+#ifdef MISSIONPACK
 	if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_AMMOREGEN ) {
 		int w, max, inc, t, i;
     int weapList[]={WP_MACHINEGUN,WP_SHOTGUN,WP_GRENADE_LAUNCHER,WP_ROCKET_LAUNCHER,WP_LIGHTNING,WP_RAILGUN,WP_PLASMAGUN,WP_BFG,WP_NAILGUN,WP_PROX_LAUNCHER,WP_CHAINGUN};
@@ -484,6 +488,7 @@ void PlayerTimerActions( gentity_t *ent, int msec ) {
 		  }
     }
 	}
+#endif
 }
 
 /*
@@ -586,15 +591,14 @@ void PlayerEvents( gentity_t *ent, int oldEventSequence ) {
 				ent->health = ent->player->ps.stats[STAT_MAX_HEALTH] + 25;
 				break;
 
-			case HI_KAMIKAZE:
 #ifdef MISSIONPACK
+			case HI_KAMIKAZE:
 				// make sure the invulnerability is off
 				ent->player->invulnerabilityTime = 0;
-#endif
 				// start the kamikze
 				G_StartKamikaze( ent );
 				break;
-#ifdef MISSIONPACK
+
 			case HI_PORTAL:
 				if ( ent->player->portalID ) {
 					DropPortalSource( ent );
@@ -808,9 +812,13 @@ void PlayerThink_real( gentity_t *ent ) {
 	// set speed
 	player->ps.speed = g_speed.value;
 
+#ifdef MISSIONPACK
 	if( BG_ItemForItemNum( player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_SCOUT ) {
-		player->ps.speed *= 1.3;
-	} else if ( player->ps.powerups[PW_HASTE] ) {
+		player->ps.speed *= 1.5;
+	}
+	else
+#endif
+	if ( player->ps.powerups[PW_HASTE] ) {
 		player->ps.speed *= 1.3;
 	}
 
@@ -1082,6 +1090,8 @@ void PlayerEndFrame( gentity_t *ent ) {
 			ent->player->ps.powerups[ i ] = 0;
 		}
 	}
+
+#ifdef MISSIONPACK
 	// set powerup for player animation
 	if( BG_ItemForItemNum( ent->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 		ent->player->ps.powerups[PW_GUARD] = level.time;
@@ -1095,11 +1105,11 @@ void PlayerEndFrame( gentity_t *ent ) {
 	if( BG_ItemForItemNum( ent->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_AMMOREGEN ) {
 		ent->player->ps.powerups[PW_AMMOREGEN] = level.time;
 	}
-#ifdef MISSIONPACK
 	if ( ent->player->invulnerabilityTime > level.time ) {
 		ent->player->ps.powerups[PW_INVULNERABILITY] = level.time;
 	}
 #endif
+
 	// save network bandwidth
 #if 0
 	if ( !g_synchronousClients->integer && ent->player->ps.pm_type == PM_NORMAL ) {

@@ -273,6 +273,8 @@ void CG_CalcVrect (void) {
 		cgs.screenXBias = 0;
 	}
 
+	cgs.screenFakeWidth = cg.viewportWidth / cgs.screenXScale;
+
 	// the intermission should always be full screen
 	if ( !cg.cur_ps || cg.cur_ps->pm_type == PM_INTERMISSION ) {
 		size = 100;
@@ -338,7 +340,9 @@ static void CG_OffsetThirdPersonView( void ) {
 	}
 	AngleVectors( focusAngles, forward, NULL, NULL );
 
-	CG_StepOffset( cg.refdef.vieworg );
+	if ( cg_thirdPersonSmooth[cg.cur_localPlayerNum].integer ) {
+		CG_StepOffset( cg.refdef.vieworg );
+	}
 
 	VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
 
@@ -865,11 +869,7 @@ void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	if ( !sfx )
 		return;
 	// if we are going into the intermission, don't start any voices
-	if ( cg.intermissionStarted ) {
-		return;
-	}
-
-	if ( cg.warmup && cg.warmupCount < 6 ) {
+	if ( cg.intermissionStarted || ( cg.warmup && cg.warmupCount < 6 ) ) {
 		return;
 	}
 
@@ -1097,8 +1097,10 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// add buffered sounds
 	CG_PlayBufferedSounds();
 
+#ifdef MISSIONPACK
 	// play buffered voice chats
 	CG_PlayBufferedVoiceChats();
+#endif
 
 	for (i = 0, cg.viewport = -1; i < CG_MaxSplitView(); i++) {
 		if (!renderPlayerViewport[i]) {

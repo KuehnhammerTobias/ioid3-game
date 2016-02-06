@@ -282,15 +282,15 @@ static void CG_DrawPlayerArmorIcon( rectDef_t *rect, qboolean draw2D ) {
 		return;
 	}
 
-	if ( draw2D ) {
+	if ( draw2D || ( !cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
 		CG_DrawPic( rect->x, rect->y + rect->h/2 + 1, rect->w, rect->h, cgs.media.armorIcon );
-	} else {
+	} else if (cg_draw3dIcons.integer) {
 		VectorClear( angles );
 		origin[0] = 90;
 		origin[1] = 0;
 		origin[2] = -10;
 		angles[YAW] = ( cg.time & 2047 ) * 360 / 2048.0f;
-		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cgs.media.armorModel, NULL, origin, angles, NULL );
+		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cgs.media.armorModel, NULL, origin, angles );
 	}
 }
 
@@ -321,20 +321,20 @@ static void CG_DrawPlayerAmmoIcon( rectDef_t *rect, qboolean draw2D ) {
 
 	cent = &cg_entities[cg.cur_ps->playerNum];
 
-	if ( draw2D ) {
+	if ( draw2D || (!cg_draw3dIcons.integer && cg_drawIcons.integer) ) {
 		qhandle_t	icon;
 		icon = cg_weapons[ cg.cur_lc->predictedPlayerState.weapon ].ammoIcon;
 		if ( icon ) {
 			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, icon );
 		}
-	} else {
+	} else if (cg_draw3dIcons.integer) {
 		if ( cent->currentState.weapon && cg_weapons[ cent->currentState.weapon ].ammoModel ) {
 			VectorClear( angles );
 			origin[0] = 70;
 			origin[1] = 0;
 			origin[2] = 0;
 			angles[YAW] = 90 + 20 * sin( cg.time / 1000.0 );
-			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].ammoModel, NULL, origin, angles, NULL );
+			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, cg_weapons[ cent->currentState.weapon ].ammoModel, NULL, origin, angles );
 		}
 	}
 }
@@ -366,7 +366,7 @@ static void CG_DrawPlayerAmmoValue(rectDef_t *rect, float scale, vec4_t color, q
 }
 
 
-/*
+
 static void CG_DrawPlayerHead(rectDef_t *rect, qboolean draw2D) {
 	vec3_t		angles;
 	float		size, stretch;
@@ -415,7 +415,7 @@ static void CG_DrawPlayerHead(rectDef_t *rect, qboolean draw2D) {
 
 	CG_DrawHead( x, rect->y, rect->w, rect->h, cg.cur_ps->playerNum, angles );
 }
-*/
+
 static void CG_DrawSelectedPlayerHealth( rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	playerInfo_t *pi;
 	int value;
@@ -515,7 +515,7 @@ static void CG_DrawSelectedPlayerStatus( rectDef_t *rect ) {
 	}
 }
 
-/*
+
 static void CG_DrawPlayerStatus( rectDef_t *rect ) {
 	playerInfo_t *pi = &cgs.playerinfo[cg.cur_ps->playerNum];
 	if (pi) {
@@ -523,7 +523,7 @@ static void CG_DrawPlayerStatus( rectDef_t *rect ) {
 		CG_DrawPic( rect->x, rect->y, rect->w, rect->h, h);
 	}
 }
-*/
+
 
 static void CG_DrawSelectedPlayerName( rectDef_t *rect, float scale, vec4_t color, qboolean voice, int textStyle) {
 	playerInfo_t *pi;
@@ -617,7 +617,7 @@ static void CG_DrawPlayerItem( rectDef_t *rect, float scale, qboolean draw2D) {
   		origin[1] = 0;
    		origin[2] = -10;
   		angles[YAW] = ( cg.time & 2047 ) * 360 / 2048.0;
-			CG_Draw3DModel(rect->x, rect->y, rect->w, rect->h, cg_items[ value ].models[0], NULL, origin, angles, NULL );
+			CG_Draw3DModel(rect->x, rect->y, rect->w, rect->h, cg_items[ value ].models[0], NULL, origin, angles );
 		}
 	}
 
@@ -662,30 +662,34 @@ static void CG_DrawSelectedPlayerHead( rectDef_t *rect, qboolean draw2D, qboolea
 	pi = cgs.playerinfo + ((voice) ? cg.cur_lc->currentVoicePlayerNum : sortedTeamPlayers[team][CG_GetSelectedPlayer( cg.cur_localPlayerNum )]);
 
 	if (pi) {
-		cm = pi->headModel;
-		if ( !cm ) {
-			return;
+		if ( cg_draw3dIcons.integer ) {
+			cm = pi->headModel;
+			if ( !cm ) {
+				return;
+			}
+
+			// offset the origin y and z to center the head
+			trap_R_ModelBounds( cm, mins, maxs, 0, 0, 0 );
+
+			origin[2] = -0.5 * ( mins[2] + maxs[2] );
+			origin[1] = 0.5 * ( mins[1] + maxs[1] );
+
+			// calculate distance so the head nearly fills the box
+			// assume heads are taller than wide
+			len = 0.7 * ( maxs[2] - mins[2] );		
+			origin[0] = len / 0.268;	// len / tan( fov/2 )
+
+			// allow per-model tweaking
+			VectorAdd( origin, pi->headOffset, origin );
+
+			angles[PITCH] = 0;
+			angles[YAW] = 180;
+			angles[ROLL] = 0;
+
+			CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, pi->headModel, &pi->modelSkin, origin, angles );
+		} else if ( cg_drawIcons.integer ) {
+			CG_DrawPic( rect->x, rect->y, rect->w, rect->h, pi->modelIcon );
 		}
-
-		// offset the origin y and z to center the head
-		trap_R_ModelBounds( cm, mins, maxs, 0, 0, 0 );
-
-		origin[2] = -0.5 * ( mins[2] + maxs[2] );
-		origin[1] = 0.5 * ( mins[1] + maxs[1] );
-
-		// calculate distance so the head nearly fills the box
-		// assume heads are taller than wide
-		len = 0.7 * ( maxs[2] - mins[2] );		
-		origin[0] = len / 0.268;	// len / tan( fov/2 )
-
-		// allow per-model tweaking
-		VectorAdd( origin, pi->headOffset, origin );
-
-		angles[PITCH] = 0;
-		angles[YAW] = 180;
-		angles[ROLL] = 0;
-
-		CG_Draw3DModel( rect->x, rect->y, rect->w, rect->h, pi->headModel, &pi->modelSkin, origin, angles, NULL );
 
 		// if they are deferred, draw a cross out
 		if ( pi->deferred ) {
@@ -871,7 +875,7 @@ static void CG_HarvesterSkulls(rectDef_t *rect, float scale, vec4_t color, qbool
 	CG_Text_Paint(rect->x + (rect->w - value), rect->y + rect->h, scale, color, num, 0, 0, textStyle);
 
 	if (cg_drawIcons.integer) {
-		if (!force2D) {
+		if (!force2D && cg_draw3dIcons.integer) {
 			VectorClear(angles);
 			origin[0] = 90;
 			origin[1] = 0;
@@ -882,7 +886,7 @@ static void CG_HarvesterSkulls(rectDef_t *rect, float scale, vec4_t color, qbool
 			} else {
 				handle = cgs.media.blueCubeModel;
 			}
-			CG_Draw3DModel( rect->x, rect->y, 35, 35, handle, NULL, origin, angles, NULL );
+			CG_Draw3DModel( rect->x, rect->y, 35, 35, handle, NULL, origin, angles );
 		} else {
 			if( cg.cur_ps->persistant[PERS_TEAM] == TEAM_BLUE ) {
 				handle = cgs.media.redCubeIcon;
@@ -1225,11 +1229,11 @@ qboolean CG_OwnerDrawVisible(int flags) {
 static void CG_DrawPlayerHasFlag(rectDef_t *rect, qboolean force2D) {
 	int adj = (force2D) ? 0 : 2;
 	if( cg.cur_lc->predictedPlayerState.powerups[PW_REDFLAG] ) {
-  	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_RED);
+  	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_RED, force2D);
 	} else if( cg.cur_lc->predictedPlayerState.powerups[PW_BLUEFLAG] ) {
-  	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_BLUE);
+  	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_BLUE, force2D);
 	} else if( cg.cur_lc->predictedPlayerState.powerups[PW_NEUTRALFLAG] ) {
-  	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_FREE);
+  	CG_DrawFlagModel( rect->x + adj, rect->y + adj, rect->w - adj, rect->h - adj, TEAM_FREE, force2D);
 	}
 }
 
@@ -1298,11 +1302,11 @@ const char *CG_GetGameStatusText(void) {
 	}
 	return s;
 }
-/*	
+	
 static void CG_DrawGameStatus(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader, int textStyle ) {
 	CG_Text_Paint(rect->x, rect->y + rect->h, scale, color, CG_GetGameStatusText(), 0, 0, textStyle);
 }
-*/
+
 const char *CG_GameTypeString(void) {
 	return cgs.gametypeName;
 }
@@ -1603,7 +1607,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
     CG_DrawSelectedPlayerPowerup(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
     break;
   case CG_PLAYER_HEAD:
-//    CG_DrawPlayerHead(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
+    CG_DrawPlayerHead(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
     break;
   case CG_PLAYER_ITEM:
     CG_DrawPlayerItem(&rect, scale, ownerDrawFlags & CG_SHOW_2DONLY);
@@ -1666,7 +1670,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 		CG_DrawAreaPowerUp(&rect, align, special, scale, color);
     break;
   case CG_PLAYER_STATUS:
-//    CG_DrawPlayerStatus(&rect);
+    CG_DrawPlayerStatus(&rect);
     break;
   case CG_PLAYER_HASFLAG:
     CG_DrawPlayerHasFlag(&rect, qfalse);
@@ -1687,7 +1691,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
     CG_DrawGameType(&rect, scale, color, shader, textStyle);
     break;
   case CG_GAME_STATUS:
-//    CG_DrawGameStatus(&rect, scale, color, shader, textStyle);
+    CG_DrawGameStatus(&rect, scale, color, shader, textStyle);
 		break;
   case CG_KILLER:
     CG_DrawKiller(&rect, scale, color, shader, textStyle);

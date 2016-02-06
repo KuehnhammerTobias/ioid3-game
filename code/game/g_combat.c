@@ -176,6 +176,7 @@ void TossPlayerGametypeItems(gentity_t *ent) {
 		ent->player->ps.powerups[ j ] = 0;
 	}
 
+#ifdef MISSIONPACK
 	if ( g_gametype.integer == GT_HARVESTER ) {
 		if ( ent->player->ps.tokens > 0 ) {
 			if ( ent->player->sess.sessionTeam == TEAM_RED ) {
@@ -197,8 +198,10 @@ void TossPlayerGametypeItems(gentity_t *ent) {
 			ent->player->ps.tokens = 0;
 		}
 	}
+#endif
 }
 
+#ifdef MISSIONPACK
 
 /*
 =================
@@ -253,6 +256,7 @@ void TossPlayerCubes( gentity_t *self ) {
 	drop->s.team = self->player->sess.sessionTeam;
 }
 
+
 /*
 =================
 TossPlayerPersistantPowerups
@@ -279,6 +283,8 @@ void TossPlayerPersistantPowerups( gentity_t *ent ) {
 	ent->player->ps.stats[STAT_PERSISTANT_POWERUP] = 0;
 	ent->player->persistantPowerup = NULL;
 }
+#endif
+
 
 /*
 ==================
@@ -381,17 +387,18 @@ char	*modNames[] = {
 	"MOD_SUICIDE",
 	"MOD_TARGET_LASER",
 	"MOD_TRIGGER_HURT",
+#ifdef MISSIONPACK
 	"MOD_NAIL",
 	"MOD_CHAINGUN",
 	"MOD_PROXIMITY_MINE",
 	"MOD_KAMIKAZE",
-#ifdef MISSIONPACK
 	"MOD_JUICED",
 #endif
 	"MOD_GRAPPLE",
 	"MOD_SUICIDE_TEAM_CHANGE"
 };
 
+#ifdef MISSIONPACK
 /*
 ==================
 Kamikaze_DeathActivate
@@ -419,6 +426,8 @@ void Kamikaze_DeathTimer( gentity_t *self ) {
 
 	ent->activator = self;
 }
+
+#endif
 
 /*
 ==================
@@ -537,13 +546,13 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	if (self->player && self->player->hook) {
 		Weapon_HookFree(self->player->hook);
 	}
-
+#ifdef MISSIONPACK
 	if ((self->player->ps.eFlags & EF_TICKING) && self->activator) {
 		self->player->ps.eFlags &= ~EF_TICKING;
 		self->activator->think = G_FreeEntity;
 		self->activator->nextthink = level.time;
 	}
-
+#endif
 	self->player->ps.pm_type = PM_DEAD;
 
 	if ( attacker ) {
@@ -639,11 +648,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	}
 
 	TossPlayerItems( self );
+#ifdef MISSIONPACK
 	TossPlayerPersistantPowerups( self );
-
 	if( g_gametype.integer == GT_HARVESTER ) {
 		TossPlayerCubes( self );
 	}
+#endif
 
 	Cmd_Score_f( self );		// show scores
 	// send updated scores to any clients that are following this one,
@@ -700,9 +710,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		// the body can still be gibbed
 		self->die = body_die;
 
+#ifdef MISSIONPACK
 		if (self->s.eFlags & EF_KAMIKAZE) {
 			Kamikaze_DeathTimer( self );
 		}
+#endif
 	}
 
 	// normal death
@@ -914,19 +926,20 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 		return;
 	}
-
+#ifdef MISSIONPACK
 	if( g_gametype.integer == GT_OBELISK && CheckObeliskAttack( targ, attacker ) ) {
 		return;
 	}
+#endif
 	// reduce damage by the attacker's handicap value
 	// unless they are rocket jumping
 	if ( attacker->player && attacker != targ ) {
 		max = attacker->player->ps.stats[STAT_MAX_HEALTH];
-
+#ifdef MISSIONPACK
 		if( BG_ItemForItemNum( attacker->player->ps.stats[STAT_PERSISTANT_POWERUP] )->giTag == PW_GUARD ) {
 			max /= 2;
 		}
-
+#endif
 		damage = damage * max / 100;
 	}
 
@@ -990,13 +1003,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 #ifdef MISSIONPACK
 		if ( mod != MOD_JUICED && targ != attacker && !(dflags & DAMAGE_NO_TEAM_PROTECTION) && OnSameTeam (targ, attacker)  ) {
 #else	
-		if ( targ != attacker && !(dflags & DAMAGE_NO_TEAM_PROTECTION) && OnSameTeam (targ, attacker) ) {
+		if ( targ != attacker && OnSameTeam (targ, attacker)  ) {
 #endif
 			if ( !g_friendlyFire.integer ) {
 				return;
 			}
 		}
-
+#ifdef MISSIONPACK
 		if (mod == MOD_PROXIMITY_MINE) {
 			if (inflictor && inflictor->parent && OnSameTeam(targ, inflictor->parent)) {
 				if ( !g_friendlyFire.integer ) {
@@ -1004,6 +1017,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 				}
 			}
 		}
+#endif
+
 		// check for godmode
 		if ( targ->flags & FL_GODMODE ) {
 			return;
@@ -1065,7 +1080,11 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	}
 
 	// See if it's the player hurting the emeny flag carrier
+#ifdef MISSIONPACK
 	if( g_gametype.integer == GT_CTF || g_gametype.integer == GT_1FCTF ) {
+#else	
+	if( g_gametype.integer == GT_CTF) {
+#endif
 		Team_CheckHurtCarrier(targ, attacker);
 	}
 

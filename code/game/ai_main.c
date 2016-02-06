@@ -365,7 +365,9 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 		if (BotCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F");
 		}
-	} else if (gametype == GT_1FCTF) {
+	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
 		if (Bot1FCTFCarryingFlag(bs)) {
 			strcpy(carrying, "F");
 		}
@@ -376,6 +378,7 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 			else Com_sprintf(carrying, sizeof(carrying), "%2d", bs->inventory[INVENTORY_BLUECUBE]);
 		}
 	}
+#endif
 
 	switch(bs->ltgtype) {
 		case LTG_TEAMHELP:
@@ -1024,6 +1027,7 @@ int BotAI(int playernum, float thinktime) {
 			args[strlen(args)-1] = '\0';
 			BotQueueConsoleMessage(bs->cs, CMS_CHAT, args);
 		}
+#ifdef MISSIONPACK
 		else if (!Q_stricmp(buf, "vchat")) {
 			BotVoiceChatCommand(bs, SAY_ALL, args);
 		}
@@ -1033,6 +1037,7 @@ int BotAI(int playernum, float thinktime) {
 		else if (!Q_stricmp(buf, "vtell")) {
 			BotVoiceChatCommand(bs, SAY_TELL, args);
 		}
+#endif
 		else if (!Q_stricmp(buf, "scores"))
 			{ /*FIXME: parse scores?*/ }
 		else if (!Q_stricmp(buf, "clientLevelShot"))
@@ -1401,7 +1406,10 @@ int BotAILoadMap( int restart ) {
 	return qtrue;
 }
 
+#ifdef MISSIONPACK
 void ProximityMine_Trigger( gentity_t *trigger, gentity_t *other, trace_t *trace );
+#endif
+
 /*
 ==================
 BotAIStartFrame
@@ -1517,6 +1525,7 @@ int BotAIStartFrame(int time) {
 				trap_BotLibUpdateEntity(i, NULL);
 				continue;
 			}
+#ifdef MISSIONPACK
 			// never link prox mine triggers
 			if (ent->s.contents == CONTENTS_TRIGGER) {
 				if (ent->touch == ProximityMine_Trigger) {
@@ -1524,7 +1533,8 @@ int BotAIStartFrame(int time) {
 					continue;
 				}
 			}
-
+#endif
+			//
 			ent->botvalid = qtrue;
 			ent->update_time = trap_AAS_Time() - ent->ltime;
 			ent->ltime = trap_AAS_Time();

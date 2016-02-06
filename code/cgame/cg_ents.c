@@ -472,12 +472,15 @@ static void CG_Item( centity_t *cent ) {
 #endif
 	}
 
+#ifdef MISSIONPACK
 	if ( item->giType == IT_HOLDABLE && item->giTag == HI_KAMIKAZE ) {
 		VectorScale( ent.axis[0], 2, ent.axis[0] );
 		VectorScale( ent.axis[1], 2, ent.axis[1] );
 		VectorScale( ent.axis[2], 2, ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
 	}
+#endif
+
 	// add to refresh list
 	CG_AddRefEntityWithMinLight(&ent);
 
@@ -614,11 +617,17 @@ static void CG_Missile( centity_t *cent ) {
 	ent.hModel = weapon->missileModel;
 	ent.renderfx = RF_NOSHADOW;
 
+#ifdef MISSIONPACK
 	if ( cent->currentState.weapon == WP_PROX_LAUNCHER ) {
 		if (s1->team == TEAM_BLUE) {
 			ent.hModel = cgs.media.blueProxMine;
+			trap_R_AddLightToScene(cent->lerpOrigin, 25, 1.0f, 0.5f, 0.7f, 1.0f, 0 );
+		} else {
+			trap_R_AddLightToScene(cent->lerpOrigin, 25, 1.0f, 1.0f, 0, 0, 0 );
 		}
 	}
+#endif
+
 	// convert direction of travel into axis
 	if ( VectorNormalize2( s1->pos.trDelta, ent.axis[0] ) == 0 ) {
 		ent.axis[0][2] = 1;
@@ -628,10 +637,12 @@ static void CG_Missile( centity_t *cent ) {
 	if ( s1->pos.trType != TR_STATIONARY ) {
 		RotateAroundDirection( ent.axis, cg.time / 4 );
 	} else {
+#ifdef MISSIONPACK
 		if ( s1->weapon == WP_PROX_LAUNCHER ) {
 			AnglesToAxis( cent->lerpAngles, ent.axis );
 		}
 		else
+#endif
 		{
 			RotateAroundDirection( ent.axis, s1->time );
 		}
@@ -923,11 +934,15 @@ CG_TeamBase
 */
 static void CG_TeamBase( centity_t *cent ) {
 	refEntity_t model;
+#ifdef MISSIONPACK
 	vec3_t angles;
 	int t, h;
 	float c;
 
 	if ( cgs.gametype == GT_CTF || cgs.gametype == GT_1FCTF ) {
+#else
+	if ( cgs.gametype == GT_CTF) {
+#endif
 		// show the flag base
 		memset(&model, 0, sizeof(model));
 		model.reType = RT_MODEL;
@@ -944,7 +959,9 @@ static void CG_TeamBase( centity_t *cent ) {
 			model.hModel = cgs.media.neutralFlagBaseModel;
 		}
 		CG_AddRefEntityWithMinLight( &model );
-	} else if ( cgs.gametype == GT_OBELISK ) {
+	}
+#ifdef MISSIONPACK
+	else if ( cgs.gametype == GT_OBELISK ) {
 		// show the obelisk
 		memset(&model, 0, sizeof(model));
 		model.reType = RT_MODEL;
@@ -1060,6 +1077,7 @@ static void CG_TeamBase( centity_t *cent ) {
 		}
 		CG_AddRefEntityWithMinLight( &model );
 	}
+#endif
 }
 
 /*

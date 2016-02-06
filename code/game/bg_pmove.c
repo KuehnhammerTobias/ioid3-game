@@ -487,6 +487,7 @@ static void PM_WaterMove( void ) {
 		PM_WaterJumpMove();
 		return;
 	}
+
 	// jump = head for surface
 	if ( pm->cmd.upmove >= 10 ) {
 		if (pm->ps->velocity[2] > -300) {
@@ -1685,6 +1686,7 @@ static void PM_Weapon( void ) {
 	case WP_GRAPPLING_HOOK:
 		addTime = 400;
 		break;
+#ifdef MISSIONPACK
 	case WP_NAILGUN:
 		addTime = 1000;
 		break;
@@ -1694,6 +1696,7 @@ static void PM_Weapon( void ) {
 	case WP_CHAINGUN:
 		addTime = 30;
 		break;
+#endif
 	}
 
 	if ( pm->ps->powerups[PW_HASTE] ) {
@@ -1716,6 +1719,7 @@ static void PM_Animate( void ) {
 			pm->ps->torsoTimer = TIMER_GESTURE;
 			PM_AddEvent( EV_TAUNT );
 		}
+#ifdef MISSIONPACK
 	} else if ( pm->cmd.buttons & BUTTON_GETFLAG ) {
 		if ( pm->ps->torsoTimer == 0 ) {
 			PM_StartTorsoAnim( TORSO_GETFLAG );
@@ -1746,6 +1750,7 @@ static void PM_Animate( void ) {
 			PM_StartTorsoAnim( TORSO_NEGATIVE );
 			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
 		}
+#endif
 	}
 }
 

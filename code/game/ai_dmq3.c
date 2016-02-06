@@ -64,6 +64,9 @@ Suite 120, Rockville, Maryland 20850 USA.
 #include "syn.h"				//synonyms
 #include "match.h"				//string matching types and vars
 
+// for the voice chats
+#include "../../ui/menudef.h" // sos001205 - for q3_ui also
+
 // from aasfile.h
 #define AREACONTENTS_MOVER				1024
 #define AREACONTENTS_MODELNUMSHIFT		24
@@ -99,10 +102,12 @@ int max_bspmodelindex;			//maximum BSP model index
 //CTF flag goals
 bot_goal_t ctf_redflag;
 bot_goal_t ctf_blueflag;
+#ifdef MISSIONPACK
 bot_goal_t ctf_neutralflag;
 bot_goal_t redobelisk;
 bot_goal_t blueobelisk;
 bot_goal_t neutralobelisk;
+#endif
 
 #define MAX_ALTROUTEGOALS		32
 
@@ -230,9 +235,10 @@ qboolean EntityCarriesFlag(aas_entityinfo_t *entinfo) {
 		return qtrue;
 	if ( entinfo->powerups & ( 1 << PW_BLUEFLAG ) )
 		return qtrue;
+#ifdef MISSIONPACK
 	if ( entinfo->powerups & ( 1 << PW_NEUTRALFLAG ) )
 		return qtrue;
-
+#endif
 	return qfalse;
 }
 
@@ -272,6 +278,7 @@ qboolean EntityHasQuad(aas_entityinfo_t *entinfo) {
 	return qfalse;
 }
 
+#ifdef MISSIONPACK
 /*
 ==================
 EntityHasKamikze
@@ -300,7 +307,7 @@ qboolean EntityCarriesCubes(aas_entityinfo_t *entinfo) {
 		return qtrue;
 	return qfalse;
 }
-
+#endif
 /*
 ==================
 EntityIsInvisible
@@ -317,6 +324,7 @@ qboolean EntityIsInvisible(aas_entityinfo_t *entinfo) {
 		if (EntityCarriesFlag(entinfo)) {
 			return qfalse;
 		}
+#ifdef MISSIONPACK
 		// cubes are always visible
 		if (EntityCarriesCubes(entinfo)) {
 			return qfalse;
@@ -325,12 +333,13 @@ qboolean EntityIsInvisible(aas_entityinfo_t *entinfo) {
 		if (EntityHasKamikaze(entinfo)) {
 			return qfalse;
 		}
+#endif
 		// invisible
 		return qtrue;
 	}
 	return qfalse;
 }
-
+#ifdef MISSIONPACK
 /*
 ==================
 Bot1FCTFCarryingFlag
@@ -355,6 +364,7 @@ int BotHarvesterCarryingCubes(bot_state_t *bs) {
 	if (bs->inventory[INVENTORY_BLUECUBE] > 0) return qtrue;
 	return qfalse;
 }
+#endif
 
 /*
 ==================
@@ -377,6 +387,7 @@ BotSetTeamStatus
 ==================
 */
 void BotSetTeamStatus(bot_state_t *bs) {
+#ifdef MISSIONPACK
 	int teamtask;
 	aas_entityinfo_t entinfo;
 
@@ -431,6 +442,7 @@ void BotSetTeamStatus(bot_state_t *bs) {
 			break;
 	}
 	BotSetUserInfo(bs, "teamtask", va("%d", teamtask));
+#endif
 }
 
 /*
@@ -802,6 +814,7 @@ void BotCTFRetreatGoals(bot_state_t *bs) {
 	}
 }
 
+#ifdef MISSIONPACK
 /*
 ==================
 Bot1FCTFSeekGoals
@@ -1318,6 +1331,7 @@ void BotHarvesterRetreatGoals(bot_state_t *bs) {
 		return;
 	}
 }
+#endif
 
 /*
 ==================
@@ -1329,7 +1343,9 @@ void BotTeamGoals(bot_state_t *bs, int retreat) {
 	if ( retreat ) {
 		if (gametype == GT_CTF) {
 			BotCTFRetreatGoals(bs);
-		} else if (gametype == GT_1FCTF) {
+		}
+#ifdef MISSIONPACK
+		else if (gametype == GT_1FCTF) {
 			Bot1FCTFRetreatGoals(bs);
 		}
 		else if (gametype == GT_OBELISK) {
@@ -1338,12 +1354,15 @@ void BotTeamGoals(bot_state_t *bs, int retreat) {
 		else if (gametype == GT_HARVESTER) {
 			BotHarvesterRetreatGoals(bs);
 		}
+#endif
 	}
 	else {
 		if (gametype == GT_CTF) {
 			//decide what to do in CTF mode
 			BotCTFSeekGoals(bs);
-		} else if (gametype == GT_1FCTF) {
+		}
+#ifdef MISSIONPACK
+		else if (gametype == GT_1FCTF) {
 			Bot1FCTFSeekGoals(bs);
 		}
 		else if (gametype == GT_OBELISK) {
@@ -1352,6 +1371,7 @@ void BotTeamGoals(bot_state_t *bs, int retreat) {
 		else if (gametype == GT_HARVESTER) {
 			BotHarvesterSeekGoals(bs);
 		}
+#endif
 	}
 	// reset the order time which is used to see if
 	// we decided to refuse an order
@@ -1509,10 +1529,16 @@ int BotSynonymContext(bot_state_t *bs) {
 
 	context = CONTEXT_NORMAL|CONTEXT_NEARBYITEM|CONTEXT_NAMES;
 	//
-	if (gametype == GT_CTF || gametype == GT_1FCTF) {
+	if (gametype == GT_CTF
+#ifdef MISSIONPACK
+		|| gametype == GT_1FCTF
+#endif
+		) {
 		if (BotTeam(bs) == TEAM_RED) context |= CONTEXT_CTFREDTEAM;
 		else context |= CONTEXT_CTFBLUETEAM;
-	} else if (gametype == GT_OBELISK) {
+	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_OBELISK) {
 		if (BotTeam(bs) == TEAM_RED) context |= CONTEXT_OBELISKREDTEAM;
 		else context |= CONTEXT_OBELISKBLUETEAM;
 	}
@@ -1520,7 +1546,7 @@ int BotSynonymContext(bot_state_t *bs) {
 		if (BotTeam(bs) == TEAM_RED) context |= CONTEXT_HARVESTERREDTEAM;
 		else context |= CONTEXT_HARVESTERBLUETEAM;
 	}
-
+#endif
 	return context;
 }
 
@@ -1559,7 +1585,7 @@ qboolean BotWantsToWalk(bot_state_t *bs) {
 	if (BotCTFCarryingFlag(bs)) {
 		return qfalse;
 	}
-
+#ifdef MISSIONPACK
 	if (Bot1FCTFCarryingFlag(bs)) {
 		return qfalse;
 	}
@@ -1571,6 +1597,7 @@ qboolean BotWantsToWalk(bot_state_t *bs) {
 	if (bs->inventory[INVENTORY_SCOUT]) {
 		return qfalse;
 	}
+#endif
 	//never walk with the haste powerup
 	if (bs->inventory[INVENTORY_HASTE]) {
 		return qfalse;
@@ -1636,6 +1663,7 @@ BotCheckItemPickup
 ==================
 */
 void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
+#ifdef MISSIONPACK
 	int offence, leader;
 
 	if (gametype <= GT_TEAM)
@@ -1720,6 +1748,7 @@ void BotCheckItemPickup(bot_state_t *bs, int *oldinventory) {
 			bs->teamtaskpreference &= ~TEAMTP_ATTACKER;
 		}
 	}
+#endif
 }
 
 /*
@@ -1744,9 +1773,11 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_PLASMAGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_PLASMAGUN)) != 0;
 	bs->inventory[INVENTORY_BFG10K] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_BFG)) != 0;
 	bs->inventory[INVENTORY_GRAPPLINGHOOK] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_GRAPPLING_HOOK)) != 0;
+#ifdef MISSIONPACK
 	bs->inventory[INVENTORY_NAILGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_NAILGUN)) != 0;;
 	bs->inventory[INVENTORY_PROXLAUNCHER] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_PROX_LAUNCHER)) != 0;;
 	bs->inventory[INVENTORY_CHAINGUN] = (bs->cur_ps.stats[STAT_WEAPONS] & (1 << WP_CHAINGUN)) != 0;;
+#endif
 	//ammo
 	bs->inventory[INVENTORY_SHELLS] = bs->cur_ps.ammo[WP_SHOTGUN];
 	bs->inventory[INVENTORY_BULLETS] = bs->cur_ps.ammo[WP_MACHINEGUN];
@@ -1756,15 +1787,17 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_ROCKETS] = bs->cur_ps.ammo[WP_ROCKET_LAUNCHER];
 	bs->inventory[INVENTORY_SLUGS] = bs->cur_ps.ammo[WP_RAILGUN];
 	bs->inventory[INVENTORY_BFGAMMO] = bs->cur_ps.ammo[WP_BFG];
+#ifdef MISSIONPACK
 	bs->inventory[INVENTORY_NAILS] = bs->cur_ps.ammo[WP_NAILGUN];
 	bs->inventory[INVENTORY_MINES] = bs->cur_ps.ammo[WP_PROX_LAUNCHER];
 	bs->inventory[INVENTORY_BELT] = bs->cur_ps.ammo[WP_CHAINGUN];
+#endif
 	//powerups
 	bs->inventory[INVENTORY_HEALTH] = bs->cur_ps.stats[STAT_HEALTH];
 	bs->inventory[INVENTORY_TELEPORTER] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_TELEPORTER;
 	bs->inventory[INVENTORY_MEDKIT] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_MEDKIT;
-	bs->inventory[INVENTORY_KAMIKAZE] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_KAMIKAZE;
 #ifdef MISSIONPACK
+	bs->inventory[INVENTORY_KAMIKAZE] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_KAMIKAZE;
 	bs->inventory[INVENTORY_PORTAL] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_PORTAL;
 	bs->inventory[INVENTORY_INVULNERABILITY] = bs->cur_ps.stats[STAT_HOLDABLE_ITEM] == MODELINDEX_INVULNERABILITY;
 #endif
@@ -1774,14 +1807,16 @@ void BotUpdateInventory(bot_state_t *bs) {
 	bs->inventory[INVENTORY_INVISIBILITY] = bs->cur_ps.powerups[PW_INVIS] != 0;
 	bs->inventory[INVENTORY_REGEN] = bs->cur_ps.powerups[PW_REGEN] != 0;
 	bs->inventory[INVENTORY_FLIGHT] = bs->cur_ps.powerups[PW_FLIGHT] != 0;
+#ifdef MISSIONPACK
 	bs->inventory[INVENTORY_SCOUT] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_SCOUT;
 	bs->inventory[INVENTORY_GUARD] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_GUARD;
 	bs->inventory[INVENTORY_DOUBLER] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_DOUBLER;
 	bs->inventory[INVENTORY_AMMOREGEN] = bs->cur_ps.stats[STAT_PERSISTANT_POWERUP] == MODELINDEX_AMMOREGEN;
+#endif
 	bs->inventory[INVENTORY_REDFLAG] = bs->cur_ps.powerups[PW_REDFLAG] != 0;
 	bs->inventory[INVENTORY_BLUEFLAG] = bs->cur_ps.powerups[PW_BLUEFLAG] != 0;
+#ifdef MISSIONPACK
 	bs->inventory[INVENTORY_NEUTRALFLAG] = bs->cur_ps.powerups[PW_NEUTRALFLAG] != 0;
-
 	if (BotTeam(bs) == TEAM_RED) {
 		bs->inventory[INVENTORY_REDCUBE] = bs->cur_ps.tokens;
 		bs->inventory[INVENTORY_BLUECUBE] = 0;
@@ -1790,7 +1825,7 @@ void BotUpdateInventory(bot_state_t *bs) {
 		bs->inventory[INVENTORY_REDCUBE] = 0;
 		bs->inventory[INVENTORY_BLUECUBE] = bs->cur_ps.tokens;
 	}
-
+#endif
 	BotCheckItemPickup(bs, oldinventory);
 }
 
@@ -1811,6 +1846,7 @@ void BotUpdateBattleInventory(bot_state_t *bs, int enemy) {
 	//FIXME: add num visible enemies and num visible team mates to the inventory
 }
 
+#ifdef MISSIONPACK
 /*
 ==================
 BotUseKamikaze
@@ -1920,7 +1956,7 @@ void BotUseKamikaze(bot_state_t *bs) {
 		return;
 	}
 }
-#ifdef MISSIONPACK
+
 /*
 ==================
 BotUseInvulnerability
@@ -2038,8 +2074,12 @@ BotBattleUseItems
 void BotBattleUseItems(bot_state_t *bs) {
 	if (bs->inventory[INVENTORY_HEALTH] < 40) {
 		if (bs->inventory[INVENTORY_TELEPORTER] > 0) {
-			if (!BotCTFCarryingFlag(bs) && !Bot1FCTFCarryingFlag(bs)
-				&& !BotHarvesterCarryingCubes(bs)) {
+			if (!BotCTFCarryingFlag(bs)
+#ifdef MISSIONPACK
+				&& !Bot1FCTFCarryingFlag(bs)
+				&& !BotHarvesterCarryingCubes(bs)
+#endif
+				) {
 				EA_Use(bs->playernum);
 			}
 		}
@@ -2049,9 +2089,8 @@ void BotBattleUseItems(bot_state_t *bs) {
 			EA_Use(bs->playernum);
 		}
 	}
-
-	BotUseKamikaze(bs);
 #ifdef MISSIONPACK
+	BotUseKamikaze(bs);
 	BotUseInvulnerability(bs);
 #endif
 }
@@ -2222,7 +2261,9 @@ qboolean BotCanCamp(bot_state_t *bs) {
 	if (!(bs->inventory[INVENTORY_ROCKETLAUNCHER] > 0 && bs->inventory[INVENTORY_ROCKETS] > 10)
 		&& !(bs->inventory[INVENTORY_RAILGUN] > 0 && bs->inventory[INVENTORY_SLUGS] > 10)
 		&& !(bs->inventory[INVENTORY_PLASMAGUN] > 0 && bs->inventory[INVENTORY_CELLS] > 80)
+#ifdef MISSIONPACK
 		&& !(bs->inventory[INVENTORY_CHAINGUN] > 0 && bs->inventory[INVENTORY_BELT] > 80)
+#endif
 		&& !(bs->inventory[INVENTORY_BFG10K] > 0 && bs->inventory[INVENTORY_BFGAMMO] > 10)) {
 		return qfalse;
 	}
@@ -2249,10 +2290,12 @@ qboolean BotAggression(bot_state_t *bs) {
 	if (bs->weaponnum == WP_GRENADE_LAUNCHER) {
 		return qfalse;
 	}
+#ifdef MISSIONPACK
 	// if the bot currently use the proxylauncher.
 	if (bs->weaponnum == WP_PROX_LAUNCHER) {
 		return qfalse;
 	}
+#endif
 	// current enemy.
 	if (bs->enemy >= 0) {
 		BotEntityInfo(bs->enemy, &entinfo);
@@ -2264,10 +2307,12 @@ qboolean BotAggression(bot_state_t *bs) {
 			}
 			// if the bot currently uses the gauntlet too.
 			if (bs->weaponnum == WP_GAUNTLET) {
+#ifdef MISSIONPACK
 				// if attacking an obelisk
 				if (bs->enemy >= MAX_CLIENTS && (bs->enemy == redobelisk.entitynum || bs->enemy == blueobelisk.entitynum)) {
 					return qfalse;
 				}
+#endif
 				// if the enemy is located higher than the bot can jump on.
 				if (bs->inventory[ENEMY_HEIGHT] > 42) {
 					return qfalse;
@@ -2338,6 +2383,7 @@ qboolean BotAggression(bot_state_t *bs) {
 			return qfalse;
 		}
 	}
+#ifdef MISSIONPACK
 	// if the bot has the ammoregen powerup.
 	if (bs->inventory[INVENTORY_AMMOREGEN]) {
 		return qtrue;
@@ -2350,6 +2396,7 @@ qboolean BotAggression(bot_state_t *bs) {
 	if (bs->inventory[INVENTORY_NAILGUN] > 0 && bs->inventory[INVENTORY_NAILS] > 5) {
 		return qtrue;
 	}
+#endif
 	// if the bot can use the shotgun.
 	if (bs->inventory[INVENTORY_SHOTGUN] > 0 && bs->inventory[INVENTORY_SHELLS] > 5) {
 		return qtrue;
@@ -2411,7 +2458,9 @@ int BotWantsToRetreat(bot_state_t *bs) {
 		//always retreat when carrying a CTF flag
 		if (BotCTFCarryingFlag(bs))
 			return qtrue;
-	} else if (gametype == GT_1FCTF) {
+	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
 		//if carrying the flag then always retreat
 		if (Bot1FCTFCarryingFlag(bs))
 			return qtrue;
@@ -2433,14 +2482,16 @@ int BotWantsToRetreat(bot_state_t *bs) {
 		//if carrying cubes then always retreat
 		if (BotHarvesterCarryingCubes(bs)) return qtrue;
 	}
-
+#endif
 	//
 	if (bs->enemy >= 0) {
 		BotEntityInfo(bs->enemy, &entinfo);
 		// if the enemy is carrying a flag
 		if (EntityCarriesFlag(&entinfo)) return qfalse;
+#ifdef MISSIONPACK
 		// if the enemy is carrying cubes
 		if (EntityCarriesCubes(&entinfo)) return qfalse;
+#endif
 	}
 	//if the bot is getting the flag
 	if (bs->ltgtype == LTG_GETFLAG)
@@ -2467,7 +2518,9 @@ int BotWantsToChase(bot_state_t *bs) {
 		BotEntityInfo(bs->enemy, &entinfo);
 		if (EntityCarriesFlag(&entinfo))
 			return qtrue;
-	} else if (gametype == GT_1FCTF) {
+	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
 		//never chase if carrying the flag
 		if (Bot1FCTFCarryingFlag(bs))
 			return qfalse;
@@ -2493,6 +2546,7 @@ int BotWantsToChase(bot_state_t *bs) {
 		// always chase if the enemy is carrying cubes
 		if (EntityCarriesCubes(&entinfo)) return qtrue;
 	}
+#endif
 	//if the bot is getting the flag
 	if (bs->ltgtype == LTG_GETFLAG)
 		return qfalse;
@@ -2545,7 +2599,7 @@ BotHasPersistantPowerupAndWeapon
 ==================
 */
 int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
-
+#ifdef MISSIONPACK
 	// if the bot does not have a persistant powerup
 	if (!bs->inventory[INVENTORY_SCOUT] &&
 		!bs->inventory[INVENTORY_GUARD] &&
@@ -2553,6 +2607,7 @@ int BotHasPersistantPowerupAndWeapon(bot_state_t *bs) {
 		!bs->inventory[INVENTORY_AMMOREGEN] ) {
 		return qfalse;
 	}
+#endif
 	//if the bot is very low on health
 	if (bs->inventory[INVENTORY_HEALTH] < 60) return qfalse;
 	//if the bot is low on health
@@ -3097,10 +3152,12 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		if (EntityCarriesFlag(&curenemyinfo) && !BotCTFCarryingFlag(bs)) {
 			return qfalse;
 		}
+#ifdef MISSIONPACK
 		// only concentrate on cube carrier if not carrying cubes
 		if (EntityCarriesCubes(&curenemyinfo) && !BotHarvesterCarryingCubes(bs)) {
 			return qfalse;
 		}
+#endif
 		// looking for revenge
 		if (curenemy == bs->revenge_enemy && bs->revenge_kills > 0) {
 			return qfalse;
@@ -3118,7 +3175,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 	else {
 		cursquaredist = 0;
 	}
-
+#ifdef MISSIONPACK
 	if (gametype == GT_OBELISK) {
 		vec3_t target;
 		bot_goal_t *goal;
@@ -3144,7 +3201,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 			return qtrue;
 		}
 	}
-
+#endif
 	//
 	for (i = 0; i < level.maxplayers; i++) {
 
@@ -3180,7 +3237,11 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		VectorSubtract(entinfo.origin, bs->origin, dir);
 		squaredist = VectorLengthSquared(dir);
 		//if this entity is not carrying a flag or cubes
-		if (!EntityCarriesFlag(&entinfo) && !EntityCarriesCubes(&entinfo))
+		if (!EntityCarriesFlag(&entinfo)
+#ifdef MISSIONPACK
+			&& !EntityCarriesCubes(&entinfo)
+#endif
+			)
 		{
 			//if this enemy is further away than the current one
 			if (curenemy >= 0 && squaredist > cursquaredist) continue;
@@ -3196,7 +3257,11 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		vis = BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, f, i);
 		if (vis <= 0) continue;
 		// if the enemy is quite far away and doesn't have a flag or cubes and the bot is not damaged try to ignore this enemy
-		if (curenemy < 0 && squaredist > Square(100) && !healthdecrease && !EntityCarriesFlag(&entinfo) && !EntityCarriesCubes(&entinfo)) {
+		if (curenemy < 0 && squaredist > Square(100) && !healthdecrease && !EntityCarriesFlag(&entinfo)
+#ifdef MISSIONPACK
+			&& !EntityCarriesCubes(&entinfo)
+#endif
+			) {
 			BotEntityInfo(bs->playernum, &curbotinfo);
 			// if the bot is invisible and want to get the flag, ignore enemies
 			if (EntityIsInvisible(&curbotinfo) && bs->ltgtype == LTG_GETFLAG) {
@@ -3407,7 +3472,7 @@ int BotCountTeamMates(bot_state_t *bs, float range) {
 
 	return teammates;
 }
-
+#ifdef MISSIONPACK
 /*
 ==================
 BotTeamCubeCarrierVisible
@@ -3469,6 +3534,7 @@ int BotEnemyCubeCarrierVisible(bot_state_t *bs) {
 	}
 	return -1;
 }
+#endif
 
 /*
 ==================
@@ -3496,11 +3562,13 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	if (bs->enemy >= MAX_CLIENTS) {
 		//if the obelisk is visible
 		VectorCopy(entinfo.origin, target);
+#ifdef MISSIONPACK
 		// if attacking an obelisk
 		if ( bs->enemy == redobelisk.entitynum ||
 			bs->enemy == blueobelisk.entitynum ) {
 			target[2] += OBELISK_TARGET_HEIGHT;
 		}
+#endif
 		//aim at the obelisk
 		VectorSubtract(target, bs->eye, dir);
 		vectoangles(dir, bs->ideal_viewangles);
@@ -3783,6 +3851,7 @@ void BotCheckAttack(bot_state_t *bs) {
 	BotEntityInfo(attackentity, &entinfo);
 	// if not attacking a player
 	if (attackentity >= MAX_CLIENTS) {
+#ifdef MISSIONPACK
 		// if attacking an obelisk
 		if ( entinfo.number == redobelisk.entitynum ||
 			entinfo.number == blueobelisk.entitynum ) {
@@ -3792,6 +3861,7 @@ void BotCheckAttack(bot_state_t *bs) {
 				return;
 			}
 		}
+#endif
 	}
 	//
 	reactiontime = Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
@@ -4651,7 +4721,7 @@ void BotCheckBlockedTeammates(bot_state_t *bs) {
 	if (BotCTFCarryingFlag(bs)) {
 		return;
 	}
-
+#ifdef MISSIONPACK
 	if (Bot1FCTFCarryingFlag(bs)) {
 		return;
 	}
@@ -4659,6 +4729,7 @@ void BotCheckBlockedTeammates(bot_state_t *bs) {
 	if (BotHarvesterCarryingCubes(bs)) {
 		return;
 	}
+#endif
 	// initialize the movement state
 	BotSetupForMovement(bs);
 
@@ -4691,7 +4762,11 @@ void BotCheckBlockedTeammates(bot_state_t *bs) {
 			mindist = 32;
 		}
 		// teammates with an important item needs even more space, and stay away from dangerous teammates (mined/burning players).
-		if (EntityCarriesFlag(&entinfo) || EntityCarriesCubes(&entinfo) || bs->inventory[INVENTORY_SCOUT] || ( entinfo.flags & EF_TICKING )) {
+		if (EntityCarriesFlag(&entinfo)
+#ifdef MISSIONPACK
+		 || EntityCarriesCubes(&entinfo) || bs->inventory[INVENTORY_SCOUT] || ( entinfo.flags & EF_TICKING )
+#endif
+		 ) {
 			mindist = 128;
 			speed = 400;
 		}
@@ -5077,6 +5152,7 @@ void BotCheckForGrenades(bot_state_t *bs, entityState_t *state) {
 	BotAddAvoidSpot(bs->ms, state->pos.trBase, 160, AVOID_ALWAYS);
 }
 
+#ifdef MISSIONPACK
 /*
 ==================
 BotCheckForProxMines
@@ -5119,6 +5195,7 @@ void BotCheckForKamikazeBody(bot_state_t *bs, entityState_t *state) {
 	//remember this kamikaze body
 	bs->kamikazebody = state->number;
 }
+#endif
 
 /*
 ==================
@@ -5128,7 +5205,9 @@ BotCheckEvents
 void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 	int event;
 	char buf[128];
+#ifdef MISSIONPACK
 	aas_entityinfo_t entinfo;
+#endif
 
 	//NOTE: this sucks, we're accessing the gentity_t directly
 	//but there's no other fast way to do it right now
@@ -5214,6 +5293,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 				bs->enemysuicide = qtrue;
 			}
 			//
+#ifdef MISSIONPACK			
 			if (gametype == GT_1FCTF) {
 				//
 				BotEntityInfo(target, &entinfo);
@@ -5224,7 +5304,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 					}
 				}
 			}
-
+#endif
 			break;
 		}
 		case EV_GLOBAL_SOUND:
@@ -5246,10 +5326,14 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 				bs->flagstatuschanged = qtrue;
 			}
 			else*/
+#ifdef MISSIONPACK
 			if (!strcmp(buf, "sound/items/kamikazerespawn.wav" )) {
 				//the kamikaze respawned so dont avoid it
 				BotDontAvoid(bs, "Kamikaze");
-			} else if (!strcmp(buf, "sound/items/poweruprespawn.wav")) {
+			}
+			else
+#endif
+				if (!strcmp(buf, "sound/items/poweruprespawn.wav")) {
 				//powerup respawned... go get it
 				BotGoForPowerups(bs);
 			}
@@ -5290,7 +5374,9 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 						bs->flagstatuschanged = qtrue;
 						break; //see BotMatch_CTF
 				}
-			} else if (gametype == GT_1FCTF) {
+			}
+#ifdef MISSIONPACK
+			else if (gametype == GT_1FCTF) {
 				switch(state->eventParm) {
 					case GTS_RED_CAPTURE:
 						bs->neutralflagstatus = 0;
@@ -5320,7 +5406,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state) {
 						break;
 				}
 			}
-
+#endif
 			break;
 		}
 		case EV_PLAYER_TELEPORT_IN:
@@ -5418,10 +5504,13 @@ void BotCheckSnapshot(bot_state_t *bs) {
 		BotCheckEvents(bs, &state);
 		//check for grenades the bot should avoid
 		BotCheckForGrenades(bs, &state);
+		//
+#ifdef MISSIONPACK
 		//check for proximity mines which the bot should deactivate
 		BotCheckForProxMines(bs, &state);
 		//check for dead bodies with the kamikaze effect which should be gibbed
 		BotCheckForKamikazeBody(bs, &state);
+#endif
 	}
 	//check the player state for events
 	BotAI_GetEntityState(bs->playernum, &state);
@@ -5459,7 +5548,7 @@ BotCheckAir
 ==================
 */
 void BotCheckAir(bot_state_t *bs) {
-	if (bs->inventory[INVENTORY_ENVIRONMENTSUIT] <= 0) {
+	if (bs->inventory[INVENTORY_REGEN] <= 0) {
 		if (trap_AAS_PointContents(bs->eye) & (CONTENTS_WATER|CONTENTS_SLIME|CONTENTS_LAVA)) {
 			return;
 		}
@@ -5538,7 +5627,7 @@ void BotSetupAlternativeRouteGoals(void) {
 
 	if (altroutegoals_setup)
 		return;
-
+#ifdef MISSIONPACK
 	if (gametype == GT_CTF) {
 		if (BotGetLevelItemGoal(-1, "Neutral Flag", &ctf_neutralflag) < 0)
 			BotAI_Print(PRT_WARNING, "No alt routes without Neutral Flag\n");
@@ -5607,7 +5696,7 @@ void BotSetupAlternativeRouteGoals(void) {
 									ALTROUTEGOAL_CLUSTERPORTALS|
 									ALTROUTEGOAL_VIEWPORTALS);
 	}
-
+#endif
 	altroutegoals_setup = qtrue;
 }
 
@@ -5812,7 +5901,9 @@ void BotSetupDeathmatchAI(void) {
 			BotAI_Print(PRT_WARNING, "CTF without Red Flag\n");
 		if (BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)
 			BotAI_Print(PRT_WARNING, "CTF without Blue Flag\n");
-	} else if (gametype == GT_1FCTF) {
+	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
 		if (BotGetLevelItemGoal(-1, "Neutral Flag", &ctf_neutralflag) < 0)
 			BotAI_Print(PRT_WARNING, "One Flag CTF without Neutral Flag\n");
 		if (BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
@@ -5839,6 +5930,7 @@ void BotSetupDeathmatchAI(void) {
 			BotAI_Print(PRT_WARNING, "Harvester without Neutral Obelisk\n");
 		BotSetEntityNumForGoal(&neutralobelisk, "team_neutralobelisk");
 	}
+#endif
 
 	max_bspmodelindex = 0;
 	for (ent = trap_AAS_NextBSPEntity(0); ent; ent = trap_AAS_NextBSPEntity(ent)) {

@@ -107,32 +107,34 @@ static void CG_DrawPlayerScore( int y, score_t *score, float *color, float fade,
 	// draw the handicap or bot skill marker (unless player has flag)
 	if ( pi->powerups & ( 1 << PW_NEUTRALFLAG ) ) {
 		if( largeFormat ) {
-			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_FREE);
+			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_FREE, qfalse );
 		}
 		else {
-			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_FREE);
+			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_FREE, qfalse );
 		}
 	} else if ( pi->powerups & ( 1 << PW_REDFLAG ) ) {
 		if( largeFormat ) {
-			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_RED);
+			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_RED, qfalse );
 		}
 		else {
-			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_RED);
+			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_RED, qfalse );
 		}
 	} else if ( pi->powerups & ( 1 << PW_BLUEFLAG ) ) {
 		if( largeFormat ) {
-			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_BLUE);
+			CG_DrawFlagModel( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, TEAM_BLUE, qfalse );
 		}
 		else {
-			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_BLUE);
+			CG_DrawFlagModel( iconx, y, 16, 16, TEAM_BLUE, qfalse );
 		}
 	} else {
 		if ( pi->botSkill > 0 && pi->botSkill <= 5 ) {
-			if( largeFormat ) {
-				CG_DrawPic( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
-			}
-			else {
-				CG_DrawPic( iconx, y, 16, 16, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
+			if ( cg_drawIcons.integer ) {
+				if( largeFormat ) {
+					CG_DrawPic( iconx, y - ( 32 - BIGCHAR_HEIGHT ) / 2, 32, 32, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
+				}
+				else {
+					CG_DrawPic( iconx, y, 16, 16, cgs.media.botSkillShaders[ pi->botSkill - 1 ] );
+				}
 			}
 		} else if ( pi->handicap < 100 ) {
 			Com_sprintf( string, sizeof( string ), "%i", pi->handicap );
@@ -166,6 +168,8 @@ static void CG_DrawPlayerScore( int y, score_t *score, float *color, float fade,
 	else {
 		CG_DrawHead( headx, y, 16, 16, score->playerNum, headAngles );
 	}
+
+#ifdef MISSIONPACK
 	// draw the team task
 	switch ( pi->teamTask ) {
 		case TEAMTASK_OFFENSE:
@@ -192,6 +196,7 @@ static void CG_DrawPlayerScore( int y, score_t *score, float *color, float fade,
 		default:
 			break;
 	}
+#endif
 
 	if (cg.cur_ps) {
 		if (score->playerNum == cg.cur_ps->playerNum) {

@@ -117,10 +117,11 @@ qboolean CheckGauntletAttack( gentity_t *ent ) {
 	} else {
 		s_quadFactor = 1;
 	}
-
+#ifdef MISSIONPACK
 	if( ent->player->persistantPowerup && ent->player->persistantPowerup->item && ent->player->persistantPowerup->item->giTag == PW_DOUBLER ) {
 		s_quadFactor *= 2;
 	}
+#endif
 
 	damage = 50 * s_quadFactor;
 	G_Damage( traceEnt, ent, ent, forward, tr.endpos,
@@ -138,8 +139,10 @@ MACHINEGUN
 ======================================================================
 */
 
+#ifdef MISSIONPACK
 #define CHAINGUN_SPREAD		600
 #define CHAINGUN_DAMAGE		7
+#endif
 #define MACHINEGUN_SPREAD	200
 #define	MACHINEGUN_DAMAGE	7
 #define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
@@ -453,7 +456,7 @@ void weapon_railgun_fire (gentity_t *ent) {
 
 	damage = 100 * s_quadFactor;
 
-	VectorMA (muzzle, 8192, forward, end);
+	VectorMA (muzzle, 100000, forward, end);
 
 	// backward-reconcile the other clients
 	G_DoTimeShiftFor( ent );
@@ -695,6 +698,7 @@ void Weapon_LightningFire( gentity_t *ent ) {
 	}
 }
 
+#ifdef MISSIONPACK
 /*
 ======================================================================
 
@@ -738,6 +742,8 @@ void weapon_proxlauncher_fire (gentity_t *ent) {
 
 //	VectorAdd( m->s.pos.trDelta, ent->player->ps.velocity, m->s.pos.trDelta );	// "real" physics
 }
+
+#endif
 
 //======================================================================
 
@@ -819,17 +825,23 @@ void FireWeapon( gentity_t *ent ) {
 	} else {
 		s_quadFactor = 1;
 	}
-
+#ifdef MISSIONPACK
 	if( ent->player->persistantPowerup && ent->player->persistantPowerup->item && ent->player->persistantPowerup->item->giTag == PW_DOUBLER ) {
 		s_quadFactor *= 2;
 	}
+#endif
+
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	if( ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET ) {
+#ifdef MISSIONPACK
 		if( ent->s.weapon == WP_NAILGUN ) {
 			ent->player->accuracy_shots += NUM_NAILSHOTS;
 		} else {
 			ent->player->accuracy_shots++;
 		}
+#else
+		ent->player->accuracy_shots++;
+#endif
 	}
 
 	// set aiming directions
@@ -873,6 +885,7 @@ void FireWeapon( gentity_t *ent ) {
 	case WP_GRAPPLING_HOOK:
 		Weapon_GrapplingHook_Fire( ent );
 		break;
+#ifdef MISSIONPACK
 	case WP_NAILGUN:
 		Weapon_Nailgun_Fire( ent );
 		break;
@@ -882,11 +895,15 @@ void FireWeapon( gentity_t *ent ) {
 	case WP_CHAINGUN:
 		Bullet_Fire( ent, CHAINGUN_SPREAD, CHAINGUN_DAMAGE, MOD_CHAINGUN );
 		break;
+#endif
 	default:
 // FIXME		G_Error( "Bad ent->s.weapon" );
 		break;
 	}
 }
+
+
+#ifdef MISSIONPACK
 
 /*
 ===============
@@ -1136,3 +1153,4 @@ void G_StartKamikaze( gentity_t *ent ) {
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = GTS_KAMIKAZE;
 }
+#endif

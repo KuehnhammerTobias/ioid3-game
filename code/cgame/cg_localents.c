@@ -611,6 +611,8 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 	}
 }
 
+
+#ifdef MISSIONPACK
 /*
 ====================
 CG_AddKamikaze
@@ -735,7 +737,7 @@ void CG_AddKamikaze( localEntity_t *le ) {
 		CG_AddRefEntityWithMinLight( &shockwave );
 	}
 }
-#ifdef MISSIONPACK
+
 /*
 ===================
 CG_AddInvulnerabilityImpact
@@ -982,10 +984,10 @@ void CG_AddLocalEntities( void ) {
 			CG_BubbleThink( le );
 			break;
 
+#ifdef MISSIONPACK
 		case LE_KAMIKAZE:
 			CG_AddKamikaze( le );
 			break;
-#ifdef MISSIONPACK
 		case LE_INVULIMPACT:
 			CG_AddInvulnerabilityImpact( le );
 			break;

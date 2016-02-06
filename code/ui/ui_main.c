@@ -5340,7 +5340,7 @@ static cvarTable_t		cvarTable[] = {
 
 	{ &ui_tourney_fraglimit, "ui_tourney_fraglimit", "0", CVAR_ARCHIVE },
 	{ &ui_tourney_timelimit, "ui_tourney_timelimit", "15", CVAR_ARCHIVE },
-	{ &ui_timelimit, "timelimit", "15", CVAR_ARCHIVE }, 
+	{ &ui_timelimit, "timelimit", "15", CVAR_ARCHIVE },
 	{ &ui_team_fraglimit, "ui_team_fraglimit", "0", CVAR_ARCHIVE },
 	{ &ui_team_timelimit, "ui_team_timelimit", "15", CVAR_ARCHIVE },
 	{ &ui_team_friendly, "ui_team_friendly",  "1", CVAR_ARCHIVE },

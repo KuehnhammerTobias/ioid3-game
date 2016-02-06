@@ -312,7 +312,7 @@ void CG_LightningBoltBeam( vec3_t start, vec3_t end ) {
 	beam->reType = RT_LIGHTNING;
 	beam->customShader = cgs.media.lightningShader;
 }
-#endif
+
 /*
 ==================
 CG_KamikazeEffect
@@ -387,7 +387,7 @@ void CG_ObeliskPain( vec3_t org ) {
 	trap_S_StartSound ( org, ENTITYNUM_NONE, CHAN_BODY, sfx );
 }
 
-#ifdef MISSIONPACK
+
 /*
 ==================
 CG_InvulnerabilityImpact

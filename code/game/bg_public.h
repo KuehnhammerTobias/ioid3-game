@@ -94,45 +94,12 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define	BODY_SINK_DELAY		5000
 #define	BODY_SINK_TIME		1500
 
+#ifdef MISSIONPACK
 #define OBELISK_TARGET_HEIGHT	56
+#endif
 
 
 #define MAX_DLIGHT_CONFIGSTRINGS 128
-
-#define VOICECHAT_GETFLAG			"getflag"				// command someone to get the flag
-#define VOICECHAT_OFFENSE			"offense"				// command someone to go on offense
-#define VOICECHAT_DEFEND			"defend"				// command someone to go on defense
-#define VOICECHAT_DEFENDFLAG		"defendflag"			// command someone to defend the flag
-#define VOICECHAT_PATROL			"patrol"				// command someone to go on patrol (roam)
-#define VOICECHAT_CAMP				"camp"					// command someone to camp (we don't have sounds for this one)
-#define VOICECHAT_FOLLOWME			"followme"				// command someone to follow you
-#define VOICECHAT_RETURNFLAG		"returnflag"			// command someone to return our flag
-#define VOICECHAT_FOLLOWFLAGCARRIER	"followflagcarrier"		// command someone to follow the flag carrier
-#define VOICECHAT_YES				"yes"					// yes, affirmative, etc.
-#define VOICECHAT_NO				"no"					// no, negative, etc.
-#define VOICECHAT_ONGETFLAG			"ongetflag"				// I'm getting the flag
-#define VOICECHAT_ONOFFENSE			"onoffense"				// I'm on offense
-#define VOICECHAT_ONDEFENSE			"ondefense"				// I'm on defense
-#define VOICECHAT_ONPATROL			"onpatrol"				// I'm on patrol (roaming)
-#define VOICECHAT_ONCAMPING			"oncamp"				// I'm camping somewhere
-#define VOICECHAT_ONFOLLOW			"onfollow"				// I'm following
-#define VOICECHAT_ONFOLLOWCARRIER	"onfollowcarrier"		// I'm following the flag carrier
-#define VOICECHAT_ONRETURNFLAG		"onreturnflag"			// I'm returning our flag
-#define VOICECHAT_INPOSITION		"inposition"			// I'm in position
-#define VOICECHAT_IHAVEFLAG			"ihaveflag"				// I have the flag
-#define VOICECHAT_BASEATTACK		"baseattack"			// the base is under attack
-#define VOICECHAT_ENEMYHASFLAG		"enemyhasflag"			// the enemy has our flag (CTF)
-#define VOICECHAT_STARTLEADER		"startleader"			// I'm the leader
-#define VOICECHAT_STOPLEADER		"stopleader"			// I resign leadership
-#define VOICECHAT_TRASH				"trash"					// lots of trash talk
-#define VOICECHAT_WHOISLEADER		"whoisleader"			// who is the team leader
-#define VOICECHAT_WANTONDEFENSE		"wantondefense"			// I want to be on defense
-#define VOICECHAT_WANTONOFFENSE		"wantonoffense"			// I want to be on offense
-#define VOICECHAT_KILLINSULT		"kill_insult"			// I just killed you
-#define VOICECHAT_TAUNT				"taunt"					// I want to taunt you
-#define VOICECHAT_DEATHINSULT		"death_insult"			// you just killed me
-#define VOICECHAT_KILLGAUNTLET		"kill_gauntlet"			// I just killed you with the gauntlet
-#define VOICECHAT_PRAISE			"praise"				// you did something good
 
 //
 // config strings are a general means of communicating variable length strings
@@ -188,10 +155,11 @@ typedef enum {
 
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
+#ifdef MISSIONPACK
 	GT_1FCTF,
 	GT_OBELISK,
 	GT_HARVESTER,
-
+#endif
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
@@ -556,7 +524,9 @@ typedef enum {
 	STAT_ARMOR,				
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
 	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
+//#ifdef MISSIONPACK
 	STAT_PERSISTANT_POWERUP
+//#endif
 } statIndex_t;
 
 
@@ -586,7 +556,9 @@ typedef enum {
 
 // entityState_t->eFlags
 #define	EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
+#ifdef MISSIONPACK
 #define EF_TICKING			0x00000002		// used to make players play the prox mine ticking sound
+#endif
 #define	EF_TELEPORT_BIT		0x00000004		// toggled every time the origin abruptly changes
 //							0x00000008
 #define EF_PLAYER_EVENT		0x00000010
@@ -660,9 +632,11 @@ typedef enum {
 	WP_PLASMAGUN,
 	WP_BFG,
 	WP_GRAPPLING_HOOK,
+#ifdef MISSIONPACK
 	WP_NAILGUN,
 	WP_PROX_LAUNCHER,
 	WP_CHAINGUN,
+#endif
 
 	WP_NUM_WEAPONS
 } weapon_t;
@@ -770,6 +744,7 @@ typedef enum {
 
 	EV_SCOREPLUM,			// score plum
 
+//#ifdef MISSIONPACK
 	EV_PROXIMITY_MINE_STICK,
 	EV_PROXIMITY_MINE_TRIGGER,
 	EV_KAMIKAZE,			// kamikaze explodes
@@ -778,6 +753,7 @@ typedef enum {
 	EV_INVUL_IMPACT,		// invulnerability sphere impact
 	EV_JUICED,				// invulnerability juiced effect
 	EV_LIGHTNINGBOLT,		// lightning bolt bounced of invulnerability sphere
+//#endif
 
 	EV_DEBUG_LINE,
 	EV_STOPLOOPINGSOUND,
@@ -1004,11 +980,11 @@ typedef enum {
 	MOD_SUICIDE,
 	MOD_TARGET_LASER,
 	MOD_TRIGGER_HURT,
+#ifdef MISSIONPACK
 	MOD_NAIL,
 	MOD_CHAINGUN,
 	MOD_PROXIMITY_MINE,
 	MOD_KAMIKAZE,
-#ifdef MISSIONPACK
 	MOD_JUICED,
 #endif
 	MOD_GRAPPLE,

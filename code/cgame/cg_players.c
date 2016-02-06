@@ -1704,6 +1704,7 @@ static void CG_BreathPuff( int playerNum, qboolean firstPerson, vec3_t origin, v
 	if ( contents & ( CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA ) ) {
 		numPuffs = CG_SpawnBubbles( puffs, origin, 2, (int)( 3 + random() * 5 ) );
 	} else {
+#ifdef MISSIONPACK
 		if ( cg_enableBreath.integer ) {
 			vec3_t up;
 
@@ -1712,6 +1713,7 @@ static void CG_BreathPuff( int playerNum, qboolean firstPerson, vec3_t origin, v
 			puffs[0] = CG_SmokePuff( origin, up, 16, 1, 1, 1, 0.66f, 1500, cg.time, cg.time + 400, LEF_PUFF_DONT_SCALE, cgs.media.shotgunSmokePuffShader );
 			numPuffs = 1;
 		}
+#endif
 	}
 
 	// if first person entity, only draw for specific player in first person
@@ -1777,6 +1779,7 @@ static void CG_AddBreathPuffs( centity_t *cent, refEntity_t *head ) {
 	pi->breathPuffTime = cg.time + 2000;
 }
 
+#ifdef MISSIONPACK
 /*
 ===============
 CG_DustTrail
@@ -1824,6 +1827,8 @@ static void CG_DustTrail( centity_t *cent ) {
 				  0,
 				  cgs.media.dustPuffShader );
 }
+
+#endif
 
 /*
 ===============
@@ -1974,6 +1979,8 @@ static void CG_PlayerFlag( centity_t *cent, const cgSkin_t *skin, refEntity_t *t
 	CG_AddRefEntityWithMinLight( &flag );
 }
 
+
+#ifdef MISSIONPACK
 /*
 ===============
 CG_PlayerTokens
@@ -2041,6 +2048,8 @@ static void CG_PlayerTokens( centity_t *cent, int renderfx ) {
 		VectorCopy(trail->positions[i], origin);
 	}
 }
+#endif
+
 
 /*
 ===============
@@ -2075,7 +2084,6 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.redFlagModel );
 		}
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0f, 1.0f, 0.2f, 0.2f, 0 );
 	}
 
 	// blueflag
@@ -2086,7 +2094,6 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.blueFlagModel );
 		}
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0f, 0.2f, 0.2f, 1.0f, 0 );
 	}
 
 	// neutralflag
@@ -2097,7 +2104,6 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 		else {
 			CG_TrailItem( cent, cgs.media.neutralFlagModel );
 		}
-		trap_R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0f, 1.0f, 1.0f, 1.0f, 0 );
 	}
 
 	// haste leaves smoke trails
@@ -2360,9 +2366,6 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, entityState_t *state ) {
 
 		if ( state->powerups & ( 1 << PW_QUAD ) )
 		{
-			if ( state->team == TEAM_RED )
-				ent->customShader = cgs.media.redQuadShader;
-			else
 				ent->customShader = cgs.media.quadShader;
 			CG_AddRefEntityWithMinLight( ent );
 		}
@@ -2475,13 +2478,13 @@ void CG_Player( centity_t *cent ) {
 	vec3_t			shadowOrigin;
 	float			shadowAlpha;
 	float			bodySinkOffset;
-	refEntity_t		powerup;
-	refEntity_t		skull;
-	float			angle;
-	vec3_t			dir, angles;
 #ifdef MISSIONPACK
+	refEntity_t		skull;
+	refEntity_t		powerup;
 	int				t;
 	float			c;
+	float			angle;
+	vec3_t			dir, angles;
 #endif
 
 	// the player number is stored in playerNum.  It can't be derived
@@ -2506,7 +2509,10 @@ void CG_Player( centity_t *cent ) {
 	// get the player model information
 	renderfx = 0;
 	if ( cent->currentState.number == cg.cur_ps->playerNum) {
-		CG_StepOffset( cent->lerpOrigin );
+		// ZTM: FIXME: using CG_StepOffset, if player runs up steep stairs they are drawn deep in stairs/floor
+		if ( cg_thirdPersonSmooth[cg.cur_localPlayerNum].integer ) {
+			CG_StepOffset( cent->lerpOrigin );
+		}
 
 		if (!cg.cur_lc->renderingThirdPerson) {
 			renderfx = RF_ONLY_MIRROR;
@@ -2567,10 +2573,11 @@ void CG_Player( centity_t *cent ) {
 		renderfx |= RF_SHADOW_PLANE;
 	}
 	renderfx |= RF_LIGHTING_ORIGIN;			// use the same origin for all
-
+#ifdef MISSIONPACK
 	if( cgs.gametype == GT_HARVESTER ) {
 		CG_PlayerTokens( cent, renderfx );
 	}
+#endif
 	//
 	// add the legs
 	//
@@ -2617,6 +2624,7 @@ void CG_Player( centity_t *cent ) {
 	// add the talk baloon or disconnect icon
 	CG_PlayerSprites( cent, &torso );
 
+#ifdef MISSIONPACK
 	if ( cent->currentState.eFlags & EF_KAMIKAZE ) {
 
 		memset( &skull, 0, sizeof(skull) );
@@ -2758,7 +2766,6 @@ void CG_Player( centity_t *cent ) {
 		powerup.customSkin = 0;
 		CG_AddRefEntityWithMinLight( &powerup );
 	}
-#ifdef MISSIONPACK
 	if ( cent->currentState.powerups & ( 1 << PW_INVULNERABILITY ) ) {
 		if ( !pi->invulnerabilityStartTime ) {
 			pi->invulnerabilityStartTime = cg.time;
@@ -2843,7 +2850,10 @@ void CG_Player( centity_t *cent ) {
 
 	CG_AddBreathPuffs( cent, &head );
 
+#ifdef MISSIONPACK
 	CG_DustTrail(cent);
+#endif
+
 	//
 	// add the gun / barrel / flash
 	//

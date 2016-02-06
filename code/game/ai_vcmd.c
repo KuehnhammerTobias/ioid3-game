@@ -64,6 +64,10 @@ Suite 120, Rockville, Maryland 20850 USA.
 #include "syn.h"				//synonyms
 #include "match.h"				//string matching types and vars
 
+// for the voice chats
+#include "../../ui/menudef.h"
+
+
 typedef struct voiceCommand_s
 {
 	char *cmd;
@@ -80,10 +84,14 @@ void BotVoiceChat_GetFlag(bot_state_t *bs, int playernum, int mode) {
 	if (gametype == GT_CTF) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
-	} else if (gametype == GT_1FCTF) {
+	}
+#ifdef MISSIONPACK
+	else if (gametype == GT_1FCTF) {
 		if (!ctf_neutralflag.areanum || !ctf_redflag.areanum || !ctf_blueflag.areanum)
 			return;
-	} else {
+	}
+#endif
+	else {
 		return;
 	}
 	//
@@ -114,11 +122,15 @@ BotVoiceChat_Offense
 ==================
 */
 void BotVoiceChat_Offense(bot_state_t *bs, int playernum, int mode) {
-	if ( gametype == GT_CTF || gametype == GT_1FCTF ) {
+	if ( gametype == GT_CTF
+#ifdef MISSIONPACK
+		|| gametype == GT_1FCTF
+#endif
+		) {
 		BotVoiceChat_GetFlag(bs, playernum, mode);
 		return;
 	}
-
+#ifdef MISSIONPACK
 	if (gametype == GT_HARVESTER) {
 		//
 		bs->decisionmaker = playernum;
@@ -137,6 +149,7 @@ void BotVoiceChat_Offense(bot_state_t *bs, int playernum, int mode) {
 		BotRememberLastOrderedTask(bs);
 	}
 	else
+#endif
 	{
 		//
 		bs->decisionmaker = playernum;
@@ -163,7 +176,7 @@ BotVoiceChat_Defend
 ==================
 */
 void BotVoiceChat_Defend(bot_state_t *bs, int playernum, int mode) {
-
+#ifdef MISSIONPACK
 	if ( gametype == GT_OBELISK || gametype == GT_HARVESTER) {
 		//
 		switch(BotTeam(bs)) {
@@ -173,7 +186,12 @@ void BotVoiceChat_Defend(bot_state_t *bs, int playernum, int mode) {
 		}
 	}
 	else
-		if (gametype == GT_CTF || gametype == GT_1FCTF) {
+#endif
+		if (gametype == GT_CTF
+#ifdef MISSIONPACK
+			|| gametype == GT_1FCTF
+#endif
+			) {
 		//
 		switch(BotTeam(bs)) {
 			case TEAM_RED: memcpy(&bs->teamgoal, &ctf_redflag, sizeof(bot_goal_t)); break;
@@ -360,7 +378,12 @@ BotVoiceChat_ReturnFlag
 */
 void BotVoiceChat_ReturnFlag(bot_state_t *bs, int playernum, int mode) {
 	//if not in CTF mode
-	if ( gametype != GT_CTF && gametype != GT_1FCTF ) {
+	if (
+		gametype != GT_CTF
+#ifdef MISSIONPACK
+		&& gametype != GT_1FCTF
+#endif
+		) {
 		return;
 	}
 	//

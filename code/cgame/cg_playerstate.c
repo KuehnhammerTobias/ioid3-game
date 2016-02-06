@@ -60,7 +60,9 @@ void CG_CheckAmmo( void ) {
 		case WP_GRENADE_LAUNCHER:
 		case WP_RAILGUN:
 		case WP_SHOTGUN:
+#ifdef MISSIONPACK
 		case WP_PROX_LAUNCHER:
+#endif
 			total += cg.cur_ps->ammo[i] * 1000;
 			break;
 		default:
@@ -301,7 +303,9 @@ CG_CheckLocalSounds
 ==================
 */
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
+#ifdef MISSIONPACK
 	int			health, armor;
+#endif
 
 	// don't play the sounds if the player just changed teams
 	if ( ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM] ) {
@@ -314,9 +318,9 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	// hit changes
 	if ( cg_hitFeedback.integer ) {
 		if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
+#ifdef MISSIONPACK
 			armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
 			health = ps->persistant[PERS_ATTACKEE_ARMOR] >> 8;
-
 			if (armor > 50 ) {
 				trap_S_StartLocalSound( cgs.media.hitSoundHighArmor, CHAN_LOCAL_SOUND );
 			} else if (armor || health > 100) {
@@ -324,6 +328,9 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 			} else {
 				trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
 			}
+#else
+			trap_S_StartLocalSound( cgs.media.hitSound, CHAN_LOCAL_SOUND );
+#endif
 		} else if ( ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS] ) {
 			trap_S_StartLocalSound( cgs.media.hitTeamSound, CHAN_LOCAL_SOUND );
 		}
@@ -390,27 +397,39 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 	// reward excellent sound
 	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
+#ifdef MISSIONPACK
 		if (ps->persistant[PERS_EXCELLENT_COUNT] == 1) {
 			CG_AddBufferedSound( cgs.media.firstExcellentSound );
 		}
-		// default excellent sound
+
 		CG_AddBufferedSound( cgs.media.excellentSound );
+#else
+		CG_AddBufferedSound( cgs.media.excellentSound );
+#endif
 	}
 	// reward impressive sound
 	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
+#ifdef MISSIONPACK
 		if (ps->persistant[PERS_IMPRESSIVE_COUNT] == 1) {
 			CG_AddBufferedSound( cgs.media.firstImpressiveSound );
 		} else {
 			CG_AddBufferedSound( cgs.media.impressiveSound );
 		}
+#else
+		CG_AddBufferedSound( cgs.media.impressiveSound );
+#endif
 	}
 	// reward gauntlet sound
 	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
+#ifdef MISSIONPACK
 		if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] == 1) {
 			CG_AddBufferedSound( cgs.media.firstHumiliationSound );
 		} else {
 			CG_AddBufferedSound( cgs.media.humiliationSound );
 		}
+#else
+		CG_AddBufferedSound( cgs.media.humiliationSound );
+#endif
 	}
 	// reward defend sound
 	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
@@ -436,6 +455,7 @@ void CG_CheckGameSounds( void ) {
 	if ( cg.intermissionStarted ) {
 		return;
 	}
+
 	// lead changes
 	switch ( cg.bestLeadChange ) {
 		case LEAD_TAKEN:
@@ -450,6 +470,7 @@ void CG_CheckGameSounds( void ) {
 		default:
 			break;
 	}
+
 	// reset lead change
 	cg.bestLeadChange = LEAD_NONE;
 	// fraglimit warnings
@@ -463,10 +484,12 @@ void CG_CheckGameSounds( void ) {
 		if ( !( cg.fraglimitWarnings & 4 ) && highScore == (cgs.fraglimit - 1) ) {
 			cg.fraglimitWarnings |= 1 | 2 | 4;
 			CG_AddBufferedSound(cgs.media.oneFragSound);
-		} else if ( cgs.fraglimit > 2 && !( cg.fraglimitWarnings & 2 ) && highScore == (cgs.fraglimit - 2) ) {
+		}
+		else if ( cgs.fraglimit > 2 && !( cg.fraglimitWarnings & 2 ) && highScore == (cgs.fraglimit - 2) ) {
 			cg.fraglimitWarnings |= 1 | 2;
 			CG_AddBufferedSound(cgs.media.twoFragSound);
-		} else if ( cgs.fraglimit > 3 && !( cg.fraglimitWarnings & 1 ) && highScore == (cgs.fraglimit - 3) ) {
+		}
+		else if ( cgs.fraglimit > 3 && !( cg.fraglimitWarnings & 1 ) && highScore == (cgs.fraglimit - 3) ) {
 			cg.fraglimitWarnings |= 1;
 			CG_AddBufferedSound(cgs.media.threeFragSound);
 		}
@@ -476,14 +499,15 @@ void CG_CheckGameSounds( void ) {
 		int		msec;
 
 		msec = cg.time - cgs.levelStartTime;
-
 		if ( !( cg.timelimitWarnings & 4 ) && msec > ( cgs.timelimit * 60 + 2 ) * 1000 ) {
 			cg.timelimitWarnings |= 1 | 2 | 4;
 			CG_AddBufferedSound( cgs.media.suddenDeathSound );
-		} else if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
+		}
+		else if ( !( cg.timelimitWarnings & 2 ) && msec > (cgs.timelimit - 1) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1 | 2;
 			CG_AddBufferedSound( cgs.media.oneMinuteSound );
-		} else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 ) {
+		}
+		else if ( cgs.timelimit > 5 && !( cg.timelimitWarnings & 1 ) && msec > (cgs.timelimit - 5) * 60 * 1000 ) {
 			cg.timelimitWarnings |= 1;
 			CG_AddBufferedSound( cgs.media.fiveMinuteSound );
 		}

@@ -296,6 +296,7 @@ char *BotWeaponNameForMeansOfDeath(int mod) {
 		case MOD_BFG_SPLASH:
 			weapon = WP_BFG;
 			break;
+#ifdef MISSIONPACK
 		case MOD_NAIL:
 			weapon = WP_NAILGUN;
 			break;
@@ -307,7 +308,6 @@ char *BotWeaponNameForMeansOfDeath(int mod) {
 			break;
 		case MOD_KAMIKAZE:
 			return "Kamikaze";
-#ifdef MISSIONPACK
 		case MOD_JUICED:
 			return "Prox mine";
 #endif
@@ -508,7 +508,9 @@ int BotChat_StartLevel(bot_state_t *bs) {
 	if (bs->lastchat_time > FloatTime() - TIME_BETWEENCHATTING) return qfalse;
 	//don't chat in teamplay
 	if (TeamPlayIsOn()) {
+#ifdef MISSIONPACK
 	    EA_Command(bs->playernum, "vtaunt");
+#endif
 	    return qfalse;
 	}
 	// don't chat in tournament mode
@@ -541,9 +543,11 @@ int BotChat_EndLevel(bot_state_t *bs) {
 	// teamplay
 	if (TeamPlayIsOn()) 
 	{
+#ifdef MISSIONPACK
 		if (BotIsFirstInRankings(bs)) {
 			EA_Command(bs->playernum, "vtaunt");
 		}
+#endif
 		return qtrue;
 	}
 	// don't chat in tournament mode
@@ -620,7 +624,9 @@ int BotChat_Death(bot_state_t *bs) {
 	{
 		//teamplay
 		if (TeamPlayIsOn()) {
+#ifdef MISSIONPACK
 			EA_Command(bs->playernum, "vtaunt");
+#endif
 			return qtrue;
 		}
 		//
@@ -641,8 +647,10 @@ int BotChat_Death(bot_state_t *bs) {
 			BotAI_BotInitialChat(bs, "death_suicide", BotRandomOpponentName(bs), NULL);
 		else if (bs->botdeathtype == MOD_TELEFRAG)
 			BotAI_BotInitialChat(bs, "death_telefrag", name, NULL);
+#ifdef MISSIONPACK
 		else if (bs->botdeathtype == MOD_KAMIKAZE && BotNumInitialChats(bs->cs, "death_kamikaze"))
 			BotAI_BotInitialChat(bs, "death_kamikaze", name, NULL);
+#endif
 		else {
 			if ((bs->botdeathtype == MOD_GAUNTLET ||
 				bs->botdeathtype == MOD_RAILGUN ||
@@ -720,7 +728,9 @@ int BotChat_Kill(bot_state_t *bs) {
 	{
 		//don't chat in teamplay
 		if (TeamPlayIsOn()) {
+#ifdef MISSIONPACK
 			EA_Command(bs->playernum, "vtaunt");
+#endif
 			return qfalse;			// don't wait
 		}
 		//
@@ -733,8 +743,10 @@ int BotChat_Kill(bot_state_t *bs) {
 		else if (bs->enemydeathtype == MOD_TELEFRAG) {
 			BotAI_BotInitialChat(bs, "kill_telefrag", name, NULL);
 		}
+#ifdef MISSIONPACK
 		else if (bs->botdeathtype == MOD_KAMIKAZE && BotNumInitialChats(bs->cs, "kill_kamikaze"))
 			BotAI_BotInitialChat(bs, "kill_kamikaze", name, NULL);
+#endif
 		//choose between insult and praise
 		else if (random() < Characteristic_BFloat(bs->character, CHARACTERISTIC_CHAT_INSULT, 0, 1)) {
 			BotAI_BotInitialChat(bs, "kill_insult", name, NULL);
@@ -941,7 +953,9 @@ int BotChat_Random(bot_state_t *bs) {
 		EasyPlayerName(bs->lastkilledplayer, name, sizeof(name));
 	}
 	if (TeamPlayIsOn()) {
+#ifdef MISSIONPACK
 		EA_Command(bs->playernum, "vtaunt");
+#endif
 		return qfalse;			// don't wait
 	}
 	//

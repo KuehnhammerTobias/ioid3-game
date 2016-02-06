@@ -103,16 +103,16 @@ vmCvar_t	pmove_msec;
 vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
 vmCvar_t	g_singlePlayer;
+#ifdef MISSIONPACK
 vmCvar_t	g_obeliskHealth;
 vmCvar_t	g_obeliskRegenPeriod;
 vmCvar_t	g_obeliskRegenAmount;
 vmCvar_t	g_obeliskRespawnDelay;
 vmCvar_t	g_cubeTimeout;
-#ifdef MISSIONPACK
 vmCvar_t	g_redteam;
 vmCvar_t	g_blueteam;
-#endif
 vmCvar_t	g_proxMineTimeout;
+#endif
 vmCvar_t	g_playerCapsule;
 
 static cvarTable_t		gameCvarTable[] = {
@@ -177,16 +177,18 @@ static cvarTable_t		gameCvarTable[] = {
 
 	{ &g_singlePlayer, "ui_singlePlayerActive", "0", CVAR_SYSTEMINFO | CVAR_ROM, 0, RANGE_ALL },
 
+#ifdef MISSIONPACK
 	{ &g_obeliskHealth, "g_obeliskHealth", "2500", 0, 0, RANGE_ALL },
 	{ &g_obeliskRegenPeriod, "g_obeliskRegenPeriod", "1", 0, 0, RANGE_ALL },
 	{ &g_obeliskRegenAmount, "g_obeliskRegenAmount", "15", 0, 0, RANGE_ALL },
 	{ &g_obeliskRespawnDelay, "g_obeliskRespawnDelay", "10", CVAR_SYSTEMINFO, 0, RANGE_ALL },
+
 	{ &g_cubeTimeout, "g_cubeTimeout", "30", 0, 0, RANGE_ALL },
-#ifdef MISSIONPACK
 	{ &g_redteam, "g_redteam", DEFAULT_REDTEAM_NAME, CVAR_ARCHIVE | CVAR_SYSTEMINFO, GCF_TRACK_CHANGE | GCF_TEAM_SHADER, RANGE_ALL },
 	{ &g_blueteam, "g_blueteam", DEFAULT_BLUETEAM_NAME, CVAR_ARCHIVE | CVAR_SYSTEMINFO, GCF_TRACK_CHANGE | GCF_TEAM_SHADER, RANGE_ALL },
-#endif
+
 	{ &g_proxMineTimeout, "g_proxMineTimeout", "20000", 0, 0, RANGE_ALL },
+#endif
 	{ &g_playerCapsule, "g_playerCapsule", "0", 0, 0, RANGE_BOOL },
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, RANGE_BOOL },
 	{ &pmove_overbounce, "pmove_overbounce", "0", CVAR_SYSTEMINFO, 0, RANGE_BOOL },
@@ -1513,7 +1515,6 @@ can see the last frag.
 void CheckExitRules( void ) {
  	int			i;
 	gplayer_t	*cl;
-
 	qboolean won = qtrue;
 
 	// if at the intermission, wait for all non-bots to
@@ -1772,7 +1773,7 @@ void CheckVote( void ) {
 		if ( level.voteYes > level.numVotingPlayers/2 ) {
 			// execute the command, then remove the vote
 			trap_SendServerCommand( -1, "print \"Vote passed.\n\"" );
-			level.voteExecuteTime = level.time + 3000;
+			level.voteExecuteTime = level.time + 4000;
 		} else if ( level.voteNo >= level.numVotingPlayers/2 ) {
 			// same behavior as a timeout
 			trap_SendServerCommand( -1, "print \"Vote failed.\n\"" );
