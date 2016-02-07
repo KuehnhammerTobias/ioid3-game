@@ -376,10 +376,6 @@ GRENADE LAUNCHER
 void weapon_grenadelauncher_fire (gentity_t *ent) {
 	gentity_t	*m;
 
-	// extra vertical velocity
-	forward[2] += 0.2f;
-	VectorNormalize( forward );
-
 	m = fire_grenade (ent, muzzle, forward);
 	m->damage *= s_quadFactor;
 	m->splashDamage *= s_quadFactor;
@@ -731,10 +727,6 @@ PROXIMITY MINE LAUNCHER
 
 void weapon_proxlauncher_fire (gentity_t *ent) {
 	gentity_t	*m;
-
-	// extra vertical velocity
-	forward[2] += 0.2f;
-	VectorNormalize( forward );
 
 	m = fire_prox (ent, muzzle, forward);
 	m->damage *= s_quadFactor;
