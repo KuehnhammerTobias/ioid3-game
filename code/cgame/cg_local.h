@@ -194,6 +194,9 @@ typedef struct {
 	float			barrelAngle;
 	int				barrelTime;
 	qboolean		barrelSpinning;
+
+	// third person gun flash origin
+	vec3_t			flashOrigin;
 } playerEntity_t;
 
 
@@ -642,6 +645,9 @@ typedef struct {
 	vec3_t		kick_origin;
 
 	qboolean	renderingThirdPerson;		// during deaths, chasecams, etc
+
+	// first person gun flash origin
+	vec3_t		flashOrigin;
 
 	//qboolean cameraMode;		// if rendering from a loaded camera
 
