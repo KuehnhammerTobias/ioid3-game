@@ -3785,7 +3785,73 @@ void BotAimAtEnemy(bot_state_t *bs) {
 			}
 		}
 	}
-	//
+/*
+		(o = botai trace line)
+		(* = projectile travel line)   
+                                                                                        o  <---- topOfArc[2] trace
+                                                                                  o
+                                                                            o
+                                                                       o                *  <---- grenade arc is always below trace!
+                                                                  o   *
+                                                             o *
+                                                        o*
+                                                   o * 
+                                               o *
+                                          o   *
+                                     o     *
+            trace start ---->  o        *
+                                      *
+                             __|__  *
+                           |      *
+                           |     * |
+                           |    *  |
+        projectile start --|-> *   |
+                           |       |
+                           |       |
+                           |       |
+                           |       |
+NOTE: 1. We can't trace a parabola. That's why we trace a bit above the real arc of travel in straight line. If the projectile will hit some overhead ledge, the bot will fire the projectile straight ahead!
+NOTE: 2. wi.proj.gravity, was never set in the botfiles, it MUST be set to make this work properly (an alternate would be to completely do all this without the need of weaponinfo). Without modified botfiles everything works as normally.
+NOTE: 3. wi.proj.gravity is a simple configurable (pseudo)multiplier, this seems to be the fastest way to compute 100% accurate ballistics (e.g: projectile speed 700 -> gravity 0.3, projectile speed 10000 -> gravity 0.04, etc.).
+NOTE: 4. It doesn't really make sense to use DEFAULT_GRAVITY or g_gravity (projectiles are not influenced by g_gravity at all in Q3a).
+NOTE: 5. Although my method of computing the ballistics looks like magic, it is the simplest and fastest way I could think of (correct but slow math: -> https://en.wikipedia.org/wiki/Parabola)
+         Computing the ballistics this way takes configurable projectile speed, configurable projectile gravity, dynamic enemy height and dynamic enemy distance into account.
+NOTE: 6. This code becomes more precise the faster the projectile moves. Grenades are too slow in Q3a, even grandma can throw apples farther! Fix this: average H-Gren.: bolt speed 1300, = ~60 meters. (gravity 0.35)
+
+WARNING 1: Accuracy is nearly 100% even with very fast projectiled weapons (e.g.: speed 20000 etc.), this means bots will always hit their opponents, even with a bow (eventually decrease the bots individual aim_accuracy), otherwise it is very likely you become shot down by an arrow without knowing :)
+WARNING 2: Bots will also throw grenades through windows even from distance, so be careful!
+*/
+	if (wi.proj.gravity > 0) {
+		vec3_t middleOfArc, topOfArc;
+		// direction towards the enemy.
+		VectorSubtract(bestorigin, bs->origin, dir);
+		// distance towards the enemy.
+		dist = VectorNormalize(dir);
+		// get the start point shooting from, for safety sake take overhead ledges into account (so we trace along the highest point of the arc, from start to middle).
+		VectorCopy(bs->origin, start);
+		start[2] += bs->cur_ps.viewheight + 20;
+		// half the distance will be the middle of the projectile arc (highest point the projectile will travel).
+		VectorMA(start, dist * 0.5, dir, middleOfArc);
+		VectorCopy(middleOfArc, topOfArc);
+		topOfArc[2] += (dist * wi.proj.gravity) + (bs->inventory[ENEMY_HEIGHT] > 0 ? bs->inventory[ENEMY_HEIGHT] * 0.1 : 0);
+		// trace from start to middle, check if the projectile will be blocked by something.
+		BotAI_Trace(&trace, start, mins, maxs, topOfArc, entinfo.number, MASK_SHOT);
+		// if the projectile will not be blocked.
+		if (trace.fraction >= 1) {
+			// get the end point (the projectiles impact point), for safety sake take overhead ledges into account (so we trace along the highest point of the arc, from middle to end).
+			VectorCopy(entinfo.origin, end);
+			end[2] += 20;
+			// trace from middle to end, check if the projectile will be blocked by something.
+			BotAI_Trace(&trace, topOfArc, mins, maxs, end, entinfo.number, MASK_SHOT);
+			// if the projectile will not be blocked.
+			if (trace.fraction >= 1) {
+				// take projectile speed, gravity and enemy height into account.
+				bestorigin[2] += (dist * dist / wi.speed * wi.proj.gravity) + (bs->inventory[ENEMY_HEIGHT] > 10 ? bs->inventory[ENEMY_HEIGHT] * 0.2 : 0);
+				//BotAI_Print(PRT_MESSAGE, "dist: %f, enemyheight: %i, bestorigin: %f\n", dist, bs->inventory[ENEMY_HEIGHT], bestorigin[2]);
+			}
+		}
+	}
+
 	if (enemyvisible) {
 		BotAI_Trace(&trace, bs->eye, NULL, NULL, bestorigin, bs->entitynum, MASK_SHOT);
 		VectorCopy(trace.endpos, bs->aimtarget);
