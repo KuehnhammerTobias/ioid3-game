@@ -3133,12 +3133,12 @@ BotFindEnemy
 */
 int BotFindEnemy(bot_state_t *bs, int curenemy) {
 	int i, healthdecrease;
-	float f, alertness, aggression, easyfragger, vis;
+	float f, /*alertness, */aggression, easyfragger, vis;
 	float squaredist, cursquaredist;
 	aas_entityinfo_t entinfo, curenemyinfo, curbotinfo;
 	vec3_t dir, angles;
 
-	alertness = Characteristic_BFloat(bs->character, CHARACTERISTIC_ALERTNESS, 0, 1);
+//	alertness = Characteristic_BFloat(bs->character, CHARACTERISTIC_ALERTNESS, 0, 1);
 	easyfragger = Characteristic_BFloat(bs->character, CHARACTERISTIC_EASY_FRAGGER, 0, 1);
 	aggression = Characteristic_BFloat(bs->character, CHARACTERISTIC_AGGRESSION, 0, 1);
 	//check if the health decreased
@@ -3246,8 +3246,6 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 			//if this enemy is further away than the current one
 			if (curenemy >= 0 && squaredist > cursquaredist) continue;
 		} //end if
-		//if the bot has no
-		if (squaredist > Square(900.0 + alertness * 4000.0)) continue;
 		//if the bot's health decreased or the enemy is shooting
 		if (curenemy < 0 && (healthdecrease || EntityIsShooting(&entinfo)))
 			f = 360;
