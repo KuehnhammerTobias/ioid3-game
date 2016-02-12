@@ -3041,7 +3041,11 @@ float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int
 	VectorSubtract(middle, eye, dir);
 	vectoangles(dir, entangles);
 	if (!InFieldOfVision(viewangles, fov, entangles)) return 0;
-	//
+
+	if (EntityIsInvisible(&entinfo) && VectorLength(dir) > 300) {
+		return 0;
+	}
+
 	pc = trap_AAS_PointContents(eye);
 	infog = (pc & CONTENTS_FOG);
 	inwater = (pc & (CONTENTS_LAVA|CONTENTS_SLIME|CONTENTS_WATER));
@@ -3222,8 +3226,8 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		if (!entinfo.valid) continue;
 		//if the enemy isn't dead and the enemy isn't the bot self
 		if (EntityIsDead(&entinfo) || entinfo.number == bs->entitynum) continue;
-		//if the enemy is invisible
-		if (EntityIsInvisible(&entinfo)) {
+		//ignore invisible enemies if already fighting
+		if (bs->enemy >= 0 && EntityIsInvisible(&entinfo)) {
 			continue;
 		}
 		//if not an easy fragger don't shoot at chatting players
@@ -3929,6 +3933,15 @@ void BotCheckAttack(bot_state_t *bs) {
 	}
 	//
 	reactiontime = Characteristic_BFloat(bs->character, CHARACTERISTIC_REACTIONTIME, 0, 1);
+	// if the enemy is invisible
+	if (EntityIsInvisible(&entinfo)) {
+		reactiontime += 1.5f;
+		//limit the reactiontime
+		if (reactiontime > 2.5f) {
+			reactiontime = 2.5f;
+		}
+	}
+
 	if (bs->enemysight_time > FloatTime() - reactiontime) return;
 	if (bs->teleport_time > FloatTime() - reactiontime) return;
 	//if changing weapons
