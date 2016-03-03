@@ -126,6 +126,10 @@ void BotVisibleTeamMatesAndEnemies(bot_state_t *bs, int *teammates, int *enemies
 qboolean InFieldOfVision(vec3_t viewangles, float fov, vec3_t angles);
 //returns true and sets the .enemy field when an enemy is found
 int BotFindEnemy(bot_state_t *bs, int curenemy);
+//get the distance how far an entity event is audible
+int BotGetEntityEventSoundCoefficient(const gentity_t* ent);
+//returns true if the bot already has a roam goal
+qboolean BotHasRoamGoal(bot_state_t *bs, vec3_t goal);
 //returns a roam goal
 void BotRoamGoal(bot_state_t *bs, vec3_t goal);
 //returns entity visibility in the range [0, 1]

@@ -459,11 +459,13 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				}
 			}
 			// look strategically around for enemies
-			if (random() < bs->thinktime * 0.8) {
-				BotRoamGoal(bs, target);
-				VectorSubtract(target, bs->origin, dir);
-				vectoangles(dir, bs->ideal_viewangles);
-				bs->ideal_viewangles[2] *= 0.5;
+			if (!BotHasRoamGoal(bs, target)) {
+				if (random() < bs->thinktime * 0.8) {
+					BotRoamGoal(bs, target);
+					VectorSubtract(target, bs->origin, dir);
+					vectoangles(dir, bs->ideal_viewangles);
+					bs->ideal_viewangles[2] *= 0.5;
+				}
 			}
 			//check if the bot wants to go for air
 			if (BotGoForAir(bs, bs->tfl, &bs->teamgoal, 400)) {
@@ -648,11 +650,13 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal) 
 				bs->arrive_time = FloatTime();
 			}
 			//look strategically around for enemies
-			if (random() < bs->thinktime * 0.8) {
-				BotRoamGoal(bs, target);
-				VectorSubtract(target, bs->origin, dir);
-				vectoangles(dir, bs->ideal_viewangles);
-				bs->ideal_viewangles[2] *= 0.5;
+			if (!BotHasRoamGoal(bs, target)) {
+				if (random() < bs->thinktime * 0.8) {
+					BotRoamGoal(bs, target);
+					VectorSubtract(target, bs->origin, dir);
+					vectoangles(dir, bs->ideal_viewangles);
+					bs->ideal_viewangles[2] *= 0.5;
+				}
 			}
 			//check if the bot wants to crouch
 			//don't crouch if crouched less than 5 seconds ago
@@ -1593,11 +1597,13 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs) {
 	}
 	// if waiting for something
 	else if (moveresult.flags & MOVERESULT_WAITING) {
-		if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+		if (!BotHasRoamGoal(bs, target)) {
+			if (random() < bs->thinktime * 0.8) {
+				BotRoamGoal(bs, target);
+				VectorSubtract(target, bs->origin, dir);
+				vectoangles(dir, bs->ideal_viewangles);
+				bs->ideal_viewangles[2] *= 0.5;
+			}
 		}
 	}
 	else if (!(bs->flags & BFL_IDEALVIEWSET)) {
@@ -1728,11 +1734,13 @@ int AINode_Seek_NBG(bot_state_t *bs) {
 	}
 	//if waiting for something
 	else if (moveresult.flags & MOVERESULT_WAITING) {
-		if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+		if (!BotHasRoamGoal(bs, target)) {
+			if (random() < bs->thinktime * 0.8) {
+				BotRoamGoal(bs, target);
+				VectorSubtract(target, bs->origin, dir);
+				vectoangles(dir, bs->ideal_viewangles);
+				bs->ideal_viewangles[2] *= 0.5;
+			}
 		}
 	}
 	else if (!(bs->flags & BFL_IDEALVIEWSET)) {
@@ -1919,11 +1927,13 @@ int AINode_Seek_LTG(bot_state_t *bs)
 	}
 	//if waiting for something
 	else if (moveresult.flags & MOVERESULT_WAITING) {
-		if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+		if (!BotHasRoamGoal(bs, target)) {
+			if (random() < bs->thinktime * 0.8) {
+				BotRoamGoal(bs, target);
+				VectorSubtract(target, bs->origin, dir);
+				vectoangles(dir, bs->ideal_viewangles);
+				bs->ideal_viewangles[2] *= 0.5;
+			}
 		}
 	}
 	else if (!(bs->flags & BFL_IDEALVIEWSET)) {
@@ -1935,11 +1945,13 @@ int AINode_Seek_LTG(bot_state_t *bs)
 		else if (VectorLengthSquared(moveresult.movedir)) {
 			vectoangles(moveresult.movedir, bs->ideal_viewangles);
 		}
-		else if (random() < bs->thinktime * 0.8) {
-			BotRoamGoal(bs, target);
-			VectorSubtract(target, bs->origin, dir);
-			vectoangles(dir, bs->ideal_viewangles);
-			bs->ideal_viewangles[2] *= 0.5;
+		else if (!BotHasRoamGoal(bs, target)) {
+			if (random() < bs->thinktime * 0.8) {
+				BotRoamGoal(bs, target);
+				VectorSubtract(target, bs->origin, dir);
+				vectoangles(dir, bs->ideal_viewangles);
+				bs->ideal_viewangles[2] *= 0.5;
+			}
 		}
 		bs->ideal_viewangles[2] *= 0.5;
 	}

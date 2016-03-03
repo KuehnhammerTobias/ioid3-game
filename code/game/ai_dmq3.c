@@ -92,6 +92,7 @@ vmCvar_t bot_testrchat;
 vmCvar_t bot_challenge;
 vmCvar_t bot_predictobstacles;
 vmCvar_t bot_droppedweight;
+vmCvar_t bot_visualrange;
 vmCvar_t bot_offhandgrapple;
 vmCvar_t g_spSkill;
 
@@ -2754,6 +2755,151 @@ void BotGoForPowerups(bot_state_t *bs) {
 }
 
 /*
+===============
+BotGetEntityEventSoundCoefficient
+
+Return a value for how loud events are.
+
+FIXME: WHY CAN'T WE USE 'BotCheckEvents'? is there any easier access to events?
+       If using 'BotCheckEvents' "event only entity" events aren't working.
+       Though seems like id planned to add the sounds in 'BotCheckEvents' -> line 5407.
+
+FIXME: Why are closing doors not heard?
+
+NOTE: Another approach of a similar function is 'BotGetEntitySurfaceSoundCoefficient' from ET (wasn't used there). Surfaceparms was planned to be taken into account in ET, should we do this?
+===============
+*/
+int BotGetEntityEventSoundCoefficient(const gentity_t* ent) {
+
+	if (ent->s.eType < ET_EVENTS) {
+		switch (ent->s.eType) {
+			case ET_PLAYER:
+				if (ent->s.eFlags & EF_FIRING) {
+					return 1000;
+				}
+
+			break;
+			case ET_MOVER:
+				// FIXME: why are closing doors not heard?
+			break;
+			case ET_MISSILE:
+				switch (ent->s.weapon) {
+					case WP_ROCKET_LAUNCHER:
+					case WP_PLASMAGUN:
+					case WP_GRENADE_LAUNCHER:
+					case WP_NAILGUN:
+					case WP_BFG:
+						return 1000;
+					break;
+				}
+
+			break;
+			default:
+				switch (ent->s.event & ~EV_EVENT_BITS) {
+					case EV_KAMIKAZE:
+						return 10000;
+					break;
+					// explosions are really loud (and important to inspect).
+					case EV_MISSILE_MISS:
+						return 5000;
+					break;
+					// bullet impacts should attract the bot to inspect (if the shooter isn't seen or heard).
+					case EV_BULLET_HIT_WALL:
+						return 500;
+					break;
+				}
+
+				return 0;
+			break;
+		}
+	}
+
+	if (ent->eventTime < level.time - 1000) {
+		return 0;
+	}
+
+	return 500;
+}
+/*
+==================
+BotHasRoamGoal
+==================
+*/
+qboolean BotHasRoamGoal(bot_state_t *bs, vec3_t goal) {
+	gentity_t* ent;
+	int i, audibility_range;
+	float dist, weight, total_weight;
+	vec3_t bestorg, angles, dir;
+	qboolean found;
+ 
+	found = qfalse;
+	total_weight = 0;
+
+	for (i = 0; i < level.num_entities; i++) {
+		ent = &g_entities[i];
+
+		if (!ent->inuse) {
+			continue;
+		}
+
+		if (!ent->r.linked) {
+			continue;
+		}
+
+		if (i == bs->playernum) {
+			continue;
+		}
+		// get the audibility range
+		audibility_range = BotGetEntityEventSoundCoefficient(ent);
+
+		if (audibility_range < 1) {
+			continue;
+		}
+
+		VectorAdd(ent->r.absmin, ent->r.absmax, bestorg);
+		VectorScale(bestorg, 0.5, bestorg);
+		VectorSubtract(bestorg, bs->origin, dir);
+		// get the distance
+		dist = VectorLengthSquared(dir);
+		// outside audibility range
+		if (dist > Square(audibility_range)) {
+			continue;
+		}
+
+		vectoangles(dir, angles);
+		// check if the goal is already in the field of vision
+		if (InFieldOfVision(bs->viewangles, 90, angles)) {
+			continue;
+		}
+
+		if (!trap_InPVSIgnorePortals(bs->origin, g_entities[i].s.pos.trBase)) {
+			continue;
+		}
+
+		weight = 1.0 / (dist + 100);
+		total_weight += weight;
+
+		if (random() <= weight / total_weight) {
+			vectoangles(dir, bs->ideal_viewangles);
+			VectorCopy(bestorg, goal);
+			found = qtrue;
+		}
+	}
+	// look at the entity
+	if (found) {
+		bs->roamgoal_time = FloatTime() + 1 + 2 * random();
+		return qtrue;
+	}
+
+	if (bs->roamgoal_time > FloatTime()) {
+		audibility_range = 0; // Tobias: Is this needed?
+		return qfalse;
+	}
+
+	return qfalse;
+}
+
+/*
 ==================
 BotRoamGoal
 ==================
@@ -3022,7 +3168,7 @@ returns visibility in the range [0, 1] taking fog and water surfaces into accoun
 ==================
 */
 float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int ent) {
-	int i, contents_mask, passent, hitent, infog, inwater, otherinfog, pc;
+	int visdist, i, contents_mask, passent, hitent, infog, inwater, otherinfog, pc;
 	float squaredfogdist, waterfactor, vis, bestvis;
 	bsp_trace_t trace;
 	aas_entityinfo_t entinfo;
@@ -3040,6 +3186,9 @@ float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int
 	//check if entity is within field of vision
 	VectorSubtract(middle, eye, dir);
 	vectoangles(dir, entangles);
+	visdist = bot_visualrange.value;
+
+	if (VectorLength(dir) > visdist) return 0;
 	if (!InFieldOfVision(viewangles, fov, entangles)) return 0;
 
 	if (EntityIsInvisible(&entinfo) && VectorLength(dir) > 300) {
@@ -5935,6 +6084,7 @@ void BotSetupDeathmatchAI(void) {
 	trap_Cvar_Register(&bot_predictobstacles, "bot_predictobstacles", "1", 0);
 	trap_Cvar_Register(&bot_offhandgrapple, "bot_offhandgrapple", "0", 0);
 	trap_Cvar_Register(&bot_droppedweight, "bot_droppedweight", "1000", 0);
+	trap_Cvar_Register(&bot_visualrange, "bot_visualrange", "100000", 0);
 	trap_Cvar_Register(&g_spSkill, "g_spSkill", "2", 0);
 	//
 	if (gametype == GT_CTF) {

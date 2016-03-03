@@ -228,7 +228,7 @@ typedef struct bot_state_s
 	vec3_t viewangles;								//current view angles
 	vec3_t ideal_viewangles;						//ideal view angles
 	vec3_t viewanglespeed;
-	//
+	float roamgoal_time;
 	int ltgtype;									//long term goal type
 	// team goals
 	int teammate;									//team mate involved in this team goal
