@@ -2787,7 +2787,9 @@ int BotGetEntityEventSoundCoefficient(const gentity_t* ent) {
 					case WP_ROCKET_LAUNCHER:
 					case WP_PLASMAGUN:
 					case WP_GRENADE_LAUNCHER:
+#ifdef MISSIONPACK
 					case WP_NAILGUN:
+#endif
 					case WP_BFG:
 						return 1000;
 					break;
@@ -2796,9 +2798,11 @@ int BotGetEntityEventSoundCoefficient(const gentity_t* ent) {
 			break;
 			default:
 				switch (ent->s.event & ~EV_EVENT_BITS) {
+#ifdef MISSIONPACK
 					case EV_KAMIKAZE:
 						return 10000;
 					break;
+#endif
 					// explosions are really loud (and important to inspect).
 					case EV_MISSILE_MISS:
 						return 5000;
