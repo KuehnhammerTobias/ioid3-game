@@ -3775,13 +3775,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 		if (bs->enemysight_time > FloatTime() - reactiontime) return;
 		if (bs->teleport_time > FloatTime() - reactiontime) return;
 	}
-	//
-	if (aim_accuracy <= 0) aim_accuracy = 0.0001f;
-	//if the enemy is invisible then shoot crappy most of the time
-	if (EntityIsInvisible(&entinfo)) {
-		if (random() > 0.1) aim_accuracy *= 0.4f;
-	}
-	//
+
 	VectorSubtract(entinfo.origin, entinfo.lastvisorigin, enemyvelocity);
 	VectorScale(enemyvelocity, 1 / entinfo.update_time, enemyvelocity);
 	//enemy origin and velocity is remembered every 0.5 seconds
@@ -3802,6 +3796,47 @@ void BotAimAtEnemy(bot_state_t *bs) {
 				aim_accuracy *= 0.7f;
 			}
 		}
+	}
+	//if the enemy is invisible then shoot crappy most of the time
+	if (EntityIsInvisible(&entinfo)) {
+		if (random() > 0.1) {
+			aim_accuracy *= 0.4f;
+		}
+	}
+	// keep a minimum accuracy
+	if (aim_accuracy <= 0) {
+		aim_accuracy = 0.0001f;
+	}
+	// if the bot is standing still
+	if (VectorLength(bs->cur_ps.velocity) <= 0) {
+		aim_accuracy += 0.2;
+	}
+	// if the bot is crouching
+	if (bs->cur_ps.pm_flags & PMF_DUCKED) {
+		aim_accuracy += 0.1;
+	}
+	// Tobias NOTE: add prone ~ + 0.2;
+	// if the enemy is standing still
+	f = VectorLength(bs->enemyvelocity);
+
+	if (f > 200) {
+		f = 200;
+	}
+
+	aim_accuracy += 0.2 * (0.5 - (f / 200.0));
+	// if the bot needs some time to react on the enemy, aiming gets better with time.
+	if (reactiontime > 1.75) {
+		f = FloatTime() - bs->enemysight_time;
+
+		if (f > 2.0) {
+			f = 2.0;
+		}
+
+		aim_accuracy += 0.2 * f / 2.0;
+	}
+	// set some maximum accuracy
+	if (aim_accuracy > 1.0) {
+		aim_accuracy = 1.0;
 	}
 	//check visibility of enemy
 	enemyvisible = BotEntityVisible(bs->entitynum, bs->eye, bs->viewangles, 360, bs->enemy);
