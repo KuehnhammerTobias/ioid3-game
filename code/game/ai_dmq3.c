@@ -3139,7 +3139,7 @@ int BotSameTeam(bot_state_t *bs, int entnum) {
 InFieldOfVision
 ==================
 */
-qboolean InFieldOfVision(vec3_t viewangles, float fov, vec3_t angles)
+qboolean InFieldOfVision(vec3_t viewangles, int fov, vec3_t angles)
 {
 	int i;
 	float diff, angle;
@@ -3171,7 +3171,7 @@ BotEntityVisible
 returns visibility in the range [0, 1] taking fog and water surfaces into account
 ==================
 */
-float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int ent) {
+float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, int fov, int ent) {
 	int visdist, i, contents_mask, passent, hitent, infog, inwater, otherinfog, pc;
 	float squaredfogdist, waterfactor, vis, bestvis;
 	bsp_trace_t trace;
@@ -3289,8 +3289,8 @@ BotFindEnemy
 ==================
 */
 int BotFindEnemy(bot_state_t *bs, int curenemy) {
-	int i, healthdecrease;
-	float f, /*alertness, */aggression, easyfragger, vis;
+	int i, f, healthdecrease;
+	float /*alertness, */aggression, easyfragger, vis;
 	float squaredist, cursquaredist;
 	aas_entityinfo_t entinfo, curenemyinfo, curbotinfo;
 	vec3_t dir, angles;
@@ -4073,8 +4073,8 @@ BotCheckAttack
 ==================
 */
 void BotCheckAttack(bot_state_t *bs) {
-	float points, reactiontime, fov, firethrottle;
-	int attackentity;
+	float points, reactiontime, firethrottle;
+	int attackentity, fov;
 	bsp_trace_t bsptrace;
 	//float selfpreservation;
 	vec3_t forward, right, start, end, dir, angles;

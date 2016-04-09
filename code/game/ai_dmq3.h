@@ -123,7 +123,7 @@ int BotCountTeamMates(bot_state_t *bs, float range);
 //get the number of visible teammates and enemies
 void BotVisibleTeamMatesAndEnemies(bot_state_t *bs, int *teammates, int *enemies, float range);
 //returns true if within the field of vision for the given angles
-qboolean InFieldOfVision(vec3_t viewangles, float fov, vec3_t angles);
+qboolean InFieldOfVision(vec3_t viewangles, int fov, vec3_t angles);
 //returns true and sets the .enemy field when an enemy is found
 int BotFindEnemy(bot_state_t *bs, int curenemy);
 //get the distance how far an entity event is audible
@@ -133,7 +133,7 @@ qboolean BotHasRoamGoal(bot_state_t *bs, vec3_t goal);
 //returns a roam goal
 void BotRoamGoal(bot_state_t *bs, vec3_t goal);
 //returns entity visibility in the range [0, 1]
-float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, float fov, int ent);
+float BotEntityVisible(int viewer, vec3_t eye, vec3_t viewangles, int fov, int ent);
 //the bot will aim at the current enemy
 void BotAimAtEnemy(bot_state_t *bs);
 //check if the bot should attack
