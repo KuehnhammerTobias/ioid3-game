@@ -230,10 +230,8 @@ static void PM_Friction( void ) {
 		newspeed = 0;
 	}
 	newspeed /= speed;
-
-	vel[0] = vel[0] * newspeed;
-	vel[1] = vel[1] * newspeed;
-	vel[2] = vel[2] * newspeed;
+	// used VectorScale instead of multiplying by hand
+	VectorScale(vel, newspeed, vel);
 }
 
 
@@ -310,9 +308,29 @@ static float PM_CmdScale( usercmd_t *cmd ) {
 		return 0;
 	}
 
-	total = sqrt( cmd->forwardmove * cmd->forwardmove
-		+ cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove );
+	total = sqrt( cmd->forwardmove * cmd->forwardmove + cmd->rightmove * cmd->rightmove + cmd->upmove * cmd->upmove );
 	scale = (float)pm->ps->speed * max / ( 127.0 * total );
+	// ignore if spectator
+	if (pm->ps->persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		return scale;
+	}
+	// apply speed scale for strafing and going backwards
+	if (cmd->forwardmove < 0) {
+		scale *= 0.75f;
+	} else if (cmd->rightmove) {
+		scale *= 0.9f;
+	}
+	// apply weapon speed scale
+	switch (pm->ps->weapon) {
+		case WP_BFG:
+			scale *= 0.9f;
+		break;
+		case WP_GAUNTLET:
+			scale *= 1.1f;
+		break;
+		default:
+		break;
+	}
 
 	return scale;
 }
@@ -621,10 +639,6 @@ static void PM_AirMove( void ) {
 
 	cmd = pm->cmd;
 	scale = PM_CmdScale( &cmd );
-
-	// set the movementDir so players can rotate the legs for strafing
-	PM_SetMovementDir();
-
 	// project moves down to flat plane
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
@@ -662,6 +676,8 @@ static void PM_AirMove( void ) {
 #endif
 
 	PM_StepSlideMove ( qtrue );
+	// set the movementDir so players can rotate the legs for strafing
+	PM_SetMovementDir();
 }
 
 /*
@@ -731,10 +747,6 @@ static void PM_WalkMove( void ) {
 
 	cmd = pm->cmd;
 	scale = PM_CmdScale( &cmd );
-
-	// set the movementDir so players can rotate the legs for strafing
-	PM_SetMovementDir();
-
 	// project moves down to flat plane
 	pml.forward[2] = 0;
 	pml.right[2] = 0;
@@ -789,9 +801,6 @@ static void PM_WalkMove( void ) {
 
 	if ( ( pml.groundTrace.surfaceFlags & SURF_SLICK ) || pm->ps->pm_flags & PMF_TIME_KNOCKBACK ) {
 		pm->ps->velocity[2] -= pm->ps->gravity * pml.frametime;
-	} else {
-		// don't reset the z velocity for slopes
-//		pm->ps->velocity[2] = 0;
 	}
 
 	vel = VectorLength(pm->ps->velocity);
@@ -812,8 +821,8 @@ static void PM_WalkMove( void ) {
 	}
 
 	PM_StepSlideMove( qfalse );
-
-	//Com_Printf("velocity2 = %1.1f\n", VectorLength(pm->ps->velocity));
+	// set the movementDir so players can rotate the legs for strafing
+	PM_SetMovementDir();
 
 }
 
