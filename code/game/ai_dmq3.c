@@ -73,8 +73,6 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define AREACONTENTS_MAXMODELNUM		0xFF
 #define AREACONTENTS_MODELNUM			(AREACONTENTS_MAXMODELNUM << AREACONTENTS_MODELNUMSHIFT)
 
-#define IDEAL_ATTACKDIST			140
-
 #define MAX_WAYPOINTS		128
 //
 bot_waypoint_t botai_waypoints[MAX_WAYPOINTS];
@@ -2965,9 +2963,8 @@ BotAttackMove
 ==================
 */
 bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
-	int movetype, i, attackentity;
+	int movetype, i, attackentity, attack_dist, attack_range;
 	float attack_skill, jumper, croucher, dist, strafechange_time;
-	float attack_dist, attack_range;
 	vec3_t forward, backward, sideward, start, hordir, up = {0, 0, 1};
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
@@ -3049,8 +3046,8 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 		attack_range = 0;
 	}
 	else {
-		attack_dist = IDEAL_ATTACKDIST;
-		attack_range = 40;
+		attack_dist = Characteristic_BInteger(bs->character, CHARACTERISTIC_ATTACK_DISTANCE, 0, 1000);
+		attack_range = Characteristic_BInteger(bs->character, CHARACTERISTIC_ATTACK_RANGE, 0, 1000);
 	}
 	//if the bot is stupid
 	if (attack_skill <= 0.4) {
