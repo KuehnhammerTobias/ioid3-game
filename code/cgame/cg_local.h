@@ -1303,7 +1303,7 @@ extern	vmCvar_t		cg_drawSnapshot;
 extern	vmCvar_t		cg_draw3dIcons;
 extern	vmCvar_t		cg_drawIcons;
 extern	vmCvar_t		cg_drawAmmoWarning;
-extern	vmCvar_t		cg_hitFeedback;
+extern	vmCvar_t		cg_hitSounds;
 extern	vmCvar_t		cg_drawCrosshair;
 extern	vmCvar_t		cg_drawCrosshairNames;
 extern	vmCvar_t		cg_drawTeamOverlay;

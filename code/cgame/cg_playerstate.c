@@ -316,7 +316,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 		return;
 	}
 	// hit changes
-	if ( cg_hitFeedback.integer ) {
+	if ( cg_hitSounds.integer ) {
 		if ( ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS] ) {
 #ifdef MISSIONPACK
 			armor  = ps->persistant[PERS_ATTACKEE_ARMOR] & 0xff;
