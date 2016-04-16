@@ -2964,12 +2964,13 @@ BotAttackMove
 */
 bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	int movetype, i, attackentity, attack_dist, attack_range;
-	float attack_skill, jumper, croucher, dist, strafechange_time;
+	float attack_skill, jumper, croucher, dist, selfpreservation, strafechange_time;
 	vec3_t forward, backward, sideward, start, hordir, up = {0, 0, 1};
 	aas_entityinfo_t entinfo;
 	bot_moveresult_t moveresult;
 	bot_goal_t goal;
 	bsp_trace_t bsptrace;
+	weaponinfo_t wi;
 
 	attackentity = bs->enemy;
 	//
@@ -2992,6 +2993,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 	attack_skill = Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
 	jumper = Characteristic_BFloat(bs->character, CHARACTERISTIC_JUMPER, 0, 1);
 	croucher = Characteristic_BFloat(bs->character, CHARACTERISTIC_CROUCHER, 0, 1);
+	selfpreservation = Characteristic_BFloat(bs->character, CHARACTERISTIC_SELFPRESERVATION, 0, 1);
 	//if the bot is really stupid
 	if (attack_skill < 0.2) {
 		//check blocked teammates
@@ -3041,11 +3043,36 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl) {
 			bs->attackjump_time = FloatTime() + 1;
 		}
 	}
-	if (bs->cur_ps.weapon == WP_GAUNTLET) {
+	// get the weapon information
+	BotGetWeaponInfo(bs->ws, bs->weaponnum, &wi);
+	// close combat weapons
+	if (wi.numprojectiles == 0) {
 		attack_dist = 0;
 		attack_range = 0;
-	}
-	else {
+	// current weapon lightning gun
+	} else if (bs->cur_ps.weapon == WP_LIGHTNING) {
+		attack_dist = 0.75 * LIGHTNING_RANGE;
+		attack_range = 0.25 * LIGHTNING_RANGE;
+	// current weapon grenadelauncher
+	} else if (bs->cur_ps.weapon == WP_GRENADE_LAUNCHER) {
+		attack_dist = 500;
+		attack_range = 150;
+	// if the enemy uses a weapon with splash damage, go closer
+	} else if ((wi.proj.damagetype & DAMAGETYPE_RADIAL) && wi.proj.radius > 80 && dist < 200 && selfpreservation < 0.5 && movetype != MOVE_CROUCH) {
+		attack_dist = 0;
+		attack_range = 0;
+	// if the enemy uses lightning gun, stay away
+	} else if (entinfo.weapon == WP_LIGHTNING && bs->cur_ps.weapon != WP_LIGHTNING) {
+		attack_dist = LIGHTNING_RANGE + 200;
+		attack_range = 100;
+#ifdef MISSIONPACK
+	// attacking obelisks
+	} else if (bs->enemy >= MAX_CLIENTS && (bs->enemy == redobelisk.entitynum || bs->enemy == blueobelisk.entitynum)) {
+		attack_dist = 300;
+		attack_range = 150;
+#endif
+	// use the bots individual prefered attack distances
+	} else {
 		attack_dist = Characteristic_BInteger(bs->character, CHARACTERISTIC_ATTACK_DISTANCE, 0, 1000);
 		attack_range = Characteristic_BInteger(bs->character, CHARACTERISTIC_ATTACK_RANGE, 0, 1000);
 	}
