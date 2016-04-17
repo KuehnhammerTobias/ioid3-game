@@ -259,18 +259,8 @@ EntityIsAnObelisk
 ==================
 */
 int EntityIsAnObelisk(bot_state_t *bs) {
-	int attackentity;
-	aas_entityinfo_t entinfo;
 
-	attackentity = bs->enemy;
-
-	BotEntityInfo(attackentity, &entinfo);
-
-	if (g_entities[entinfo.number].player) {
-		return qfalse;
-	}
-
-	if (attackentity >= MAX_CLIENTS && (entinfo.number == redobelisk.entitynum || entinfo.number == blueobelisk.entitynum)) {
+	if (bs->enemy >= MAX_CLIENTS && (bs->enemy == redobelisk.entitynum || bs->enemy == blueobelisk.entitynum)) {
 		return qtrue;
 	}
 
