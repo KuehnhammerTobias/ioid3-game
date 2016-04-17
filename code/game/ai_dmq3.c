@@ -252,7 +252,57 @@ qboolean EntityIsShooting(aas_entityinfo_t *entinfo) {
 	}
 	return qfalse;
 }
+#ifdef MISSIONPACK
+/*
+==================
+EntityIsAnObelisk
+==================
+*/
+int EntityIsAnObelisk(bot_state_t *bs) {
+	int attackentity;
+	aas_entityinfo_t entinfo;
 
+	attackentity = bs->enemy;
+
+	BotEntityInfo(attackentity, &entinfo);
+
+	if (g_entities[entinfo.number].player) {
+		return qfalse;
+	}
+
+	if (attackentity >= MAX_CLIENTS && (entinfo.number == redobelisk.entitynum || entinfo.number == blueobelisk.entitynum)) {
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+/*
+==================
+EntityIsAlreadyMined
+==================
+*/
+int EntityIsAlreadyMined(aas_entityinfo_t *entinfo) {
+	if (entinfo->flags & EF_TICKING) {
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+/*
+==================
+EntityIsInInvulerabilitySphere
+==================
+*/
+int EntityIsInInvulerabilitySphere(aas_entityinfo_t *entinfo) {
+	if (!g_entities[entinfo->number].player) {
+		return qfalse;
+	}
+
+	return (g_entities[entinfo->number].player->ps.pm_flags & PMF_INVULEXPAND) ? qtrue : qfalse;
+}
+#endif
 /*
 ==================
 EntityIsChatting
@@ -1842,6 +1892,10 @@ void BotUpdateBattleInventory(bot_state_t *bs, int enemy) {
 	bs->inventory[ENEMY_HEIGHT] = (int) dir[2];
 	dir[2] = 0;
 	bs->inventory[ENEMY_HORIZONTAL_DIST] = (int) VectorLength(dir);
+#ifdef MISSIONPACK
+	bs->inventory[ENTITY_IS_AN_OBELISK] = (int) EntityIsAnObelisk(bs);
+	bs->inventory[ENTITY_IS_INVULNERABLE] = (int) (!EntityIsAlreadyMined(&entinfo) && EntityIsInInvulerabilitySphere(&entinfo));
+#endif
 	//FIXME: add num visible enemies and num visible team mates to the inventory
 }
 

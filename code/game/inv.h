@@ -80,12 +80,19 @@ Suite 120, Rockville, Maryland 20850 USA.
 #define INVENTORY_NEUTRALFLAG		47
 #define INVENTORY_REDCUBE			48
 #define INVENTORY_BLUECUBE			49
+// bot stuff
+//#define BOT_IS_IN_HURRY				100 // Tobias: speed up 'Rush to Base' by ignoring temporarely less important items while carrying flags etc.
 //enemy stuff
 #define ENEMY_HORIZONTAL_DIST		200
 #define ENEMY_HEIGHT				201
 #define NUM_VISIBLE_ENEMIES			202
 #define NUM_VISIBLE_TEAMMATES		203
 
+#define ENTITY_IS_AN_OBELISK		204 // Tobias: -> use correct weapon for Obelisk attacks (e.g.: Nailgun 8 secs. / Railgun 48 (!) secs. by default)
+//#define ENTITY_IS_A_VEHICLE		205 // Tobias: Seperate this for Tanks? (-> use Javlin for chopper etc.)
+//#define ENTITY_IS_A_TANK			206 // Tobias: Seperate this for Tanks? (-> use Panzerfaust)
+//#define ENTITY_IS_ONFIRE			207 // Tobias: Don't waste ammo? + (-> use extinguisher for burning teammates)
+#define ENTITY_IS_INVULNERABLE		208 // Tobias: Don't waste ammo? + (-> use Proxylauncher for Invulnerability Sphere)
 // if running the mission pack
 #ifdef MISSIONPACK
 
