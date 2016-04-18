@@ -3447,8 +3447,12 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		if (!entinfo.valid) continue;
 		//if the enemy isn't dead and the enemy isn't the bot self
 		if (EntityIsDead(&entinfo) || entinfo.number == bs->entitynum) continue;
-		//ignore invisible enemies if already fighting
-		if (bs->enemy >= 0 && EntityIsInvisible(&entinfo)) {
+		//ignore invisible, mined, invulnerable and burning enemies if already fighting
+		if (bs->enemy >= 0 && (EntityIsInvisible(&entinfo)
+#ifdef MISSIONPACK
+			|| EntityIsAlreadyMined(&entinfo) || EntityIsInInvulerabilitySphere(&entinfo)
+#endif
+			)) {
 			continue;
 		}
 		//if not an easy fragger don't shoot at chatting players
@@ -3468,6 +3472,10 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 #endif
 			)
 		{
+			// prefer targets near the goal
+			if (curenemy >= 0 && BotAggression(bs) && bs->ltgtype != 0 && 1.5 * DistanceSquared(entinfo.origin, bs->teamgoal.origin) > DistanceSquared(curenemyinfo.origin, bs->teamgoal.origin)) {
+				continue;
+			}
 			//if this enemy is further away than the current one
 			if (curenemy >= 0 && squaredist > cursquaredist) continue;
 		} //end if
