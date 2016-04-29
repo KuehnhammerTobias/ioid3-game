@@ -2482,6 +2482,7 @@ Called after every cgame load, such as main menu, level change, or subsystem res
 =================
 */
 void CG_Init( connstate_t state, int maxSplitView, int playVideo ) {
+	Swap_Init();
 
 	// clear everything
 	CG_ClearState( qtrue, maxSplitView );
