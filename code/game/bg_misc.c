@@ -1345,7 +1345,6 @@ char *eventnames[] = {
 	"EV_MISSILE_MISS_METAL",
 	"EV_RAILTRAIL",
 	"EV_SHOTGUN",
-	"EV_BULLET",				// otherEntity is the shooter
 
 	"EV_PAIN",
 	"EV_DEATH1",

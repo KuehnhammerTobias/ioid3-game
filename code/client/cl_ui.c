@@ -297,7 +297,6 @@ static void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 		Info_SetValueForKey( info, "gametype", va("%i",server->gameType));
 		Info_SetValueForKey( info, "nettype", va("%i",server->netType));
 		Info_SetValueForKey( info, "addr", NET_AdrToStringwPort(server->adr));
-		Info_SetValueForKey( info, "punkbuster", va("%i", server->punkbuster));
 		Info_SetValueForKey( info, "g_needpass", va("%i", server->g_needpass));
 		Info_SetValueForKey( info, "g_humanplayers", va("%i", server->g_humanplayers));
 		Q_strncpyz(buf, info, buflen);
@@ -624,50 +623,6 @@ static void Key_GetBindingBuf( int keynum, char *buf, int buflen ) {
 
 /*
 ====================
-CLUI_GetCDKey
-====================
-*/
-static void CLUI_GetCDKey( char *buf, int buflen ) {
-#ifndef STANDALONE
-	cvar_t	*fs;
-	fs = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
-	if (UI_usesUniqueCDKey() && fs && fs->string[0] != 0) {
-		Com_Memcpy( buf, &cl_cdkey[16], 16);
-		buf[16] = 0;
-	} else {
-		Com_Memcpy( buf, cl_cdkey, 16);
-		buf[16] = 0;
-	}
-#else
-	*buf = 0;
-#endif
-}
-
-
-/*
-====================
-CLUI_SetCDKey
-====================
-*/
-#ifndef STANDALONE
-static void CLUI_SetCDKey( char *buf ) {
-	cvar_t	*fs;
-	fs = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
-	if (UI_usesUniqueCDKey() && fs && fs->string[0] != 0) {
-		Com_Memcpy( &cl_cdkey[16], buf, 16 );
-		cl_cdkey[32] = 0;
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	} else {
-		Com_Memcpy( cl_cdkey, buf, 16 );
-		// set the flag so the fle will be written at the next opportunity
-		cvar_modifiedFlags |= CVAR_ARCHIVE;
-	}
-}
-#endif
-
-/*
-====================
 GetConfigString
 ====================
 */
@@ -843,8 +798,7 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		return 0;
 
 	case UI_CM_LERPTAG:
-		re.LerpTag( VMA(1), args[2], args[3], args[4], VMF(5), VMA(6) );
-		return 0;
+		return re.LerpTag( VMA(1), args[2], args[3], args[4], VMF(5), VMA(6) );
 
 	case UI_S_REGISTERSOUND:
 		return S_RegisterSound( VMA(1), args[2] );
@@ -969,52 +923,42 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 	case UI_MEMORY_REMAINING:
 		return Hunk_MemoryRemaining();
 
-	case UI_GET_CDKEY:
-		CLUI_GetCDKey( VMA(1), args[2] );
-		return 0;
-
-	case UI_SET_CDKEY:
-#ifndef STANDALONE
-		CLUI_SetCDKey( VMA(1) );
-#endif
-		return 0;
-	
-	case UI_SET_PBCLSTATUS:
-		return 0;	
-
 	case UI_R_REGISTERFONT:
 		re.RegisterFont( VMA(1), args[2], VMA(3));
 		return 0;
 
-	case UI_MEMSET:
+	case TRAP_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );
 		return 0;
 
-	case UI_MEMCPY:
+	case TRAP_MEMCPY:
 		Com_Memcpy( VMA(1), VMA(2), args[3] );
 		return 0;
 
-	case UI_STRNCPY:
+	case TRAP_STRNCPY:
 		strncpy( VMA(1), VMA(2), args[3] );
 		return args[1];
 
-	case UI_SIN:
+	case TRAP_SIN:
 		return FloatAsInt( sin( VMF(1) ) );
 
-	case UI_COS:
+	case TRAP_COS:
 		return FloatAsInt( cos( VMF(1) ) );
 
-	case UI_ATAN2:
+	case TRAP_ATAN2:
 		return FloatAsInt( atan2( VMF(1), VMF(2) ) );
 
-	case UI_SQRT:
+	case TRAP_SQRT:
 		return FloatAsInt( sqrt( VMF(1) ) );
 
-	case UI_FLOOR:
+	case TRAP_FLOOR:
 		return FloatAsInt( floor( VMF(1) ) );
 
-	case UI_CEIL:
+	case TRAP_CEIL:
 		return FloatAsInt( ceil( VMF(1) ) );
+
+	case TRAP_ACOS:
+		return FloatAsInt( acos( VMF(1) ) );
 
 	case UI_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA(1) );
@@ -1059,9 +1003,6 @@ intptr_t CL_UISystemCalls( intptr_t *args ) {
 		re.RemapShader( VMA(1), VMA(2), VMA(3) );
 		return 0;
 
-	case UI_VERIFY_CDKEY:
-		return CL_CDKeyValidate(VMA(1), VMA(2));
-		
 	default:
 		Com_Error( ERR_DROP, "Bad UI system trap: %ld", (long int) args[0] );
 
@@ -1091,8 +1032,6 @@ void CL_ShutdownUI( void ) {
 CL_InitUI
 ====================
 */
-#define UI_OLD_API_VERSION	4
-
 void CL_InitUI( void ) {
 	int		v;
 	vmInterpret_t		interpret;
@@ -1113,12 +1052,7 @@ void CL_InitUI( void ) {
 
 	// sanity check
 	v = VM_Call( uivm, UI_GETAPIVERSION );
-	if (v == UI_OLD_API_VERSION) {
-//		Com_Printf(S_COLOR_YELLOW "WARNING: loading old Quake III Arena User Interface version %d\n", v );
-		// init for this gamestate
-		VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE));
-	}
-	else if (v != UI_API_VERSION) {
+	if (v != UI_API_VERSION) {
 		// Free uivm now, so UI_SHUTDOWN doesn't get called later.
 		VM_Free( uivm );
 		uivm = NULL;
@@ -1128,19 +1062,9 @@ void CL_InitUI( void ) {
 	}
 	else {
 		// init for this gamestate
-		VM_Call( uivm, UI_INIT, (clc.state >= CA_AUTHORIZING && clc.state < CA_ACTIVE) );
+		VM_Call( uivm, UI_INIT, (clc.state >= CA_CONNECTING && clc.state < CA_ACTIVE) );
 	}
 }
-
-#ifndef STANDALONE
-qboolean UI_usesUniqueCDKey( void ) {
-	if (uivm) {
-		return (VM_Call( uivm, UI_HASUNIQUECDKEY) == qtrue);
-	} else {
-		return qfalse;
-	}
-}
-#endif
 
 /*
 ====================

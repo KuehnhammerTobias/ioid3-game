@@ -10,7 +10,7 @@
 		2711BDBC14D13007005EB142 /* ui_syscalls.c in Sources */ = {isa = PBXBuildFile; fileRef = 2711BDBB14D13007005EB142 /* ui_syscalls.c */; };
 		2772B7BB1790E7C6004CCF57 /* ui_addbots.c in Sources */ = {isa = PBXBuildFile; fileRef = 2772B78D1790E7C6004CCF57 /* ui_addbots.c */; };
 		2772B7BC1790E7C6004CCF57 /* ui_atoms.c in Sources */ = {isa = PBXBuildFile; fileRef = 2772B78E1790E7C6004CCF57 /* ui_atoms.c */; };
-		2772B7BD1790E7C6004CCF57 /* ui_cdkey.c in Sources */ = {isa = PBXBuildFile; fileRef = 2772B78F1790E7C6004CCF57 /* ui_cdkey.c */; };
+
 		2772B7BE1790E7C6004CCF57 /* ui_cinematics.c in Sources */ = {isa = PBXBuildFile; fileRef = 2772B7901790E7C6004CCF57 /* ui_cinematics.c */; };
 		2772B7BF1790E7C6004CCF57 /* ui_confirm.c in Sources */ = {isa = PBXBuildFile; fileRef = 2772B7911790E7C6004CCF57 /* ui_confirm.c */; };
 		2772B7C01790E7C6004CCF57 /* ui_connect.c in Sources */ = {isa = PBXBuildFile; fileRef = 2772B7921790E7C6004CCF57 /* ui_connect.c */; };
@@ -59,7 +59,7 @@
 		273531C714D1270700EB7BD6 /* q3_ui.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = q3_ui.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2772B78D1790E7C6004CCF57 /* ui_addbots.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ui_addbots.c; sourceTree = "<group>"; };
 		2772B78E1790E7C6004CCF57 /* ui_atoms.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ui_atoms.c; sourceTree = "<group>"; };
-		2772B78F1790E7C6004CCF57 /* ui_cdkey.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ui_cdkey.c; sourceTree = "<group>"; };
+
 		2772B7901790E7C6004CCF57 /* ui_cinematics.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ui_cinematics.c; sourceTree = "<group>"; };
 		2772B7911790E7C6004CCF57 /* ui_confirm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ui_confirm.c; sourceTree = "<group>"; };
 		2772B7921790E7C6004CCF57 /* ui_connect.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ui_connect.c; sourceTree = "<group>"; };
@@ -154,7 +154,7 @@
 			children = (
 				2772B78D1790E7C6004CCF57 /* ui_addbots.c */,
 				2772B78E1790E7C6004CCF57 /* ui_atoms.c */,
-				2772B78F1790E7C6004CCF57 /* ui_cdkey.c */,
+
 				2772B7901790E7C6004CCF57 /* ui_cinematics.c */,
 				2772B7911790E7C6004CCF57 /* ui_confirm.c */,
 				2772B7921790E7C6004CCF57 /* ui_connect.c */,
@@ -307,7 +307,7 @@
 				2711BDBC14D13007005EB142 /* ui_syscalls.c in Sources */,
 				2772B7BB1790E7C6004CCF57 /* ui_addbots.c in Sources */,
 				2772B7BC1790E7C6004CCF57 /* ui_atoms.c in Sources */,
-				2772B7BD1790E7C6004CCF57 /* ui_cdkey.c in Sources */,
+
 				2772B7BE1790E7C6004CCF57 /* ui_cinematics.c in Sources */,
 				2772B7BF1790E7C6004CCF57 /* ui_confirm.c in Sources */,
 				2772B7C01790E7C6004CCF57 /* ui_connect.c in Sources */,

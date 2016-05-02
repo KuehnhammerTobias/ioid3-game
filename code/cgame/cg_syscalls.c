@@ -105,6 +105,10 @@ int trap_FS_Seek( fileHandle_t f, long offset, int origin ) {
 	return syscall( CG_FS_SEEK, f, offset, origin );
 }
 
+int trap_FS_GetFileList( const char *path, const char *extension, char *listbuf, int bufsize ) {
+	return syscall( CG_FS_GETFILELIST, path, extension, listbuf, bufsize );
+}
+
 void	trap_SendConsoleCommand( const char *text ) {
 	syscall( CG_SENDCONSOLECOMMAND, text );
 }
@@ -334,14 +338,6 @@ qboolean	trap_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 
 void		trap_SetUserCmdValue( int stateValue, float sensitivityScale ) {
 	syscall( CG_SETUSERCMDVALUE, stateValue, PASSFLOAT(sensitivityScale) );
-}
-
-void		testPrintInt( char *string, int i ) {
-	syscall( CG_TESTPRINTINT, string, i );
-}
-
-void		testPrintFloat( char *string, float f ) {
-	syscall( CG_TESTPRINTFLOAT, string, PASSFLOAT(f) );
 }
 
 int trap_MemoryRemaining( void ) {

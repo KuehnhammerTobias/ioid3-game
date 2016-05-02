@@ -54,10 +54,9 @@ equ	sin						-104
 equ	cos						-105
 equ	atan2					-106
 equ	sqrt					-107
-equ floor					-111
-equ	ceil					-112
-equ	testPrintInt			-113
-equ	testPrintFloat			-114
+equ floor					-108
+equ	ceil					-109
+equ	acos					-110
 
 
 
@@ -102,8 +101,7 @@ equ trap_AAS_AreaTravelTimeToGoalArea	-317
 
 equ trap_AAS_Swimming					-318
 equ trap_AAS_PredictClientMovement		-319
-
-
+equ trap_AAS_BestReachableArea			-320
 
 equ trap_EA_Say							-401
 equ trap_EA_SayTeam						-402

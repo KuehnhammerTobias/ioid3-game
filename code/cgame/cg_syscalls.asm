@@ -89,7 +89,8 @@ equ trap_R_AddAdditiveLightToScene		-86
 equ trap_GetEntityToken					-87
 equ	trap_R_AddPolysToScene				-88
 equ trap_R_inPVS						-89
-equ trap_FS_Seek			-90
+equ trap_FS_Seek						-90
+equ trap_FS_GetFileList					-91
 
 equ	memset						-101
 equ	memcpy						-102
@@ -100,7 +101,4 @@ equ	atan2						-106
 equ	sqrt						-107
 equ floor						-108
 equ	ceil						-109
-equ	testPrintInt				-110
-equ	testPrintFloat				-111
-equ acos						-112
-
+equ acos						-110

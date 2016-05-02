@@ -33,13 +33,14 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+qboolean CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
+	qboolean		returnValue;
 	
 	// lerp the tag
-	trap_R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
+	returnValue = trap_R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
 		1.0 - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
@@ -51,6 +52,8 @@ void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 	// had to cast away the const to avoid compiler problems...
 	MatrixMultiply( lerped.axis, ((refEntity_t *)parent)->axis, entity->axis );
 	entity->backlerp = parent->backlerp;
+
+	return returnValue;
 }
 
 
@@ -62,15 +65,16 @@ Modifies the entities position and axis by the given
 tag location
 ======================
 */
-void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent, 
+qboolean CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName ) {
 	int				i;
 	orientation_t	lerped;
 	vec3_t			tempAxis[3];
+	qboolean		returnValue;
 
 //AxisClear( entity->axis );
 	// lerp the tag
-	trap_R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
+	returnValue = trap_R_LerpTag( &lerped, parentModel, parent->oldframe, parent->frame,
 		1.0 - parent->backlerp, tagName );
 
 	// FIXME: allow origin offsets along tag?
@@ -82,6 +86,8 @@ void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *pare
 	// had to cast away the const to avoid compiler problems...
 	MatrixMultiply( entity->axis, lerped.axis, tempAxis );
 	MatrixMultiply( tempAxis, ((refEntity_t *)parent)->axis, entity->axis );
+
+	return returnValue;
 }
 
 
@@ -871,7 +877,7 @@ static void CG_TeamBase( centity_t *cent ) {
 					cent->muzzleFlashTime = 1;
 				}
 				VectorCopy(cent->currentState.angles, angles);
-				angles[YAW] += (float) 16 * acos(1-c) * 180 / M_PI;
+				angles[YAW] += (float) 16 * Q_acos(1-c) * 180 / M_PI;
 				AnglesToAxis( angles, model.axis );
 
 				VectorScale( model.axis[0], c, model.axis[0]);

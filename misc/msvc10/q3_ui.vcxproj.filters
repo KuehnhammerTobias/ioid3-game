@@ -29,9 +29,6 @@
     <ClCompile Include="..\..\code\q3_ui\ui_atoms.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\code\q3_ui\ui_cdkey.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\code\q3_ui\ui_cinematics.c">
       <Filter>Source Files</Filter>
     </ClCompile>
