@@ -450,6 +450,8 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return 0;
 	case CG_FS_SEEK:
 		return FS_Seek( args[1], args[2], args[3] );
+	case CG_FS_GETFILELIST:
+		return FS_GetFileList( VMA(1), VMA(2), VMA(3), args[4] );
 	case CG_SENDCONSOLECOMMAND:
 		Cbuf_AddText( VMA(1) );
 		return 0;
@@ -609,31 +611,29 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
   case CG_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
 
-
-
-	case CG_MEMSET:
+	case TRAP_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );
 		return 0;
-	case CG_MEMCPY:
+	case TRAP_MEMCPY:
 		Com_Memcpy( VMA(1), VMA(2), args[3] );
 		return 0;
-	case CG_STRNCPY:
+	case TRAP_STRNCPY:
 		strncpy( VMA(1), VMA(2), args[3] );
 		return args[1];
-	case CG_SIN:
+	case TRAP_SIN:
 		return FloatAsInt( sin( VMF(1) ) );
-	case CG_COS:
+	case TRAP_COS:
 		return FloatAsInt( cos( VMF(1) ) );
-	case CG_ATAN2:
+	case TRAP_ATAN2:
 		return FloatAsInt( atan2( VMF(1), VMF(2) ) );
-	case CG_SQRT:
+	case TRAP_SQRT:
 		return FloatAsInt( sqrt( VMF(1) ) );
-	case CG_FLOOR:
+	case TRAP_FLOOR:
 		return FloatAsInt( floor( VMF(1) ) );
-	case CG_CEIL:
+	case TRAP_CEIL:
 		return FloatAsInt( ceil( VMF(1) ) );
-	case CG_ACOS:
-		return FloatAsInt( Q_acos( VMF(1) ) );
+	case TRAP_ACOS:
+		return FloatAsInt( acos( VMF(1) ) );
 
 	case CG_PC_ADD_GLOBAL_DEFINE:
 		return botlib_export->PC_AddGlobalDefine( VMA(1) );

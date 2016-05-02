@@ -54,9 +54,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
 typedef struct {
-	entityState_t	unused;			// apparently this field was put here accidentally
-									//  (and is kept only for compatibility, as a struct pad)
-
 	qboolean	linked;				// qfalse if not in any good cluster
 	int			linkcount;
 
@@ -230,6 +227,8 @@ typedef enum {
 	// 1.32
 	G_FS_SEEK,
 
+	// See sharedTraps_t in qcommon.h for TRAP_MEMSET=100, etc
+
 	BOTLIB_SETUP = 200,				// ( void );
 	BOTLIB_SHUTDOWN,				// ( void );
 	BOTLIB_LIBVAR_SET,
@@ -269,6 +268,7 @@ typedef enum {
 
 	BOTLIB_AAS_SWIMMING,
 	BOTLIB_AAS_PREDICT_CLIENT_MOVEMENT,
+	BOTLIB_AAS_BEST_REACHABLE_AREA,
 
 	BOTLIB_EA_SAY = 400,
 	BOTLIB_EA_SAY_TEAM,

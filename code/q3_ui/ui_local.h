@@ -27,9 +27,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../renderercommon/tr_types.h"
 //NOTE: include the ui_public.h from the new UI
 #include "../ui/ui_public.h"
-//redefine to old API version
-#undef UI_API_VERSION
-#define UI_API_VERSION	4
 #include "../client/keycodes.h"
 #include "../game/bg_public.h"
 
@@ -90,8 +87,6 @@ extern vmCvar_t	ui_server14;
 extern vmCvar_t	ui_server15;
 extern vmCvar_t	ui_server16;
 
-extern vmCvar_t	ui_cdkey;
-extern vmCvar_t	ui_cdkeychecked;
 extern vmCvar_t	ui_ioq3;
 
 
@@ -379,13 +374,6 @@ extern void UI_CinematicsMenu_Cache( void );
 //
 extern void UI_ModsMenu( void );
 extern void UI_ModsMenu_Cache( void );
-
-//
-// ui_cdkey.c
-//
-extern void UI_CDKeyMenu( void );
-extern void UI_CDKeyMenu_Cache( void );
-extern void UI_CDKeyMenu_f( void );
 
 //
 // ui_playermodel.c
@@ -679,12 +667,6 @@ void			trap_LAN_ClearPing( int n );
 void			trap_LAN_GetPing( int n, char *buf, int buflen, int *pingtime );
 void			trap_LAN_GetPingInfo( int n, char *buf, int buflen );
 int				trap_MemoryRemaining( void );
-void			trap_GetCDKey( char *buf, int buflen );
-void			trap_SetCDKey( char *buf );
-
-qboolean               trap_VerifyCDKey( const char *key, const char *chksum);
-
-void			trap_SetPbClStatus( int status );
 
 //
 // ui_addbots.c

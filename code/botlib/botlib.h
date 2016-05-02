@@ -238,6 +238,7 @@ typedef struct aas_export_s
 	// be_aas_reach.c
 	//--------------------------------------------
 	int			(*AAS_AreaReachability)(int areanum);
+	int			(*AAS_BestReachableArea)(vec3_t origin, vec3_t mins, vec3_t maxs, vec3_t goalorigin);
 	//--------------------------------------------
 	// be_aas_route.c
 	//--------------------------------------------

@@ -508,7 +508,8 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 
 	case BOTLIB_AAS_AREA_REACHABILITY:
 		return botlib_export->aas.AAS_AreaReachability( args[1] );
-
+	case BOTLIB_AAS_BEST_REACHABLE_AREA:
+		return botlib_export->aas.AAS_BestReachableArea( VMA(1), VMA(2), VMA(3), VMA(4) );
 	case BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA:
 		return botlib_export->aas.AAS_AreaTravelTimeToGoalArea( args[1], VMA(2), args[3], args[4] );
 	case BOTLIB_AAS_ENABLE_ROUTING_AREA:
@@ -818,24 +819,14 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case TRAP_SQRT:
 		return FloatAsInt( sqrt( VMF(1) ) );
 
-	case TRAP_MATRIXMULTIPLY:
-		MatrixMultiply( VMA(1), VMA(2), VMA(3) );
-		return 0;
-
-	case TRAP_ANGLEVECTORS:
-		AngleVectors( VMA(1), VMA(2), VMA(3), VMA(4) );
-		return 0;
-
-	case TRAP_PERPENDICULARVECTOR:
-		PerpendicularVector( VMA(1), VMA(2) );
-		return 0;
-
 	case TRAP_FLOOR:
 		return FloatAsInt( floor( VMF(1) ) );
 
 	case TRAP_CEIL:
 		return FloatAsInt( ceil( VMF(1) ) );
 
+	case TRAP_ACOS:
+		return FloatAsInt( acos( VMF(1) ) );
 
 	default:
 		Com_Error( ERR_DROP, "Bad game system trap: %ld", (long int) args[0] );

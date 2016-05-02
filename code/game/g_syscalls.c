@@ -345,6 +345,10 @@ int trap_AAS_AreaReachability(int areanum) {
 	return syscall( BOTLIB_AAS_AREA_REACHABILITY, areanum );
 }
 
+int trap_AAS_BestReachableArea(vec3_t origin, vec3_t mins, vec3_t maxs, vec3_t goalorigin) {
+	return syscall( BOTLIB_AAS_BEST_REACHABLE_AREA, origin, mins, maxs, goalorigin );
+}
+
 int trap_AAS_AreaTravelTimeToGoalArea(int areanum, vec3_t origin, int goalareanum, int travelflags) {
 	return syscall( BOTLIB_AAS_AREA_TRAVEL_TIME_TO_GOAL_AREA, areanum, origin, goalareanum, travelflags );
 }
