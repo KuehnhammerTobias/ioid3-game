@@ -8,4 +8,5 @@ ioid3-qw is based on ioq3ztm. ioq3ztm was created by Zack Middleton to be a bett
 
 
 
-# QW <img src="https://raw.githubusercontent.com/KuehnhammerTobias/ioqw/master/misc/quakewars.png" align="right" width="128"> text
+# QW <img src="https://raw.githubusercontent.com/KuehnhammerTobias/ioqw/master/misc/quakewars.png" align="right" width="128">
+text
