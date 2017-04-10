@@ -4,4 +4,4 @@ ioid3-qw             |  ioid3-qw
 
 
 ioid3-qw: 
-![alt text](https://raw.githubusercontent.com/KuehnhammerTobias/ioqw/master/misc/quakewars.png "Logo Title Text 1")
+![alt text](https://raw.githubusercontent.com/KuehnhammerTobias/ioqw/master/misc/quakewars.png width="128" "Logo Title Text 1")
